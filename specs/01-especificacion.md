@@ -2,12 +2,12 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.2 |
+| Versión | 1.3 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
 | Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1): falta el resultado de SPK-01 |
-| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1) y a B-01 y SPK-01 (v1.2) |
+| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) y a los ajustes del kit del spike (v1.3) |
 
 ---
 
@@ -268,7 +268,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 | DEC-02 | Puente de Azure a M365 | Function → Graph → lista de SharePoint como registro de auditoría (fijo). Cómo se dispara el agente se decide en DEC-05. |
 | DEC-03 | Plan de hosting de la Function App | Flex Consumption (CA-04.1); el ADR decide el número de instancias *always ready* por escenario. |
 | DEC-04 | Dónde vive la ventana de deduplicación | Abierta. Recomendación: Table Storage con concurrencia optimista (ETag), porque Flex Consumption puede escalar a varias instancias. |
-| DEC-05 | Mecanismo que dispara al agente | **Se decide con el spike SPK-01** (`spikes/p1-latencia/`): A) disparador de SharePoint, B) disparador de Dataverse, C) flujo HTTP → *Execute Agent*. Se mide en secuencia A → B; C solo si A y B no cumplen. Corte: si ninguno de los primeros 5 eventos completa el tramo 2 en ≤ 60 s, la opción se detiene como "no cumple". Gana la opción más simple con p90 ≤ 20 s en el tramo 2. Si ninguna cumple, se escala a Daniel antes de cambiar OBJ-2. |
+| DEC-05 | Mecanismo que dispara al agente | **Se decide con el spike SPK-01** (`spikes/p1-latencia/`): A) disparador de SharePoint, B) disparador de Dataverse, C) flujo HTTP → *Execute Agent*. Se mide en secuencia A → B; C solo si A y B no cumplen. Cortes: (1) en cuanto 3 eventos superan 20 s, porque con 20 muestras el p90 ≤ 20 s ya es imposible; (2) protección: si ninguno de los primeros 5 eventos completa el tramo 2 en ≤ 60 s. El agente del spike debe tener la misma configuración que el de la demo. Gana la opción más simple con p90 ≤ 20 s en el tramo 2. Si ninguna cumple, se escala a Daniel antes de cambiar OBJ-2. |
 | DEC-06 | Facturación de Copilot Credits | **Propuesta en [ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md):** pago por uso vinculado a la suscripción de Azure, solo para el entorno `DSA-Demo`, con presupuesto propio y límite por agente. |
 
 ## 8. Dependencias externas y licencias
@@ -305,6 +305,18 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.3 — 2026-10-08
+Origen: ajustes de Daniel al kit del spike.
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| SPK-01 con corte p90 agresivo (3 eventos > 20 s) además del corte de protección de 60 s; créditos recalculados | Decisión 1 | DEC-05, `spikes/p1-latencia/` |
+| Límite del agente del spike: 886 créditos (peor caso de 770 + 15 %); el de la demo se mantiene en 3 000 | Decisión 3 | ADR-001 |
+| Verificación de representatividad del agente del spike (mismo harness, orquestación y entorno que la demo) | Ajuste 4 | DEC-05, `spikes/p1-latencia/README.md` |
+| La limpieza conserva los componentes de la opción ganadora hasta que el Plan decida | Ajuste 5 | `spikes/p1-latencia/README.md` |
+
+Nota de trazabilidad: el commit `f943c14` ("T-000 docs: especificación v1.1 y kit del spike P1") ya contiene la **v1.2** de este archivo, no la v1.1. Se aclara aquí y en el mensaje del commit siguiente; el historial no se reescribe.
 
 ### v1.2 — 2026-10-08
 Origen: respuesta de Daniel sobre B-01 y el spike SPK-01.
