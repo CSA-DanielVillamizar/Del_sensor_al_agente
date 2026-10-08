@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+local.settings.json
+
+# Azure Functions / herramientas
+.python_packages/
+bin/
+obj/
+*.bicep.json
+infra/**/*.json.local
+
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Resultados locales de spikes (pueden contener IDs del tenant)
+spikes/**/resultados/
