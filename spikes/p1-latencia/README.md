@@ -10,7 +10,8 @@
 | Regla de decisión | Gana la opción **más simple** que cumpla p90 ≤ 20 s en el tramo 2 sin eventos perdidos. Si ninguna cumple, se escala a Daniel antes de tocar OBJ-2. |
 | Orden | **A**, luego **B**. **C** solo se configura y se mide si A y B no cumplen. |
 | Muestras | 20 eventos por opción, uno cada 45 s |
-| Corte | Si ninguno de los primeros 5 eventos de una opción completa el tramo 2 en ≤ 60 s, la opción se detiene y queda como "No (corte)" |
+| Corte p90 (agresivo) | En cuanto **3 eventos** superan 20 s en el tramo 2 (o llevan más de 20 s sin reacción), la opción se detiene: con 20 muestras el p90 ≤ 20 s ya es imposible. Queda como "No (corte p90)". |
+| Corte de protección | Si ninguno de los primeros 5 eventos completa el tramo 2 en ≤ 60 s, la opción se detiene y queda como "No (corte 60s)". |
 | Quién ejecuta | Daniel, en su tenant |
 
 ## Qué se mide
@@ -34,6 +35,27 @@ Métricas por opción: p50, p90 y máximo de `T1−T0` (reacción del disparador
 | C | Sin disparador de evento: flujo con *When an HTTP request is received* → **Execute Agent** | Script con `POST` a la URL del flujo | HTTP es premium y no hay Power Automate premium; se intenta como **flujo del agente** en Copilot Studio, que puede usar conectores premium con facturación por créditos ([FAQ de flujos del agente](https://learn.microsoft.com/microsoft-copilot-studio/flows-faqs)). Si el disparador HTTP no está disponible ahí, C queda como "no viable con las licencias actuales". |
 
 Learn define qué es un disparador *polling* y qué es uno *webhook* ([Optimize triggers](https://learn.microsoft.com/power-automate/guidance/coding-guidelines/optimize-power-automate-triggers)), pero **no** clasifica el disparador de Dataverse ni documenta cada cuánto revisa la lista el disparador de SharePoint en agentes de Copilot Studio. Por eso medimos.
+
+## Antes de gastar créditos: probar la lógica de corte
+
+La lógica de corte y el cálculo del resumen viven en `SpikeLogic.psm1`. El modo real y el modo `-DryRun` ejecutan **el mismo bucle**; solo cambian el reloj (virtual en `-DryRun`) y de dónde salen los tiempos. Las pruebas usan tiempos sintéticos: no se conectan a nada y no consumen créditos.
+
+En PowerShell 7, desde `spikes/p1-latencia`:
+
+```powershell
+Install-Module Pester -MinimumVersion 5.0.0 -Scope CurrentUser   # solo la primera vez
+Invoke-Pester ./tests -Output Detailed
+```
+
+Deben pasar todas. Casos cubiertos: 20 eventos rápidos (sin corte); tercer evento lento en la posición 7 (corte p90 en el evento 7); 5 primeros > 60 s (corte 60s en el evento 5, con el corte p90 neutralizado, y corte p90 en el evento 3 con los parámetros por defecto); eventos sin reacción que cuentan como lentos; p50, p90 y máximo sobre un conjunto conocido; y el modo `-DryRun` del script.
+
+Prueba manual de un escenario cualquiera (`$null` = sin reacción):
+
+```powershell
+./Invoke-LatencySpike.ps1 -Option A -DryRun -SyntheticLatency 5,30,5,30,5,5,30,5,5,5,5,5,5,5,5,5,5,5,5,5
+```
+
+> Con 20 muestras, el corte p90 siempre actúa antes que el de 60 s: si los primeros eventos no reaccionan, el tercero ya alcanza para cortar. El corte de 60 s queda como protección por si se cambian `-Count` o `-TargetSeconds`.
 
 ## Pasos en el portal y en la terminal (en orden)
 
@@ -63,8 +85,14 @@ Learn define qué es un disparador *polling* y qué es uno *webhook* ([Optimize 
 11. **Disparadores del agente:**
     - A: SharePoint *When an item is created* → `SpikeEventosA`. En las instrucciones de la carga útil: "Opción A, EventId = {EventId}".
     - B: Dataverse *When a row is added, modified or deleted* → `Spike Evento`, Change type *Added*, Scope *Organization*. Carga útil: "Opción B, EventId = {EventId}".
-12. **Publica** el agente, haz una prueba manual por opción y revisa la página *Activity*.
-13. **Límite de créditos del agente.** En el Power Platform admin center → *Licensing* → *Copilot Studio* → *Manage Agents*, fija un límite mensual de **1 500 créditos** para *Spike Latencia* ([enforcement](https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management#overage-enforcement)).
+12. **Verificación de representatividad.** Antes de medir, confirma que *Spike Latencia* tiene la misma configuración que tendrá el agente de la demo; si algo no coincide, la medición no sirve para decidir:
+    - [ ] Creado en el **standard harness** ("Other ways to build" o experiencia clásica).
+    - [ ] **Orquestación generativa** activada.
+    - [ ] En el entorno **`DSA-Demo`** (Sandbox), vinculado al plan de pago por uso.
+    - [ ] Disparadores autenticados con la misma cuenta que publicará la demo (con Microsoft 365 Copilot).
+    - [ ] Herramienta implementada como **flujo del agente** (*When an agent calls the flow* + *Respond to the agent*), igual que `PublicarIncidente`.
+13. **Publica** el agente, haz una prueba manual por opción y revisa la página *Activity*.
+14. **Límite de créditos del agente.** En el Power Platform admin center → *Licensing* → *Copilot Studio* → *Manage Agents*, fija un límite mensual de **886 créditos** para *Spike Latencia* (peor caso de 770 + 15 %) ([enforcement](https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management#overage-enforcement)). El límite está para frenar un error, no para dejarlo correr.
 
 ### Bloque 3 — Medir A y B (~35 min desatendidos)
 
@@ -89,8 +117,8 @@ Si A o B dice "Sí", **terminaste**: pega `resultados/resumen.md` en el chat. C 
 
 ### Bloque 4 — Solo si A y B no cumplen: opción C (~20 min)
 
-14. Crea un flujo del agente con *When an HTTP request is received* (esquema `{"eventId":"string"}`) → *Execute Agent* (agente *Spike Latencia*, mensaje "Opción C, EventId = …") → *Response* 202. Si el disparador HTTP no aparece en los flujos del agente, anota "C no viable" y pega el resumen de A y B.
-15. Guarda la URL **solo** en una variable de la sesión y mide:
+15. Crea un flujo del agente con *When an HTTP request is received* (esquema `{"eventId":"string"}`) → *Execute Agent* (agente *Spike Latencia*, mensaje "Opción C, EventId = …") → *Response* 202. Si el disparador HTTP no aparece en los flujos del agente, anota "C no viable" y pega el resumen de A y B.
+16. Guarda la URL **solo** en una variable de la sesión y mide:
 
 ```powershell
 $env:SPK_HTTP_URL = '<URL del disparador HTTP>'
@@ -100,7 +128,9 @@ $env:SPK_HTTP_URL = '<URL del disparador HTTP>'
 
 ### Bloque 5 — Limpieza
 
-16. Borra `SpikeEventosA`, `SpikeLatencia`, la tabla `Spike Evento`, el agente *Spike Latencia* y, si existe, el flujo HTTP. Cierra la sesión de PowerShell para descartar las variables. **No** desvincules el plan de pago por uso: lo usa la demo.
+17. **Conserva los componentes de la opción ganadora** hasta que el Plan decida si se reutilizan: su origen (la lista `SpikeEventosA` para A, la tabla `Spike Evento` para B o el flujo HTTP para C) y su disparador, que puedes desactivar.
+18. **Borra solo** lo de las opciones que pierdan y el agente *Spike Latencia* (con su herramienta `RegistrarReaccion`). La lista `SpikeLatencia` se conserva hasta que DEC-05 quede registrada en el ADR, porque es la evidencia.
+19. Cierra la sesión de PowerShell para descartar las variables. **No** desvincules el plan de pago por uso: lo usa la demo.
 
 ## Costo estimado
 
@@ -108,8 +138,9 @@ Por evento: disparador o acción del agente (5 créditos) + llamada a la herrami
 
 | Escenario | Eventos (incluye ~10 pruebas manuales) | Créditos |
 | --- | --- | --- |
-| Mejor caso: A se corta a los 5 y B cumple | 5 + 20 + 10 = 35 | ≈ 385 |
-| Esperado: A y B completos | 20 + 20 + 10 = 50 | ≈ 550 |
-| Peor caso: A y B no cumplen sin corte y se mide C | 20 + 20 + 20 + 10 = 70 | ≈ 770 |
+| A falla rápido (corte p90 al tercer evento lento) y B cumple | 3 + 20 + 10 = 33 | ≈ 363 |
+| A y B fallan rápido y se mide C | 3 + 3 + 20 + 10 = 36 | ≈ 396 |
+| A y B cumplen (ambas completas) | 20 + 20 + 10 = 50 | ≈ 550 |
+| Peor caso teórico: A y B fallan recién en el último evento y se mide C | 20 + 20 + 20 + 10 = 70 | ≈ 770 |
 
-Antes, en paralelo y sin corte, eran ≈ 660 créditos fijos. El límite de 1 500 créditos del agente cubre el peor caso con margen.
+El corte p90 no cambia el peor caso teórico (una opción puede fallar recién en la muestra 20), pero lo vuelve improbable: un disparador por *polling* suele delatarse en los primeros eventos. Límite del agente: 770 × 1,15 ≈ **886 créditos**.
