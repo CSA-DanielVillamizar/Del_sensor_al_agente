@@ -25,7 +25,7 @@ cards/        tarjetas adaptativas
 demo/         runbook, preflight y reset
 docs/         gobernanza, costos, ADR (docs/adr/)
 specs/        constitución, especificación, plan, tareas, verificación
-docs/equipo/  definición de los roles del equipo
+docs/equipo/  definición de los roles del equipo (única fuente de verdad)
 ```
 
 ## Convenciones

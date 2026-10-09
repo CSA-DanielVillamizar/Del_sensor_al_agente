@@ -27,6 +27,12 @@ obj/
 infra/**/*.json.local
 
 
+equipo/
+
+# Material personal de preparación del speaker (no va al repositorio público)
+PROMPT-MAESTRO.md
+Del sensor al agente*Plan de sesi*.md
+
 # Sistema operativo
 .DS_Store
 Thumbs.db

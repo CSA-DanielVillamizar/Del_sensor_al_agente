@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.4 |
+| Versión | 1.5 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
@@ -63,17 +63,17 @@ En el tenant se usan cuentas de prueba con nombres ficticios (por ejemplo "Super
 
 ### 4.2 Roles del equipo de construcción
 
-Los archivos viven en `docs/equipo/`.
+Los archivos viven en `docs/equipo/`, única fuente de verdad de los roles.
 
 | Rol | Archivo | Responsabilidad |
 | --- | --- | --- |
-| Líder de especificación | `equipo/lider-especificacion.md` | Dueño de specs, trazabilidad y compuertas |
-| Arquitecto cloud (Azure) | `equipo/arquitecto-cloud.md` | IoT Hub, Functions, Bicep, identidad, costos |
-| Arquitecto M365 y Copilot Studio | `equipo/arquitecto-m365.md` | SharePoint, Graph, agente, tarjetas, Teams, guía de configuración |
-| Ingeniero IoT | `equipo/ingeniero-iot.md` | Simulador y dispositivo físico |
-| Revisor de seguridad y gobernanza | `equipo/revisor-seguridad.md` | Permisos, secretos, datos, DLP, revisión obligatoria |
-| QA y verificación | `equipo/qa-verificacion.md` | Pruebas, evidencia por criterio, Definition of Done |
-| Instructor técnico y redactor | `equipo/instructor-tecnico.md` | README bilingüe, runbook de la demo, material para el asistente |
+| Líder de especificación | `docs/equipo/lider-especificacion.md` | Dueño de specs, trazabilidad y compuertas |
+| Arquitecto cloud (Azure) | `docs/equipo/arquitecto-cloud.md` | IoT Hub, Functions, Bicep, identidad, costos |
+| Arquitecto M365 y Copilot Studio | `docs/equipo/arquitecto-m365.md` | SharePoint, Graph, agente, tarjetas, Teams, guía de configuración |
+| Ingeniero IoT | `docs/equipo/ingeniero-iot.md` | Simulador y dispositivo físico |
+| Revisor de seguridad y gobernanza | `docs/equipo/revisor-seguridad.md` | Permisos, secretos, datos, DLP, revisión obligatoria |
+| QA y verificación | `docs/equipo/qa-verificacion.md` | Pruebas, evidencia por criterio, Definition of Done |
+| Instructor técnico y redactor | `docs/equipo/instructor-tecnico.md` | README bilingüe, runbook de la demo, material para el asistente |
 
 ## 5. Historias de usuario
 
@@ -305,6 +305,14 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.5 — 2026-10-08
+Origen: decisión de Daniel sobre el versionado.
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| `docs/equipo/` es la única fuente de verdad de los roles; la copia local `equipo/` deja de versionarse | Decisión de versionado | §4.2, `docs/reglas-del-proyecto.md`, `.gitignore` |
+| El prompt maestro y el plan de la sesión no se versionan (material personal del speaker) | Decisión de versionado | `.gitignore` |
 
 ### v1.4 — 2026-10-08
 Origen: Daniel no tiene PowerShell 7 en su PC.
