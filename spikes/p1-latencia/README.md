@@ -36,14 +36,38 @@ Métricas por opción: p50, p90 y máximo de `T1−T0` (reacción del disparador
 
 Learn define qué es un disparador *polling* y qué es uno *webhook* ([Optimize triggers](https://learn.microsoft.com/power-automate/guidance/coding-guidelines/optimize-power-automate-triggers)), pero **no** clasifica el disparador de Dataverse ni documenta cada cuánto revisa la lista el disparador de SharePoint en agentes de Copilot Studio. Por eso medimos.
 
+## Prerrequisitos en tu PC
+
+Todos los scripts del proyecto requieren **PowerShell 7** (`pwsh`), no Windows PowerShell 5.1.
+
+1. Instalar PowerShell 7 (desde cualquier terminal) y abrir después una terminal nueva de **PowerShell 7**:
+
+   ```powershell
+   winget install --id Microsoft.PowerShell --source winget
+   ```
+
+2. Comprobar la versión; debe ser 7 o superior:
+
+   ```powershell
+   $PSVersionTable.PSVersion
+   ```
+
+3. Instalar Pester 5. Windows trae Pester 3.4 firmado por otro editor, por eso hacen falta `-Force` y `-SkipPublisherCheck`:
+
+   ```powershell
+   Install-Module Pester -MinimumVersion 5.0.0 -Scope CurrentUser -Force -SkipPublisherCheck
+   ```
+
+4. Para el spike real, además: módulo `Microsoft.Graph.Sites` (`Install-Module Microsoft.Graph.Sites -Scope CurrentUser`) y la CLI de Azure con sesión iniciada (`az login`).
+
 ## Antes de gastar créditos: probar la lógica de corte
 
 La lógica de corte y el cálculo del resumen viven en `SpikeLogic.psm1`. El modo real y el modo `-DryRun` ejecutan **el mismo bucle**; solo cambian el reloj (virtual en `-DryRun`) y de dónde salen los tiempos. Las pruebas usan tiempos sintéticos: no se conectan a nada y no consumen créditos.
 
-En PowerShell 7, desde `spikes/p1-latencia`:
+En PowerShell 7, desde `spikes/p1-latencia`. La primera línea obliga a cargar Pester 5 y no la 3.4 que trae Windows:
 
 ```powershell
-Install-Module Pester -MinimumVersion 5.0.0 -Scope CurrentUser   # solo la primera vez
+Import-Module Pester -MinimumVersion 5.0.0 -Force
 Invoke-Pester ./tests -Output Detailed
 ```
 

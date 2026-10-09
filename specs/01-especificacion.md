@@ -2,12 +2,12 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.3 |
+| Versión | 1.4 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
 | Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1): falta el resultado de SPK-01 |
-| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) y a los ajustes del kit del spike (v1.3) |
+| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) y a los prerrequisitos de PowerShell 7 (v1.4) |
 
 ---
 
@@ -244,7 +244,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 **Criterios de aceptación**
 - **CA-14.1** `demo/RUNBOOK.md` sigue los tres actos del plan de la sesión, con el comando exacto de cada paso y qué debe verse en pantalla.
 - **CA-14.2** `demo/reset` deja la lista sin incidentes de prueba y el estado inicial en ≤ 2 minutos. Usa la identidad delegada de Daniel (no la de la función) y los elementos van a la papelera de reciclaje del sitio.
-- **CA-14.3** `demo/preflight` verifica en ≤ 3 minutos, con resultado verde o rojo por componente: conexión a IoT Hub, función, SharePoint; que el entorno se llama `DSA-Demo` y es de tipo Sandbox; que está vinculado al plan de pago por uso; que la cuenta que publica tiene licencia de Microsoft 365 Copilot; que el consumo de créditos del mes está por debajo del 80 % del límite del agente; que el entorno está en la nueva infraestructura de Power Platform (o informa que no lo está); y una prueba de punta a punta con un incidente `EsPrueba = Sí` que debe llegar a `Pendiente de decisión` dentro del tiempo límite.
+- **CA-14.3** `demo/preflight` verifica en ≤ 3 minutos, con resultado verde o rojo por componente: que se ejecuta en PowerShell 7 o superior (`$PSVersionTable.PSVersion.Major -ge 7`; si no, termina en rojo con el comando de instalación); conexión a IoT Hub, función, SharePoint; que el entorno se llama `DSA-Demo` y es de tipo Sandbox; que está vinculado al plan de pago por uso; que la cuenta que publica tiene licencia de Microsoft 365 Copilot; que el consumo de créditos del mes está por debajo del 80 % del límite del agente; que el entorno está en la nueva infraestructura de Power Platform (o informa que no lo está); y una prueba de punta a punta con un incidente `EsPrueba = Sí` que debe llegar a `Pendiente de decisión` dentro del tiempo límite.
 - **CA-14.4** Lista de los 3 videos de respaldo a grabar, con duración y qué debe mostrar cada uno.
 
 ## 6. Requisitos no funcionales
@@ -253,7 +253,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 | --- | --- |
 | RNF-01 | Presupuesto de latencia por tramo, cada uno medido con `eventId` como identificador de correlación en Application Insights: tramo 1, dispositivo → elemento creado, p90 ≤ 10 s (CA-05.5); tramo 2, elemento creado → tarjeta visible en Teams, p90 ≤ 20 s (CA-08.6); total de punta a punta p90 ≤ 30 s y nunca > 60 s (OBJ-2) |
 | RNF-02 | Lenguaje de la función y del simulador: Python 3.11 o superior, modelo de programación v2 de Azure Functions |
-| RNF-03 | Infraestructura en Bicep; scripts en PowerShell 7 y Bash para que funcionen en Windows y Linux |
+| RNF-03 | Infraestructura en Bicep; scripts en PowerShell 7 y Bash para que funcionen en Windows y Linux. Los scripts de PowerShell declaran `#Requires -Version 7.0` y el README lista la instalación de PowerShell 7 (`winget install --id Microsoft.PowerShell --source winget`) como prerrequisito |
 | RNF-04 | Registros estructurados en Application Insights con `eventId` como identificador de correlación |
 | RNF-05 | Sin secretos en el repositorio; escaneo con `gitleaks` en CI en cada push y escaneo del historial completo antes de hacerlo público (CA-13.5) |
 | RNF-06 | CI en GitHub Actions: lint, pruebas, `bicep build` y validación de tarjetas en cada push |
@@ -305,6 +305,15 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.4 — 2026-10-08
+Origen: Daniel no tiene PowerShell 7 en su PC.
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| El preflight verifica que corre en PowerShell 7 o superior | Pedido de Daniel | CA-14.3 |
+| PowerShell 7 explícito como prerrequisito de todos los scripts, con el comando de instalación | Pedido de Daniel | RNF-03 |
+| Prerrequisitos del spike (PowerShell 7, Pester 5 con `-Force -SkipPublisherCheck`, `Import-Module Pester -MinimumVersion 5.0.0` antes de `Invoke-Pester`) | Pedido de Daniel | `spikes/p1-latencia/README.md` |
 
 ### v1.3 — 2026-10-08
 Origen: ajustes de Daniel al kit del spike.
