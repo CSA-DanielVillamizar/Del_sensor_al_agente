@@ -58,6 +58,8 @@ Todos los scripts del proyecto requieren **PowerShell 7** (`pwsh`), no Windows P
    Install-Module Pester -MinimumVersion 5.0.0 -Scope CurrentUser -Force -SkipPublisherCheck
    ```
 
+   Versión mínima soportada: **Pester 5.0.0**. Las pruebas se ejecutaron con **Pester 6.2.0 en PowerShell 7.6.6** (17 de 17 correctas, 2026-10-08).
+
 4. Para el spike real, además: módulo `Microsoft.Graph.Sites` (`Install-Module Microsoft.Graph.Sites -Scope CurrentUser`) y la CLI de Azure con sesión iniciada (`az login`).
 
 ## Antes de gastar créditos: probar la lógica de corte

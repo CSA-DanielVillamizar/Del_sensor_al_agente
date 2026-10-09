@@ -38,7 +38,11 @@ docs/equipo/  definición de los roles del equipo (única fuente de verdad)
 ## Commits
 - **Pre-autorizado** (no hace falta pedir permiso): commits solo de documentación (`specs/`, `docs/`, README y pruebas del spike), con prefijo `T-000 docs:`, siempre que antes se verifique que no entran `resultados/` ni secretos.
 - **Requiere aprobación de Daniel:** cualquier commit con código de producción, infraestructura o configuración del agente, y cualquier cambio a la constitución.
-- Subir al remoto (`git push`) siempre requiere aprobación de Daniel.
+- **Push pre-autorizado:** mientras el repositorio sea privado, el push de commits `T-000 docs:`.
+- **Push que requiere aprobación de Daniel:** cualquier otro commit, y siempre el cambio del repositorio a público.
+
+## Configuración del entorno
+- Ningún cambio de configuración del PC de Daniel, de Azure o del tenant sin pedir permiso antes, aunque se vaya a revertir después.
 
 ## Prohibido
 - Secretos, cadenas de conexión o tokens en archivos versionados.
