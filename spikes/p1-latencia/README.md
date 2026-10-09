@@ -85,18 +85,24 @@ Prueba manual de un escenario cualquiera (`$null` = sin reacción):
 
 ## Pasos en el portal y en la terminal (en orden)
 
-### Bloque 1 — Licencia y entorno (verificado el 2026-10-09)
+### Bloque 1 — Licencia, entorno y facturación (antes de gastar un solo crédito)
 
-1. **Entorno:** el entorno predeterminado del tenant, renombrado `DSA-Demo` (especificación §8). No hace falta crear uno.
-2. **Publicación:** verificada. La cuenta de Daniel publicó un agente del standard harness en `DSA-Demo` con la capacidad de prueba de Copilot Studio del tenant ([ADR-001](../../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md), actualización del 2026-10-09). Si quedó el agente "Prueba publicación DSA", bórralo antes de empezar.
-3. **Créditos:** salen de la capacidad de prueba del tenant, que vence el 2026-11-07. No se configura pago por uso para el spike.
-4. **Auditoría:** confirma que está activada en `DSA-Demo` (Power Platform admin center → Entornos → `DSA-Demo` → Configuración → Auditoría y registros).
-5. **Requisitos del entorno:** verifica que ninguna política DLP bloquea el conector Microsoft Copilot Studio ([Event trigger overview](https://learn.microsoft.com/microsoft-copilot-studio/authoring-triggers-about#troubleshooting-and-limitations)).
+Configuración recomendada (especificación §8.1):
+
+1. **Entorno.** En el Power Platform admin center, crea el entorno `DSA-Demo` de tipo **Sandbox**, con Dataverse, en la región de Estados Unidos, y asígnale un grupo de seguridad con las cuentas de la demo. Requiere 1 GB de capacidad de base de datos de Dataverse disponible en el tenant.
+2. **Publicación.** Con la cuenta de servicio del agente, crea un agente vacío del standard harness ("Otras formas de crear" → *Agente (Estándar)*) y publícalo. Si da un error de licencia o de facturación, revisa §8.1 y el paso 3.
+3. **Pago por uso** ([ADR-001](../../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md)):
+   1. En Azure, crea el grupo de recursos `rg-dsa-creditos` en la suscripción de la demo.
+   2. En el Power Platform admin center → *Licensing* → *Pay-as-you-go plans* → *New billing plan*: suscripción de la demo, grupo `rg-dsa-creditos`, producto Copilot Studio y entorno `DSA-Demo` ([Set up pay-as-you-go](https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up#create-a-billing-plan)).
+4. **Presupuesto de créditos.** En Azure Cost Management, presupuesto mensual de **USD 40** con alcance en `rg-dsa-creditos` y alertas al 50 %, 80 % y 100 % ([Create budgets](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets)). Antes, confirma el precio por crédito con la calculadora de precios de Azure.
+5. **Requisitos del entorno.** Auditoría de Dataverse activada, *solution-aware cloud flow sharing* activo y ninguna política DLP que bloquee el conector Microsoft Copilot Studio ([Event trigger overview](https://learn.microsoft.com/microsoft-copilot-studio/authoring-triggers-about#troubleshooting-and-limitations)).
+
+> **Si no tienes capacidad para un Sandbox** (caso de la demo en vivo de la sesión, [ADR-002](../../docs/adr/ADR-002-entorno-demo-en-vivo.md)): usa el entorno predeterminado renombrado `DSA-Demo`, omite el grupo de seguridad (no se admite en ese tipo de entorno) y los pasos 3 y 4 si el tenant ya tiene capacidad de Copilot Studio, y activa la auditoría. El spike mide igual: la latencia de los disparadores no depende del tipo de entorno.
 
 ### Bloque 2 — Preparar las opciones A y B (~40 min)
 
 6. **Listas** en el sitio de la demo: `SpikeEventosA` (columnas `Title`, `EventId` texto) y la lista sumidero `SpikeLatencia` (`EventId`, `Opcion`, `T1Utc`, `T2Utc`, todas texto).
-7. **Tabla de Dataverse** en `DSA-Demo` (entorno predeterminado): `Spike Evento` con la columna `EventId` (texto). Anota el nombre del conjunto de entidades (por ejemplo `cr123_spikeeventos`).
+7. **Tabla de Dataverse** en `DSA-Demo`: `Spike Evento` con la columna `EventId` (texto). Anota el nombre del conjunto de entidades (por ejemplo `cr123_spikeeventos`).
 8. **Canal de Teams** de pruebas (no el de la demo).
 9. **Agente** *Spike Latencia* (standard harness, orquestación generativa activada). Instrucciones:
    > Cuando recibas un evento, extrae `EventId` y la opción (A, B o C) y llama de inmediato a la herramienta `RegistrarReaccion`. No hagas nada más.
@@ -112,7 +118,7 @@ Prueba manual de un escenario cualquiera (`$null` = sin reacción):
 12. **Verificación de representatividad.** Antes de medir, confirma que *Spike Latencia* tiene la misma configuración que tendrá el agente de la demo; si algo no coincide, la medición no sirve para decidir:
     - [ ] Creado en el **standard harness** ("Other ways to build" o experiencia clásica).
     - [ ] **Orquestación generativa** activada.
-    - [ ] En el entorno **`DSA-Demo`** (el predeterminado del tenant, renombrado).
+    - [ ] En el mismo entorno donde correrá la demo (`DSA-Demo`).
     - [ ] Disparadores autenticados con la misma cuenta que publicará la demo (con Microsoft 365 Copilot).
     - [ ] Herramienta implementada como **flujo del agente** (*When an agent calls the flow* + *Respond to the agent*), igual que `PublicarIncidente`.
 13. **Publica** el agente, haz una prueba manual por opción y revisa la página *Activity*.
