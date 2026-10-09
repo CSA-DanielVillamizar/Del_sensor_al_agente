@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto (pendiente de "aprobado fase 1") |
+| Estado | Propuesto; **actualizado el 2026-10-09** (ver la sección final): la decisión de pago por uso queda diferida |
 | Fecha | 2026-10-08 |
 | Decisión relacionada | B-01 en `specs/01-especificacion.md` §8 |
 | Historias | HU-08, HU-12 (CA-12.4) |
@@ -63,3 +63,18 @@ La alternativa más barata si el pago por uso no estuviera disponible es el paqu
 - **Negativas:** el presupuesto solo avisa, con hasta 24 horas de retraso; el freno es el límite por agente, y al alcanzarlo el agente deja de responder en plena demo. Por eso el preflight revisa el consumo del mes frente al límite (CA-14.3).
 - **Requisitos:** Daniel necesita permisos de Owner o Contributor en la suscripción y rol de administrador en el Power Platform admin center para crear el plan.
 - **Riesgo abierto:** si las ejecuciones con credenciales de un creador con Microsoft 365 Copilot resultaran incluidas sin cargo, el consumo real será menor que la estimación. El spike lo mostrará en el informe de consumo del entorno.
+
+## Actualización 2026-10-09
+
+Hechos verificados en sistema (Microsoft Graph y portal) que cambian el contexto:
+
+- El tenant de la demo es el de la empresa del speaker (especificación §8). Tiene **capacidad de Copilot Studio en prueba** (25 unidades) que vence el **2026-11-07 a las 05:01 UTC**, y Microsoft 365 Business Premium en prueba que vence el mismo día a las 04:50 UTC.
+- Con esa capacidad, la cuenta de Daniel **publicó** un agente del standard harness con orquestación generativa. El bloqueante B-01 queda resuelto mientras dure la prueba.
+- No se pudo crear el Sandbox `DSA-Demo` por falta de capacidad de base de datos de Dataverse; la demo usa el **entorno predeterminado**, renombrado `DSA-Demo`.
+- El tenant de la empresa del speaker **no tiene suscripción de Azure**.
+
+Decisión actualizada:
+
+1. **Hasta el 7 de noviembre** los créditos salen de la capacidad de prueba del tenant. No se configura pago por uso ahora.
+2. **Se mantiene el freno real:** límite mensual de créditos por agente (886 para el spike, 3 000 para la demo). El presupuesto de Azure de USD 40 en `rg-dsa-creditos` solo aplica si después se activa el pago por uso.
+3. **Pago por uso diferido.** Learn indica que el pago por uso de Copilot Studio admite entornos de Producción y Sandbox; **no está verificado** que el entorno predeterminado se pueda vincular a un plan. Si la sesión cae el 7 de noviembre o hay que extender la demo, las alternativas son: pasar a pago la capacidad de Copilot Studio (paquete de créditos) o crear un Sandbox con pago por uso cuando exista la suscripción de Azure en el tenant. Se decide antes del congelamiento del 28 de octubre (riesgo R-12).

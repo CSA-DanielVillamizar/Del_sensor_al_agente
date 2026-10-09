@@ -2,12 +2,12 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.5 |
+| Versión | 1.6 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
 | Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1): falta el resultado de SPK-01 |
-| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) y a los prerrequisitos de PowerShell 7 (v1.4) |
+| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) a la elección de tenant y entorno (v1.6) y a los prerrequisitos de PowerShell 7 (v1.4) |
 
 ---
 
@@ -57,7 +57,7 @@ Mostrar en vivo, a una comunidad de Microsoft 365, cómo una alerta física (cá
 | Jefe de seguridad | Responsable del protocolo y de la auditoría | Registro de cada decisión y poder ajustar reglas sin programar |
 | Administrador de M365 / Power Platform | Gobierna el tenant | Permisos mínimos, entorno dedicado, políticas DLP, monitoreo |
 | Asistente a la charla | Profesional de M365 que verá la demo | Entender la arquitectura y poder reproducirla |
-| Speaker (Daniel) | Ejecuta la demo en vivo; es además el administrador del tenant de pruebas | Disparar, mostrar, reiniciar y tener plan B |
+| Speaker (Daniel) | Ejecuta la demo en vivo; es además el administrador global del tenant de la empresa del speaker | Disparar, mostrar, reiniciar y tener plan B |
 
 En el tenant se usan cuentas de prueba con nombres ficticios (por ejemplo "Supervisor Demo").
 
@@ -171,7 +171,7 @@ Prioridad: M · Estimación: 5 · Rol: arquitecto-m365
 **Criterios de aceptación**
 - **CA-08.1** `agent/instrucciones.md` contiene las instrucciones del agente: rol, tono, qué puede hacer, qué nunca hace (Artículo 1 de la constitución) y cómo proponer la severidad según §5.0.
 - **CA-08.2** Las instrucciones incluyen la regla "fuera del horario 06:00–18:00 en America/Bogota, la severidad sube un nivel", aislada en un bloque para poder cambiarla en vivo.
-- **CA-08.3** `agent/GUIA-CONFIGURACION.md` lleva al lector desde un agente vacío del **standard harness** hasta uno publicado con: orquestación generativa activada, el disparador elegido en DEC-05 sobre el origen de los incidentes, conocimiento en la biblioteca `Protocolos` y el flujo del agente `PublicarIncidente` (DEC-01). Cada paso enlaza la documentación oficial que lo respalda. La guía incluye como prerrequisitos: entorno Sandbox `DSA-Demo` (nunca *Trial*), *solution-aware cloud flow sharing* activo, sin DLP que bloquee el conector de Copilot Studio, publicación con una cuenta que tiene **licencia de Microsoft 365 Copilot** y el entorno vinculado al plan de pago por uso de ADR-001.
+- **CA-08.3** `agent/GUIA-CONFIGURACION.md` lleva al lector desde un agente vacío del **standard harness** hasta uno publicado con: orquestación generativa activada, el disparador elegido en DEC-05 sobre el origen de los incidentes, conocimiento en la biblioteca `Protocolos` y el flujo del agente `PublicarIncidente` (DEC-01). Cada paso enlaza la documentación oficial que lo respalda. La guía incluye como prerrequisitos: el entorno de la demo (§8), *solution-aware cloud flow sharing* activo, sin DLP que bloquee el conector de Copilot Studio, capacidad de Copilot Studio vigente en el tenant y una cuenta de servicio que pueda publicar. La guía también cubre el caso de un tenant con un entorno Sandbox dedicado, que es la opción recomendada para quien reproduzca la demo.
 - **CA-08.4** La guía advierte que los disparadores usan las credenciales del creador y pide una cuenta de servicio dedicada.
 - **CA-08.5** `agent/casos-prueba.md` define 5 casos con severidad y protocolo esperados. Cada caso se ejecuta 3 veces en el tenant y se evalúa en dos niveles:
   - **Calidad:** cada caso acierta severidad y protocolo en al menos 2 de las 3 corridas.
@@ -244,7 +244,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 **Criterios de aceptación**
 - **CA-14.1** `demo/RUNBOOK.md` sigue los tres actos del plan de la sesión, con el comando exacto de cada paso y qué debe verse en pantalla.
 - **CA-14.2** `demo/reset` deja la lista sin incidentes de prueba y el estado inicial en ≤ 2 minutos. Usa la identidad delegada de Daniel (no la de la función) y los elementos van a la papelera de reciclaje del sitio.
-- **CA-14.3** `demo/preflight` verifica en ≤ 3 minutos, con resultado verde o rojo por componente: que se ejecuta en PowerShell 7 o superior (`$PSVersionTable.PSVersion.Major -ge 7`; si no, termina en rojo con el comando de instalación); conexión a IoT Hub, función, SharePoint; que el entorno se llama `DSA-Demo` y es de tipo Sandbox; que está vinculado al plan de pago por uso; que la cuenta que publica tiene licencia de Microsoft 365 Copilot; que el consumo de créditos del mes está por debajo del 80 % del límite del agente; que el entorno está en la nueva infraestructura de Power Platform (o informa que no lo está); y una prueba de punta a punta con un incidente `EsPrueba = Sí` que debe llegar a `Pendiente de decisión` dentro del tiempo límite.
+- **CA-14.3** `demo/preflight` verifica en ≤ 3 minutos, con resultado verde o rojo por componente: que se ejecuta en PowerShell 7 o superior (`$PSVersionTable.PSVersion.Major -ge 7`; si no, termina en rojo con el comando de instalación); conexión a IoT Hub, función, SharePoint; que el entorno se llama `DSA-Demo` y tiene la auditoría de Dataverse activada; que la capacidad de Copilot Studio del tenant está vigente y cuántos días faltan para su vencimiento (rojo si vence antes de la fecha de la sesión); que la cuenta que publica puede publicar; que el consumo de créditos del mes está por debajo del 80 % del límite del agente; que el entorno está en la nueva infraestructura de Power Platform (o informa que no lo está); y una prueba de punta a punta con un incidente `EsPrueba = Sí` que debe llegar a `Pendiente de decisión` dentro del tiempo límite.
 - **CA-14.4** Lista de los 3 videos de respaldo a grabar, con duración y qué debe mostrar cada uno.
 
 ## 6. Requisitos no funcionales
@@ -269,16 +269,22 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 | DEC-03 | Plan de hosting de la Function App | Flex Consumption (CA-04.1); el ADR decide el número de instancias *always ready* por escenario. |
 | DEC-04 | Dónde vive la ventana de deduplicación | Abierta. Recomendación: Table Storage con concurrencia optimista (ETag), porque Flex Consumption puede escalar a varias instancias. |
 | DEC-05 | Mecanismo que dispara al agente | **Se decide con el spike SPK-01** (`spikes/p1-latencia/`): A) disparador de SharePoint, B) disparador de Dataverse, C) flujo HTTP → *Execute Agent*. Se mide en secuencia A → B; C solo si A y B no cumplen. Cortes: (1) en cuanto 3 eventos superan 20 s, porque con 20 muestras el p90 ≤ 20 s ya es imposible; (2) protección: si ninguno de los primeros 5 eventos completa el tramo 2 en ≤ 60 s. El agente del spike debe tener la misma configuración que el de la demo. Gana la opción más simple con p90 ≤ 20 s en el tramo 2. Si ninguna cumple, se escala a Daniel antes de cambiar OBJ-2. |
-| DEC-06 | Facturación de Copilot Credits | **Propuesta en [ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md):** pago por uso vinculado a la suscripción de Azure, solo para el entorno `DSA-Demo`, con presupuesto propio y límite por agente. |
+| DEC-06 | Facturación de Copilot Credits | **[ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md), actualizado el 2026-10-09:** hasta el 7 de noviembre se usa la capacidad de prueba de Copilot Studio del tenant; el pago por uso queda como opción para después y no está verificado para el entorno predeterminado. Se mantiene el límite de créditos por agente. |
 
 ## 8. Dependencias externas y licencias
 
-- Suscripción de Azure con permisos de Owner sobre un grupo de recursos, región `eastus2`.
-- Tenant de Microsoft 365 de pruebas con Teams y SharePoint. Daniel es el administrador y concede `Sites.Selected` y los consentimientos.
-- Licencias declaradas por Daniel: Copilot Studio en **prueba**; Microsoft 365 Copilot en las cuentas de prueba; **sin** Power Automate premium. Estado de la nueva infraestructura de Power Platform: desconocido (lo verifica el preflight).
-- Facturación de créditos: pago por uso de Copilot Studio con un plan de facturación que vincula el entorno `DSA-Demo` a la suscripción de Azure (ADR-001).
-- **Bloqueante B-01:** con licencia de prueba no se puede publicar un agente, y los disparadores de evento solo reaccionan con el agente publicado ([Licensing](https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing#get-access-to-copilot-studio), [Add an event trigger](https://learn.microsoft.com/microsoft-copilot-studio/authoring-trigger-event#publish-an-agent-with-a-trigger)). La publicación debe hacerse con una cuenta con licencia de Microsoft 365 Copilot ([FAQ de facturación](https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing)), y el tenant necesita capacidad de Copilot Credits para las ejecuciones autónomas. **Resolución propuesta:** Daniel publica con su cuenta con Microsoft 365 Copilot y los créditos se pagan por uso (ADR-001). Se confirma en el bloque 1 de SPK-01 publicando un agente vacío.
-- Entorno de Power Platform dedicado a la demo: **`DSA-Demo`, de tipo Sandbox** (no *Trial*: se elimina con sus agentes a los 30 días y no admite pago por uso).
+- **Tenant (cambio de alcance aprobado por Daniel el 2026-10-09):** el tenant de **la empresa del speaker**. Su marca y su dominio pueden verse en la demo en vivo y en los videos; no hay mensaje comercial. En el repositorio no se escriben IDs de tenant ni de entorno, URL de sitios ni correos (CA-13.5). Daniel es administrador global y concede `Sites.Selected` y los consentimientos.
+- **Entorno (cambio de alcance aprobado por Daniel el 2026-10-09):** el **entorno predeterminado** del tenant, renombrado `DSA-Demo`. No se pudo crear un Sandbox dedicado porque el tenant no tiene el 1 GB de capacidad de base de datos de Dataverse disponible que exige la creación ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)). Consecuencias:
+  - no se le puede asignar un grupo de seguridad ([Control user access](https://learn.microsoft.com/power-platform/admin/control-user-access)); el aislamiento se apoya en la cuenta de servicio del agente, en `Sites.Selected` y en compartir el agente solo con las cuentas de la demo;
+  - no se aplica una política DLP solo para la demo, porque afectaría a todos los creadores de la empresa del speaker en ese entorno; `docs/gobernanza.md` la documenta como recomendación de producción ([Secure the default environment](https://learn.microsoft.com/power-platform/guidance/adoption/secure-default-environment));
+  - auditoría de Dataverse activada con retención de 180 días ([Manage Dataverse auditing](https://learn.microsoft.com/power-platform/admin/manage-dataverse-auditing)).
+- **Licencias verificadas en sistema el 2026-10-09 (Microsoft Graph y portal):**
+  - Microsoft 365 Business Premium, **prueba**, 25 licencias; vence el 2026-11-07 a las 04:50 UTC.
+  - Capacidad de Copilot Studio del tenant, **prueba**, 25 unidades; vence el 2026-11-07 a las 05:01 UTC (00:01 del 7 de noviembre en Colombia).
+  - La cuenta de Daniel publicó un agente del standard harness con orquestación generativa en `DSA-Demo` (2026-10-09, 00:51): **B-01 resuelto mientras dure la prueba**.
+- **Riesgo R-12:** si la sesión cae el 7 de noviembre, las pruebas ya habrán vencido. Antes del congelamiento del 28 de octubre hay que confirmar la fecha y, si hace falta, pasar a pago la capacidad de Copilot Studio y Business Premium.
+- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker, región `eastus2`, con permisos de Owner sobre un grupo de recursos (Azure y Microsoft 365 deben estar en el mismo tenant); cuenta de servicio del agente sin roles de administrador (Art. 4).
+- Licencias declaradas al inicio (P4) y no confirmadas en sistema: Microsoft 365 Copilot en las cuentas de prueba (no aparece en ninguna cuenta revisada). Se descarta como supuesto.
 
 ## 9. Calendario
 
@@ -305,6 +311,18 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.6 — 2026-10-09
+Origen: verificación de cuentas y licencias en sistema, prueba de publicación y decisión de Daniel sobre el tenant y el entorno.
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| **Cambio de alcance:** tenant de la empresa del speaker (marca visible en la demo, sin identificadores en el repositorio) en lugar de un tenant de pruebas | Decisión de Daniel | §4.1, §8 |
+| **Cambio de alcance:** entorno predeterminado renombrado `DSA-Demo` en lugar de un Sandbox dedicado, por falta de capacidad de Dataverse; sin grupo de seguridad ni DLP propia, con auditoría | Decisión de Daniel | §8, CA-08.3, CA-14.3 |
+| Licencias verificadas en sistema y B-01 resuelto hasta el vencimiento de las pruebas; nuevo riesgo R-12 | Verificación del 2026-10-09 | §8, DEC-06 |
+| ADR-001 actualizado: capacidad de prueba del tenant hasta el 7 de noviembre; pago por uso diferido | Verificación del 2026-10-09 | DEC-06, ADR-001 |
+
+Revisión contra la constitución: el Art. 5 y el Art. 6 rigen el contenido del repositorio, que sigue sin identificar a la empresa; el Art. 4 se cumple con la cuenta de servicio dedicada y `Sites.Selected`. La pérdida del entorno dedicado debilita la gobernanza de la demo, pero no viola ningún artículo.
 
 ### v1.5 — 2026-10-08
 Origen: decisión de Daniel sobre el versionado.
