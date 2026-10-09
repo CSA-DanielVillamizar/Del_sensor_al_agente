@@ -6,7 +6,7 @@
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
-| Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1). SPK-01 terminado: DEC-05 propuesta en ADR-003 |
+| Estado | **Aprobada** (Compuerta 1, "aprobado fase 1" de Daniel, 2026-10-09). DEC-05 decidida en ADR-003 |
 | Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) a la elección de tenant y entorno (v1.6), a la separación entre configuración recomendada y demo en vivo (v1.7) a los prerrequisitos de PowerShell 7 (v1.4) y al resultado de SPK-01 (v1.9) |
 
 ---
@@ -268,7 +268,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 | DEC-02 | Puente de Azure a M365 | Function → Graph → lista de SharePoint como registro de auditoría (fijo). Cómo se dispara el agente se decide en DEC-05. |
 | DEC-03 | Plan de hosting de la Function App | Flex Consumption (CA-04.1); el ADR decide el número de instancias *always ready* por escenario. |
 | DEC-04 | Dónde vive la ventana de deduplicación | Abierta. Recomendación: Table Storage con concurrencia optimista (ETag), porque Flex Consumption puede escalar a varias instancias. |
-| DEC-05 | Mecanismo que dispara al agente | **Resultado de SPK-01 (2026-10-09), propuesto en [ADR-003](../docs/adr/ADR-003-disparo-del-agente.md):** opción C, flujo del agente con disparador HTTP → *Ejecutar agente*. Tramo 2 con 20 eventos: p50 7,1 s, p90 10,5 s, máximo 14,1 s, ninguno perdido. La opción A (disparador de SharePoint) se cortó con p90 de 39 s; la B no se midió porque C ya cumplía. La Function crea el elemento en la lista y después llama al flujo con un token de su identidad administrada (audiencia `https://service.flow.microsoft.com/`); el disparador solo admite a esa identidad. |
+| DEC-05 | Mecanismo que dispara al agente | **Resultado de SPK-01 (2026-10-09), aceptado en [ADR-003](../docs/adr/ADR-003-disparo-del-agente.md):** opción C, flujo del agente con disparador HTTP → *Ejecutar agente*. Tramo 2 con 20 eventos: p50 7,1 s, p90 10,5 s, máximo 14,1 s, ninguno perdido. La opción A (disparador de SharePoint) se cortó con p90 de 39 s; la B no se midió porque C ya cumplía. La Function crea el elemento en la lista y después llama al flujo con un token de su identidad administrada (audiencia `https://service.flow.microsoft.com/`); el disparador solo admite a esa identidad. |
 | DEC-06 | Facturación de Copilot Credits | **Recomendado en [ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md):** pago por uso vinculado a la suscripción de Azure, solo para el entorno de la demo, con presupuesto propio y límite por agente. |
 | DEC-07 | Dónde corre la demo en vivo | **[ADR-002](../docs/adr/ADR-002-entorno-demo-en-vivo.md), aceptado el 2026-10-09:** desviación solo para la sesión: tenant de la empresa del speaker, entorno predeterminado renombrado `DSA-Demo` y capacidad de prueba de Copilot Studio hasta el 7 de noviembre. |
 

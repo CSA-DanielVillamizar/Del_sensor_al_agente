@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto; se acepta con el "aprobado fase 1" de Daniel |
+| Estado | Aceptado ("aprobado fase 1" de Daniel, 2026-10-09) |
 | Fecha | 2026-10-09 |
 | Decisión relacionada | DEC-05 en `specs/01-especificacion.md` §7 |
 | Historias | HU-08 (CA-08.3, CA-08.6), OBJ-2, RNF-01 |
