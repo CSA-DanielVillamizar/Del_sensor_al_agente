@@ -20,6 +20,7 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 | 10 | 2026-10-09 | Auditoría de Dataverse y registro de acceso en `DSA-Demo` (180 días) | Daniel | Mitigación de ADR-002: el entorno predeterminado no admite grupo de seguridad | No |
 | 11 | 2026-10-09 | Borrado del agente en español `Spike Latencia` (cambio 4) | Daniel | Limpieza del intento descartado | No aplica |
 | 12 | 2026-10-09 | Disparador SharePoint *Cuando se crea un elemento* eliminado del agente `Spike Latencia EN` (cambio 7), en todas sus versiones | `agente-dsa` | Opción A descartada (ADR-003); limpieza aprobada por Daniel | No aplica |
+| 13 | 2026-10-09 | Lista `SpikeEventosA` eliminada (cambio 1, parte de la opción A) | Daniel | Opción A descartada (ADR-003) | No aplica |
 
 ## Hallazgos que cambian la especificación
 
@@ -31,5 +32,4 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 
 ## Pendiente de limpieza
 
-- Lista `SpikeEventosA` (opción A descartada): la envía Daniel a la papelera de reciclaje del sitio.
 - Se conservan hasta que el Plan decida: agente `Spike Latencia EN`, flujo HTTP de la opción C, lista `SpikeLatencia` y canal `Pruebas spike` (este último para los ensayos).
