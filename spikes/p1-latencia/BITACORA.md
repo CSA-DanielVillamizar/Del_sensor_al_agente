@@ -19,6 +19,7 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 | 9 | 2026-10-09 | Flujo del agente "Sin título" con disparador HTTP (*Cualquier usuario de mi inquilino*, autenticación Entra, sin firma en la URL) → *Ejecutar agente* | `agente-dsa` | Medir la opción C sin disparador por sondeo. Se eligió autenticación Entra en vez de URL con firma: no hay secreto que proteger | Sí, salvo que el Plan lo reutilice |
 | 10 | 2026-10-09 | Auditoría de Dataverse y registro de acceso en `DSA-Demo` (180 días) | Daniel | Mitigación de ADR-002: el entorno predeterminado no admite grupo de seguridad | No |
 | 11 | 2026-10-09 | Borrado del agente en español `Spike Latencia` (cambio 4) | Daniel | Limpieza del intento descartado | No aplica |
+| 12 | 2026-10-09 | Disparador SharePoint *Cuando se crea un elemento* eliminado del agente `Spike Latencia EN` (cambio 7), en todas sus versiones | `agente-dsa` | Opción A descartada (ADR-003); limpieza aprobada por Daniel | No aplica |
 
 ## Hallazgos que cambian la especificación
 
@@ -30,4 +31,5 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 
 ## Pendiente de limpieza
 
-- Al aprobar la Fase 1: lista `SpikeEventosA` y disparador de SharePoint (opción A descartada), lista `SpikeLatencia`, canal `Pruebas spike` y agente `Spike Latencia EN`. El flujo HTTP de la opción C se conserva hasta que el Plan decida si se reutiliza como base de la demo.
+- Lista `SpikeEventosA` (opción A descartada): la envía Daniel a la papelera de reciclaje del sitio.
+- Se conservan hasta que el Plan decida: agente `Spike Latencia EN`, flujo HTTP de la opción C, lista `SpikeLatencia` y canal `Pruebas spike` (este último para los ensayos).
