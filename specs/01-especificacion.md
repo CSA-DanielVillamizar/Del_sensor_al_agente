@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.7 |
+| Versión | 1.8 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
@@ -285,10 +285,15 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 ### 8.2 Demo en vivo de la sesión (desviación aceptada, ADR-002)
 
 - **Tenant:** el de la empresa del speaker. Su marca puede verse en la demo y en los videos, sin mensaje comercial. En el repositorio no se escriben IDs de tenant ni de entorno, URL de sitios ni correos (CA-13.5).
-- **Entorno:** el predeterminado del tenant, renombrado `DSA-Demo`, porque no hay capacidad de Dataverse para crear un Sandbox ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)). Sin grupo de seguridad (Learn no lo permite en ese tipo de entorno, [Control user access](https://learn.microsoft.com/power-platform/admin/control-user-access)) y sin DLP propia (afectaría a toda la empresa); auditoría activada con retención de 180 días.
+- **Entorno:** el predeterminado del tenant, renombrado `DSA-Demo`, porque no hay capacidad de Dataverse para crear un Sandbox ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)). Sin grupo de seguridad (Learn no lo permite en ese tipo de entorno, [Control user access](https://learn.microsoft.com/power-platform/admin/control-user-access)) y sin DLP propia (afectaría a toda la empresa); auditoría de Dataverse y registro de acceso activados, con retención de 180 días (verificado en el portal el 2026-10-09).
 - **Licencias verificadas en sistema el 2026-10-09:** Microsoft 365 Business Premium en prueba (vence 2026-11-07 04:50 UTC) y capacidad de Copilot Studio del tenant en prueba (vence 2026-11-07 05:01 UTC). La cuenta de Daniel publicó un agente del standard harness con orquestación generativa: **B-01 resuelto para la demo mientras dure la prueba.**
-- **Riesgo R-12:** si la sesión cae el 7 de noviembre, las pruebas ya habrán vencido. Antes del 28 de octubre se confirma la fecha y, si hace falta, se pasa a pago la capacidad.
-- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker y cuenta de servicio del agente.
+- **Fecha de la sesión:** 4 de noviembre de 2026 (hora por confirmar). **Riesgo R-12 mitigado:** las pruebas vencen el 7 de noviembre a las 00:01 hora de Colombia, unos tres días después. Si la sesión se mueve al 6 o al 7 de noviembre, el riesgo vuelve a estar abierto y hay que pasar a pago la capacidad antes del 28 de octubre.
+- **Recursos de Microsoft 365 verificados en sistema el 2026-10-09 (Microsoft Graph):**
+  - Cuenta de servicio del agente `agente-dsa`, habilitada, con Microsoft 365 Business Premium y **sin roles de directorio** (Art. 4).
+  - Cuenta `SupervisorDemo` ("Supervisor Demo"), habilitada, con Microsoft 365 Business Premium y sin roles de directorio.
+  - Equipo privado `DSA-Demo` con el canal estándar `Centro de operaciones`. **Miembros: solo Daniel.** Faltan `agente-dsa` y `SupervisorDemo`.
+  - Sitio de SharePoint de la demo y sitio de control `DSA-Control` (CA-06.2), ambos existentes.
+- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker; agregar `agente-dsa` y `SupervisorDemo` al equipo `DSA-Demo`; hora de la sesión.
 - Supuesto descartado: Microsoft 365 Copilot en las cuentas de prueba (P4); no aparece en ninguna cuenta revisada.
 
 ## 9. Calendario
@@ -316,6 +321,15 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.8 — 2026-10-09
+Origen: Daniel crea las cuentas, el equipo y los sitios, y confirma la fecha de la sesión.
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| Fecha de la sesión: 4 de noviembre de 2026; riesgo R-12 mitigado mientras no cambie | Confirmación de Daniel | §8.2 |
+| Cuentas `agente-dsa` y `SupervisorDemo`, equipo `DSA-Demo` con canal `Centro de operaciones` y sitios de la demo y de control, verificados en sistema | Verificación del 2026-10-09 | §8.2 |
+| Auditoría de Dataverse y registro de acceso activados en `DSA-Demo` (180 días) | Verificación en el portal | §8.2 |
 
 ### v1.7 — 2026-10-09
 Origen: Daniel pide que la documentación enseñe la configuración recomendada aunque la demo en vivo use lo disponible.
