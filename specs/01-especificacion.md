@@ -2,12 +2,12 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.8 |
+| Versión | 1.9 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
-| Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1): falta el resultado de SPK-01 |
-| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) a la elección de tenant y entorno (v1.6), a la separación entre configuración recomendada y demo en vivo (v1.7) y a los prerrequisitos de PowerShell 7 (v1.4) |
+| Estado | Pendiente de aprobación de la Fase 1 (Compuerta 1). SPK-01 terminado: DEC-05 propuesta en ADR-003 |
+| Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) a la elección de tenant y entorno (v1.6), a la separación entre configuración recomendada y demo en vivo (v1.7) a los prerrequisitos de PowerShell 7 (v1.4) y al resultado de SPK-01 (v1.9) |
 
 ---
 
@@ -33,7 +33,7 @@ Mostrar en vivo, a una comunidad de Microsoft 365, cómo una alerta física (cá
 - Simulador de dispositivos por script.
 - Ingesta en Azure (IoT Hub y Azure Functions), con enriquecimiento y deduplicación.
 - Escritura del incidente en una lista de SharePoint vía Microsoft Graph. La lista es **siempre** el registro de auditoría visible, cualquiera sea el mecanismo que dispare al agente (DEC-05).
-- Agente de Copilot Studio en el **standard harness**, con orquestación generativa, disparado según DEC-05, con conocimiento en una biblioteca de protocolos y una tarjeta adaptativa en un canal de Teams.
+- Agente de Copilot Studio en el **standard harness**, con orquestación generativa, idioma principal `en-US` con instrucciones de responder en español, disparado según DEC-05 (flujo HTTP → *Ejecutar agente*), con conocimiento en una biblioteca de protocolos y una tarjeta adaptativa en un canal de Teams.
 - Captura de la decisión del supervisor y escritura de vuelta en la lista.
 - Infraestructura como código, pruebas, documentación bilingüe, guion de demo y scripts de reinicio.
 
@@ -268,7 +268,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 | DEC-02 | Puente de Azure a M365 | Function → Graph → lista de SharePoint como registro de auditoría (fijo). Cómo se dispara el agente se decide en DEC-05. |
 | DEC-03 | Plan de hosting de la Function App | Flex Consumption (CA-04.1); el ADR decide el número de instancias *always ready* por escenario. |
 | DEC-04 | Dónde vive la ventana de deduplicación | Abierta. Recomendación: Table Storage con concurrencia optimista (ETag), porque Flex Consumption puede escalar a varias instancias. |
-| DEC-05 | Mecanismo que dispara al agente | **Se decide con el spike SPK-01** (`spikes/p1-latencia/`): A) disparador de SharePoint, B) disparador de Dataverse, C) flujo HTTP → *Execute Agent*. Se mide en secuencia A → B; C solo si A y B no cumplen. Cortes: (1) en cuanto 3 eventos superan 20 s, porque con 20 muestras el p90 ≤ 20 s ya es imposible; (2) protección: si ninguno de los primeros 5 eventos completa el tramo 2 en ≤ 60 s. El agente del spike debe tener la misma configuración que el de la demo. Gana la opción más simple con p90 ≤ 20 s en el tramo 2. Si ninguna cumple, se escala a Daniel antes de cambiar OBJ-2. |
+| DEC-05 | Mecanismo que dispara al agente | **Resultado de SPK-01 (2026-10-09), propuesto en [ADR-003](../docs/adr/ADR-003-disparo-del-agente.md):** opción C, flujo del agente con disparador HTTP → *Ejecutar agente*. Tramo 2 con 20 eventos: p50 7,1 s, p90 10,5 s, máximo 14,1 s, ninguno perdido. La opción A (disparador de SharePoint) se cortó con p90 de 39 s; la B no se midió porque C ya cumplía. La Function crea el elemento en la lista y después llama al flujo con un token de su identidad administrada (audiencia `https://service.flow.microsoft.com/`); el disparador solo admite a esa identidad. |
 | DEC-06 | Facturación de Copilot Credits | **Recomendado en [ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md):** pago por uso vinculado a la suscripción de Azure, solo para el entorno de la demo, con presupuesto propio y límite por agente. |
 | DEC-07 | Dónde corre la demo en vivo | **[ADR-002](../docs/adr/ADR-002-entorno-demo-en-vivo.md), aceptado el 2026-10-09:** desviación solo para la sesión: tenant de la empresa del speaker, entorno predeterminado renombrado `DSA-Demo` y capacidad de prueba de Copilot Studio hasta el 7 de noviembre. |
 
@@ -279,7 +279,8 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 - **Tenant de Microsoft 365 de pruebas**, dedicado a la demo, con Teams y SharePoint. Una persona con rol de administrador concede `Sites.Selected` y los consentimientos.
 - **Suscripción de Azure en el mismo tenant**, con permisos de Owner sobre un grupo de recursos, región `eastus2`. La identidad administrada de la Function recibe `Sites.Selected` en el SharePoint de ese tenant.
 - **Entorno de Power Platform dedicado `DSA-Demo`, de tipo Sandbox** (nunca *Trial*: se elimina con sus agentes a los 30 días y no admite pago por uso), con Dataverse, **grupo de seguridad**, **política DLP** propia y **auditoría de Dataverse** activada.
-- **Cuenta de servicio** para el agente, sin roles de administrador (Art. 4), con una licencia que permita publicar: Microsoft 365 Copilot, o licencia de usuario de Copilot Studio con créditos asignados al entorno ([FAQ de facturación](https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing)). Según esa misma FAQ, las licencias de prueba no habilitan la publicación.
+- **Cuenta de servicio** para el agente, sin roles de administrador (Art. 4), con una licencia que permita publicar: Microsoft 365 Copilot, o licencia de usuario de Copilot Studio con créditos asignados al entorno ([FAQ de facturación](https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing)). Según esa misma FAQ, las licencias de prueba no habilitan la publicación. Microsoft 365 Business Premium por sí sola no basta: en el tenant de la demo, la cuenta solo tenía Copilot Studio para Microsoft 365, con orquestación clásica y sin orquestación generativa, disparadores ni flujos del agente (observado en el portal durante SPK-01).
+- **Agente creado en `en-US`.** El idioma principal no se puede cambiar después de crear el agente y los disparadores de evento solo lo admiten en inglés ([Language support](https://learn.microsoft.com/microsoft-copilot-studio/authoring-language-support)); las instrucciones del agente ordenan responder en español.
 - **Créditos** por pago por uso de Copilot Studio vinculado a la suscripción de Azure, con presupuesto y límite por agente (ADR-001).
 
 ### 8.2 Demo en vivo de la sesión (desviación aceptada, ADR-002)
@@ -291,9 +292,10 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 - **Recursos de Microsoft 365 verificados en sistema el 2026-10-09 (Microsoft Graph):**
   - Cuenta de servicio del agente `agente-dsa`, habilitada, con Microsoft 365 Business Premium y **sin roles de directorio** (Art. 4).
   - Cuenta `SupervisorDemo` ("Supervisor Demo"), habilitada, con Microsoft 365 Business Premium y sin roles de directorio.
-  - Equipo privado `DSA-Demo` con el canal estándar `Centro de operaciones`. **Miembros: solo Daniel.** Faltan `agente-dsa` y `SupervisorDemo`.
+  - Equipo privado `DSA-Demo` con el canal estándar `Centro de operaciones`; `agente-dsa` y `SupervisorDemo` agregados como miembros por Daniel.
+  - `agente-dsa` con prueba de Copilot Studio (necesaria para la orquestación generativa; lo recomendado es la licencia de usuario, §8.1). Vence con la capacidad de prueba del tenant.
   - Sitio de SharePoint de la demo y sitio de control `DSA-Control` (CA-06.2), ambos existentes.
-- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker; agregar `agente-dsa` y `SupervisorDemo` al equipo `DSA-Demo`; hora de la sesión.
+- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker; hora de la sesión.
 - Supuesto descartado: Microsoft 365 Copilot en las cuentas de prueba (P4); no aparece en ninguna cuenta revisada.
 
 ## 9. Calendario
@@ -321,6 +323,17 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v1.9 — 2026-10-09
+Origen: resultado del spike SPK-01 y hallazgos al montarlo (`spikes/p1-latencia/BITACORA.md`).
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| DEC-05 propuesta: flujo HTTP → *Ejecutar agente* (p90 del tramo 2 de 10,5 s con 20 eventos); el disparador de SharePoint queda descartado (p90 de 39 s) | SPK-01, ADR-003 | §3, DEC-05 |
+| El agente se crea con idioma principal `en-US` e instrucciones de responder en español | Hallazgo 1 del spike | §3, §8.1 |
+| La cuenta de servicio necesita Copilot Studio; Business Premium sola no basta | Hallazgo 2 del spike | §8.1, §8.2 |
+| Token del disparador HTTP con audiencia `https://service.flow.microsoft.com/` y disparador restringido a la identidad de la Function | Hallazgo 3 del spike, ADR-003 | DEC-05 |
+| `agente-dsa` y `SupervisorDemo` agregados al equipo `DSA-Demo` | Confirmación de Daniel | §8.2 |
 
 ### v1.8 — 2026-10-09
 Origen: Daniel crea las cuentas, el equipo y los sitios, y confirma la fecha de la sesión.
