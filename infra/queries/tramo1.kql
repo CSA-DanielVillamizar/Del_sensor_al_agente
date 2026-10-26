@@ -1,0 +1,35 @@
+// Tramo 1 (CA-05.5, RNF-01): enqueuedTimeUtc de IoT Hub -> respuesta de Graph al crear el elemento.
+// Meta: p90 <= 10 s en al menos 10 ensayos. Se ejecuta en Application Insights (Logs) del grupo de la demo.
+//
+// Contrato con function/core/telemetry.py: cada registro es un mensaje "<nombre> <json>", con el mismo
+// objeto en custom_dimensions. Para IncidentCreated el objeto trae name, eventId, deviceId, isTest,
+// enqueuedTimeUtc y graphCreatedUtc (ISO 8601 UTC). La consulta lee el JSON del mensaje, que llega
+// siempre, y usa customDimensions solo si el JSON no se puede leer.
+//
+// Parámetro: ventana de búsqueda. Para los ensayos de T-027 basta con las últimas horas.
+let lookback = 1d;
+let created = traces
+    | where timestamp > ago(lookback)
+    | where message startswith "IncidentCreated "
+    | extend rec = parse_json(substring(message, indexof(message, "{")))
+    | extend rec = iff(isnull(rec.eventId), parse_json(tostring(customDimensions)), rec)
+    | extend eventId = tostring(rec.eventId),
+             enqueuedUtc = todatetime(rec.enqueuedTimeUtc),
+             graphCreatedUtc = todatetime(rec.graphCreatedUtc),
+             esPrueba = tobool(rec.isTest)
+    | where isnotempty(eventId) and isnotnull(enqueuedUtc) and isnotnull(graphCreatedUtc)
+    // Un reintento del runtime puede registrar dos veces el mismo incidente: se toma el primero.
+    | summarize arg_min(graphCreatedUtc, enqueuedUtc, esPrueba) by eventId
+    | extend tramo1Seg = datetime_diff('millisecond', graphCreatedUtc, enqueuedUtc) / 1000.0;
+// Detalle por incidente (se une con el tramo 2 de demo/measure.ps1 por eventId).
+created
+| project eventId, enqueuedUtc, graphCreatedUtc, tramo1Seg, esPrueba
+| order by enqueuedUtc desc;
+// Resumen: p50, p90, máximo y si se cumple la meta. Excluye los incidentes del preflight.
+created
+| where esPrueba != true
+| summarize ensayos = count(),
+            p50Seg = round(percentile(tramo1Seg, 50), 2),
+            p90Seg = round(percentile(tramo1Seg, 90), 2),
+            maxSeg = round(max(tramo1Seg), 2)
+| extend cumpleMeta = ensayos >= 10 and p90Seg <= 10.0
