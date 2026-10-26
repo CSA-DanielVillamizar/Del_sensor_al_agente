@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/del-sensor-al-agente/schemas/evento-dispositivo.schema.json",
+  "title": "Evento de dispositivo de seguridad física",
+  "description": "Mensaje que un dispositivo envía a IoT Hub. Sin campos de texto libre: no admite datos personales (CA-01.3, Art. 4).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "deviceId", "type", "zone", "timestamp", "rawSeverity"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "eventId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "deviceId": { "type": "string", "pattern": "^DEV-[A-Z0-9-]+$", "maxLength": 32 },
+    "type": {
+      "enum": ["movimiento_zona_restringida", "puerta_forzada", "acceso_denegado_repetido"]
+    },
+    "zone": { "type": "string", "pattern": "^Z-\\d{2}$" },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?Z$"
+    },
+    "rawSeverity": { "enum": ["Baja", "Media", "Alta", "Crítica"] }
+  }
+}

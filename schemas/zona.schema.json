@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/del-sensor-al-agente/schemas/zona.schema.json",
+  "title": "Catálogo de zonas ficticias",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["zone", "zoneName", "cameraId", "site", "baseSeverity"],
+    "properties": {
+      "zone": { "type": "string", "pattern": "^Z-\\d{2}$" },
+      "zoneName": { "type": "string", "minLength": 3, "maxLength": 40 },
+      "cameraId": { "type": "string", "pattern": "^CAM-\\d{2}$" },
+      "site": { "type": "string", "minLength": 3, "maxLength": 40 },
+      "baseSeverity": { "enum": ["Baja", "Media", "Alta", "Crítica"] }
+    }
+  }
+}

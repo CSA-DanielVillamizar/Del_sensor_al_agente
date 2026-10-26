@@ -1,0 +1,8 @@
+[
+  { "zone": "Z-01", "zoneName": "Sala de servidores", "cameraId": "CAM-01", "site": "Sede Demo Centro", "baseSeverity": "Alta" },
+  { "zone": "Z-02", "zoneName": "Recepción", "cameraId": "CAM-02", "site": "Sede Demo Centro", "baseSeverity": "Baja" },
+  { "zone": "Z-03", "zoneName": "Bodega norte", "cameraId": "CAM-03", "site": "Sede Demo Centro", "baseSeverity": "Media" },
+  { "zone": "Z-04", "zoneName": "Parqueadero", "cameraId": "CAM-04", "site": "Sede Demo Centro", "baseSeverity": "Baja" },
+  { "zone": "Z-05", "zoneName": "Archivo documental", "cameraId": "CAM-05", "site": "Sede Demo Norte", "baseSeverity": "Media" },
+  { "zone": "Z-06", "zoneName": "Cuarto eléctrico", "cameraId": "CAM-06", "site": "Sede Demo Norte", "baseSeverity": "Alta" }
+]
