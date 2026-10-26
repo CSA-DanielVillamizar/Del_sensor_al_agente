@@ -29,9 +29,12 @@ Cada fila registra un criterio, el resultado y la evidencia. "Lo implementé" no
 | Los SDK registraban cada petición HTTP con sus encabezados | `Azure.Core` y `Azure.Messaging.EventHubs` en `Warning` en `host.json` y el registrador `azure` en `WARNING` | `T-014 HU-05` |
 | En el diseñador de flujos del agente, una expresión agregada a una salida de "Responder al agente" se perdió al publicar sin guardar antes el borrador | Guardar el borrador antes de publicar y revisar las salidas en el historial de ejecución; queda en la guía (T-042) | — |
 | `Version` es un nombre reservado en las bibliotecas de SharePoint | La columna se llama `VersionProtocolo` | `T-029 HU-07` |
+| Al activar `PublicarIncidente`, la plataforma rechazó una expresión de 9143 caracteres (máximo 8192): la tarjeta iba completa dentro de la expresión | La plantilla va como objeto en su propio Compose y los valores escapados en otro; prueba que mide la expresión más larga | `T-037 HU-10` |
+| Un flujo cuyas referencias de conexión pertenecen a la cuenta de servicio no se puede actualizar ni activar con otra cuenta (`ConnectionAuthorizationFailed`) | Se crea como borrador con la cuenta de servicio como dueña y se activa con la sesión de esa cuenta; queda en la guía (T-042) | — |
+| En el diseñador, un flujo creado con la API no habilita "Publicar" | Activar el flujo (`statecode = 1`) con la API de Dataverse desde la sesión del dueño | — |
 
 ## Pendiente de esta fase
 
-- `PublicarIncidente` (T-037, T-038) y su prueba con la tarjeta.
+- `PublicarIncidente` (T-037, T-038): creado desde `agent/flows/build_publicar_incidente.py`, activado y agregado como herramienta del agente, que se volvió a publicar. Primera ejecución de punta a punta el 2026-10-26 a las 18:29 UTC (evento del simulador `puerta_forzada` en Z-01): el agente llamó a la herramienta, `LeerElemento` respondió y la condición `Si_estado_es_Nuevo` fue verdadera; la ejecución quedó esperando la tarjeta. Pendiente: confirmar la tarjeta en el canal de prueba, responderla (rama de decisión y R-M4) y dejar vencer otra (rama sin respuesta).
 - El agente respondió una vez en inglés en el panel de prueba, en un camino de error: verificar con los casos de `agent/casos-prueba.md` (CA-08.5).
 - Tramo 2 y total con `demo/measure.ps1` (T-039, T-040) y los 10 ensayos (T-052).
