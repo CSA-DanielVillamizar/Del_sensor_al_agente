@@ -50,6 +50,19 @@ resource hub 'Microsoft.Devices/IotHubs@2023-06-30' = {
     ]
     // Los dispositivos se autentican con su clave simétrica propia (CA-01.4), así que la autenticación local sigue activa.
     disableLocalAuth: false
+    // Sin rutas propias, la ruta de respaldo lleva los mensajes del dispositivo al endpoint integrado
+    // que lee la Function. Si se omite, la plantilla la deja desactivada y los mensajes no llegan.
+    routing: {
+      fallbackRoute: {
+        name: '$fallback'
+        source: 'DeviceMessages'
+        condition: 'true'
+        endpointNames: [
+          'events'
+        ]
+        isEnabled: true
+      }
+    }
   }
 }
 

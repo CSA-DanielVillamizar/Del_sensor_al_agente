@@ -181,3 +181,12 @@ def test_iothub_tiene_el_grupo_de_consumidores_de_la_function(template: dict[str
     groups = _of_type(template, "Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups")
     assert groups, "Falta el grupo de consumidores de la Function en IoT Hub"
     assert any("events/func" in str(g.get("name", "")) for g in groups)
+
+
+def test_iothub_entrega_los_mensajes_al_endpoint_integrado(template: dict[str, Any]) -> None:
+    # Sin rutas propias, la ruta de respaldo debe estar activa o los mensajes no llegan a la Function.
+    hubs = _of_type(template, "Microsoft.Devices/IotHubs")
+    assert hubs
+    fallback = hubs[0]["properties"].get("routing", {}).get("fallbackRoute", {})
+    assert fallback.get("isEnabled") is True
+    assert fallback.get("endpointNames") == ["events"]
