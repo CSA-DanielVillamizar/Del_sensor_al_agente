@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto (Fase 2, pendiente de "aprobado fase 2" y de revisión del revisor-seguridad) |
+| Estado | Aceptado ("aprobado fase 2" de Daniel, 2026-10-26) |
 | Fecha | 2026-10-09 |
 | Decisiones relacionadas | DEC-02 ([ADR-004](ADR-004-puente-azure-m365.md)), DEC-03 ([ADR-005](ADR-005-hosting-function.md)), DEC-05 ([ADR-003](ADR-003-disparo-del-agente.md)) |
 | Historias | HU-01 (CA-01.4), HU-04 (CA-04.4), HU-06 (CA-06.1, CA-06.2, CA-06.4), HU-14 (CA-14.2), Art. 4 |

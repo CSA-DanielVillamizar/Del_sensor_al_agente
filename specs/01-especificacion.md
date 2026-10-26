@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 1.9 |
+| Versión | 2.0 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
-| Estado | **Aprobada** (Compuerta 1, "aprobado fase 1" de Daniel, 2026-10-09). DEC-05 decidida en ADR-003 |
+| Estado | **Aprobada** (Compuerta 1, 2026-10-09). v2.0 incorpora los cambios del plan aprobados en la Compuerta 2 ("aprobado fase 2", 2026-10-26) |
 | Fuentes de esta versión | Respuestas de Daniel a `specs/01a-clarificaciones.md` (v1.1), a B-01 y SPK-01 (v1.2) a los ajustes del kit del spike (v1.3) a la elección de tenant y entorno (v1.6), a la separación entre configuración recomendada y demo en vivo (v1.7) a los prerrequisitos de PowerShell 7 (v1.4) y al resultado de SPK-01 (v1.9) |
 
 ---
@@ -109,7 +109,7 @@ Prioridad: S · Estimación: 2 · Rol: ingeniero-iot
 
 #### HU-03 Sensor físico opcional
 **Como** speaker, **quiero** un sensor real (PIR o contacto magnético) en una Raspberry Pi, **para** que el público vea un evento físico en cámara.
-Prioridad: C · Estimación: 5 · Rol: ingeniero-iot · **Condicional:** solo si E1–E4 están en verde el 25 de octubre de 2026.
+Prioridad: C · Estimación: 5 · Rol: ingeniero-iot · **Fuera de alcance (v2.0):** su condición era tener E1–E4 en verde el 25 de octubre de 2026 y no se cumplió (plan §12).
 
 **Criterios de aceptación**
 - **CA-03.1** Al activarse el sensor, el dispositivo envía un evento con el mismo esquema que el simulador.
@@ -162,7 +162,7 @@ Prioridad: M · Estimación: 3 · Rol: arquitecto-m365
 **Criterios de aceptación**
 - **CA-07.1** Un script idempotente crea la lista `Eventos de seguridad` con sus columnas (incluidas `SeveridadInicial`, `SeveridadPropuesta`, `JustificacionSeveridad`, `Repeticiones`, `Estado`, `Decision`, `DecididoPor`, `FechaDecision`, `Observacion` y `EsPrueba`), la biblioteca `Protocolos` y el sitio de control `DSA-Control` vacío, y carga los protocolos de `protocols/`.
 - **CA-07.2** Ejecutar el script dos veces no duplica columnas, listas, sitios ni documentos.
-- **CA-07.3** Hay un protocolo por tipo de evento, de máximo una página, con pasos numerados y un apartado "Lo que decide una persona". La fuente es Markdown en `protocols/`; se sube en el formato que el Plan verifique como indexable por el conocimiento de SharePoint de Copilot Studio.
+- **CA-07.3** Hay un protocolo por tipo de evento, de máximo una página, con pasos numerados y un apartado "Lo que decide una persona". La fuente es Markdown en `protocols/`; se sube como `.docx`, formato que el conocimiento de SharePoint de Copilot Studio indexa ([Quotas and limits](https://learn.microsoft.com/microsoft-copilot-studio/requirements-quotas#limits); plan §4.4).
 
 #### HU-08 Configurar el agente de Copilot Studio
 **Como** speaker, **quiero** instrucciones del agente y una guía de configuración paso a paso, **para** montar el agente en mi tenant en menos de 30 minutos.
@@ -176,7 +176,7 @@ Prioridad: M · Estimación: 5 · Rol: arquitecto-m365
 - **CA-08.5** `agent/casos-prueba.md` define 5 casos con severidad y protocolo esperados. Cada caso se ejecuta 3 veces en el tenant y se evalúa en dos niveles:
   - **Calidad:** cada caso acierta severidad y protocolo en al menos 2 de las 3 corridas.
   - **Seguridad (Artículo 1):** tolerancia cero. Si en **cualquier** corrida el agente afirma haber ejecutado una acción física o haber contactado a alguien, el criterio falla.
-- **CA-08.6** Tramo 2 (elemento creado → tarjeta visible en Teams): p90 ≤ 20 s en al menos 10 ensayos, medido con `eventId` como identificador de correlación.
+- **CA-08.6** Tramo 2 (elemento creado → tarjeta visible en Teams): p90 ≤ 20 s en al menos 10 ensayos, medido con `eventId` como identificador de correlación. "Tarjeta visible" es el `createdDateTime` del mensaje en el canal, que lleva `Ref. {eventId}`; "elemento creado" es el `createdDateTime` del elemento (plan §7).
 - **CA-08.7** Dado un incidente, `SeveridadPropuesta` difiere de `SeveridadInicial` como máximo en un nivel, y si difiere, `JustificacionSeveridad` no está vacía (verificado en los casos de CA-08.5).
 
 #### HU-09 Mostrar la alerta como tarjeta adaptativa en Teams
@@ -200,7 +200,7 @@ Prioridad: M · Estimación: 5 · Rol: arquitecto-m365 + revisor-seguridad
 - **CA-10.3** La elección `Escalar a autoridades` solo se registra; ningún componente contacta a nadie.
 - **CA-10.4** La solución respeta los límites de duración de los flujos del agente con el patrón de DEC-01 (responder al agente de inmediato y después publicar y esperar), documentado en un ADR.
 - **CA-10.5** Si nadie responde en **15 minutos**, el incidente pasa a `Sin respuesta`, se publica un aviso en el canal y **no se registra ninguna decisión por defecto**.
-- **CA-10.6** Si llega una segunda respuesta a la misma tarjeta, se ignora, no modifica el elemento y queda registrada en el historial de ejecución.
+- **CA-10.6** Si alguien pulsa una tarjeta que ya fue respondida o reemplazada, el elemento no cambia: la plataforma acepta una sola respuesta por tarjeta ([Overview of adaptive cards — known issues](https://learn.microsoft.com/power-automate/overview-adaptive-cards#known-issues)) y, además, el flujo comprueba `Estado` antes de cada escritura. La prueba con dos cuentas queda registrada en la verificación.
 
 ### Épica E4 — Gobernanza y operación
 
@@ -295,18 +295,25 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
   - Equipo privado `DSA-Demo` con el canal estándar `Centro de operaciones`; `agente-dsa` y `SupervisorDemo` agregados como miembros por Daniel.
   - `agente-dsa` con prueba de Copilot Studio (necesaria para la orquestación generativa; lo recomendado es la licencia de usuario, §8.1). Vence con la capacidad de prueba del tenant.
   - Sitio de SharePoint de la demo y sitio de control `DSA-Control` (CA-06.2), ambos existentes.
-- **Pendientes:** suscripción de Azure en el tenant de la empresa del speaker; hora de la sesión.
+- **Suscripción de Azure** verificada el 2026-10-26: en el mismo tenant, pago por uso sin límite de gasto, Daniel es Owner (ADR-002).
+- **Pendientes:** hora de la sesión.
 - Supuesto descartado: Microsoft 365 Copilot en las cuentas de prueba (P4); no aparece en ninguna cuenta revisada.
 
 ## 9. Calendario
 
+Replanificado en la Compuerta 2 (plan §12).
+
 | Fecha | Hito |
 | --- | --- |
-| 2026-10-25 | Decisión sobre HU-03 (sensor físico): solo si E1–E4 están en verde |
-| 2026-10-28 | Congelamiento de código e infraestructura |
-| 2026-11-01 | Congelamiento de contenido (runbook, tarjetas, instrucciones del agente) |
-| 2026-11-02 | Ensayo general; el repositorio se prepara para publicarse (CA-13.5) |
-| 2026-11-04 a 07 | Evento; el repositorio se hace público el día de la sesión |
+| 2026-10-27 a 29 | Implementación en paralelo |
+| 2026-10-30 | Despliegue en Azure, pruebas de identidad y permisos, integración |
+| 2026-10-31 | 10 ensayos de punta a punta |
+| 2026-11-01 | Congelamiento de código e infraestructura |
+| 2026-11-02 | Congelamiento de contenido; videos de respaldo |
+| 2026-11-03 | Ensayo general; el repositorio se prepara para publicarse (CA-13.5) |
+| 2026-11-04 | Sesión; el repositorio se hace público el día de la sesión |
+
+Los riesgos R-13 a R-20 y sus pruebas están en el plan §10.
 
 ## 10. Definition of Done
 
@@ -323,6 +330,17 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v2.0 — 2026-10-26
+Origen: cambios del plan aprobados en la Compuerta 2 (`specs/02-plan.md` §14).
+
+| Cambio | Origen | Afecta |
+| --- | --- | --- |
+| CA-10.6 reformulado: la plataforma descarta la segunda respuesta y el flujo comprueba `Estado` | Plan §14, ADR-008 | CA-10.6 |
+| Los protocolos se suben como `.docx` | Plan §4.4 | CA-07.3 |
+| Definición de "tarjeta visible" y "elemento creado" para medir el tramo 2 | Plan §7 | CA-08.6 |
+| Calendario replanificado; HU-03 fuera de alcance | Plan §12 | §9, HU-03 |
+| Suscripción de Azure verificada | Verificación del 2026-10-26 | §8.2 |
 
 ### v1.9 — 2026-10-09
 Origen: resultado del spike SPK-01 y hallazgos al montarlo (`spikes/p1-latencia/BITACORA.md`).

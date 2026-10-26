@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto (Fase 2, pendiente de "aprobado fase 2") |
+| Estado | Aceptado ("aprobado fase 2" de Daniel, 2026-10-26) |
 | Fecha | 2026-10-09 |
 | Decisión relacionada | DEC-02 en `specs/01-especificacion.md` §7; depende de DEC-05 ([ADR-003](ADR-003-disparo-del-agente.md)) y DEC-04 ([ADR-006](ADR-006-deduplicacion.md)) |
 | Historias | HU-02 (CA-02.2), HU-05 (CA-05.2, CA-05.3, CA-05.5), HU-06 (CA-06.1, CA-06.3), HU-12 (CA-12.1), RNF-01, RNF-04 |

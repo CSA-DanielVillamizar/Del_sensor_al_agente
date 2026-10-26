@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto (Fase 2, pendiente de "aprobado fase 2" de Daniel) |
+| Estado | Aceptado ("aprobado fase 2" de Daniel, 2026-10-26) |
 | Fecha | 2026-10-09 |
 | Decisión relacionada | DEC-01 en `specs/01-especificacion.md` §7 (dirección aprobada en la Compuerta 1) |
 | Historias | HU-09 (CA-09.1–CA-09.5), HU-10 (CA-10.1–CA-10.6), HU-08 (CA-08.6) |

@@ -4,7 +4,7 @@
 | --- | --- |
 | Versión | 1.0 |
 | Fecha | 2026-10-26 |
-| Estado | Propuesto para la Compuerta 2 (pendiente de "aprobado fase 2") |
+| Estado | **Aprobado** ("aprobado fase 2" de Daniel, 2026-10-26) |
 | Especificación base | `specs/01-especificacion.md` v1.9 (aprobada el 2026-10-09) |
 | Tareas | `specs/03-tareas.md` |
 | Autores | arquitecto-cloud (Azure), arquitecto-m365 (Microsoft 365), integración: líder-especificacion |
@@ -75,16 +75,16 @@ flowchart LR
 
 | DEC | Tema | ADR | Estado |
 | --- | --- | --- | --- |
-| DEC-01 | Publicación de la tarjeta y captura de la decisión | [ADR-008](../docs/adr/ADR-008-publicacion-tarjeta-y-decision.md) | Propuesto |
-| DEC-02 | Puente de Azure a Microsoft 365 | [ADR-004](../docs/adr/ADR-004-puente-azure-m365.md) | Propuesto |
-| DEC-03 | Hosting de la Function | [ADR-005](../docs/adr/ADR-005-hosting-function.md) | Propuesto |
-| DEC-04 | Ventana de deduplicación y límite por minuto | [ADR-006](../docs/adr/ADR-006-deduplicacion.md) | Propuesto |
+| DEC-01 | Publicación de la tarjeta y captura de la decisión | [ADR-008](../docs/adr/ADR-008-publicacion-tarjeta-y-decision.md) | Aceptado |
+| DEC-02 | Puente de Azure a Microsoft 365 | [ADR-004](../docs/adr/ADR-004-puente-azure-m365.md) | Aceptado |
+| DEC-03 | Hosting de la Function | [ADR-005](../docs/adr/ADR-005-hosting-function.md) | Aceptado |
+| DEC-04 | Ventana de deduplicación y límite por minuto | [ADR-006](../docs/adr/ADR-006-deduplicacion.md) | Aceptado |
 | DEC-05 | Mecanismo que dispara al agente | [ADR-003](../docs/adr/ADR-003-disparo-del-agente.md) | Aceptado |
 | DEC-06 | Facturación de Copilot Credits | [ADR-001](../docs/adr/ADR-001-facturacion-creditos-copilot-studio.md) | Recomendado |
 | DEC-07 | Dónde corre la demo en vivo | [ADR-002](../docs/adr/ADR-002-entorno-demo-en-vivo.md) | Aceptado |
-| — | Identidades y permisos mínimos | [ADR-007](../docs/adr/ADR-007-identidad-y-permisos.md) | Propuesto (requiere revisión del revisor-seguridad) |
+| — | Identidades y permisos mínimos | [ADR-007](../docs/adr/ADR-007-identidad-y-permisos.md) | Aceptado (revisión del revisor-seguridad en T-045) |
 
-Los ADR propuestos pasan a "Aceptado" con el "aprobado fase 2".
+Los ADR propuestos pasaron a "Aceptado" con el "aprobado fase 2" del 2026-10-26.
 
 ## 4. Contratos de datos
 

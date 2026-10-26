@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesto (Fase 2, pendiente de "aprobado fase 2") |
+| Estado | Aceptado ("aprobado fase 2" de Daniel, 2026-10-26) |
 | Fecha | 2026-10-09 |
 | Decisión relacionada | DEC-03 en `specs/01-especificacion.md` §7 |
 | Historias | HU-04 (CA-04.1, CA-04.4, CA-04.5), HU-05 (CA-05.5), RNF-01, R-06 |

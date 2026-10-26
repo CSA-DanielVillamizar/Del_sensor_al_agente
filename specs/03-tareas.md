@@ -4,7 +4,7 @@
 | --- | --- |
 | Versión | 1.0 |
 | Fecha | 2026-10-26 |
-| Estado | Propuesto para la Compuerta 2 |
+| Estado | **Aprobado** (2026-10-26) |
 | Plan | `specs/02-plan.md` v1.0 |
 
 Reglas: cada tarea dura como máximo 2 horas, se rastrea a una historia y a un criterio (Art. 3) y se cierra solo con su verificación. **[P]** = puede ir en paralelo con las demás [P] de su bloque. **Necesita**: `local` (sin nube), `tenant` (Microsoft 365), `Azure` (suscripción de la demo) o `Daniel` (paso que solo puede hacer Daniel en un portal o con su consentimiento). Las tareas marcadas **RS** no se cierran sin la revisión del revisor-seguridad.
