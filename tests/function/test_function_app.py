@@ -137,3 +137,17 @@ def test_host_json_uses_extension_bundle_v4():
     assert HOST["version"] == "2.0"
     assert HOST["extensionBundle"]["id"] == "Microsoft.Azure.Functions.ExtensionBundle"
     assert HOST["extensionBundle"]["version"] == "[4.*, 5.0.0)"
+
+
+def test_host_json_quiets_sdk_http_logs():
+    # Los SDK registran cada petición HTTP con sus encabezados: ruido que consume el límite diario
+    # de Log Analytics y oculta los registros de medición (CA-05.5).
+    levels = HOST["logging"]["logLevel"]
+    assert levels.get("Azure.Core") == "Warning"
+    assert levels.get("Azure.Messaging.EventHubs") == "Warning"
+
+
+def test_python_sdk_loggers_are_quieted(function_app):
+    import logging
+
+    assert logging.getLogger("azure").getEffectiveLevel() >= logging.WARNING

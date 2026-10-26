@@ -9,7 +9,9 @@
     "logLevel": {
       "default": "Information",
       "Function": "Information",
-      "Host.Results": "Information"
+      "Host.Results": "Information",
+      "Azure.Core": "Warning",
+      "Azure.Messaging.EventHubs": "Warning"
     }
   },
   "extensionBundle": {

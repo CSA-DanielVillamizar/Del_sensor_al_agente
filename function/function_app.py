@@ -28,6 +28,10 @@ from core.settings import load_settings
 from core.table_repo import AzureTableStore
 from core.telemetry import Telemetry
 
+# Los SDK de Azure registran cada petición HTTP con sus encabezados: se dejan solo las advertencias
+# para no gastar el límite diario de Log Analytics ni ocultar los registros de medición (CA-05.5).
+logging.getLogger("azure").setLevel(logging.WARNING)
+
 app = func.FunctionApp()
 
 
