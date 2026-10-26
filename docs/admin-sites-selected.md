@@ -11,6 +11,18 @@ La Function escribe en SharePoint con su identidad administrada `id-dsa-func` y 
 
 Hacen falta dos comandos del administrador del tenant. Se ejecutan **una vez por identidad**: si se borra el grupo de recursos, `id-dsa-func` desaparece y hay que repetirlos con los nuevos valores (ADR-007).
 
+## Forma rápida: `infra/grant-sites-selected.ps1`
+
+El script hace los dos comandos de abajo, las comprobaciones y el cierre de la sesión. Es idempotente: si se ejecuta otra vez, no duplica nada.
+
+```powershell
+./infra/grant-sites-selected.ps1 -ObjectId <objectId> -ClientId <clientId> -SiteUrl https://<tenant>.sharepoint.com/sites/<sitioDemo> -ControlSiteUrl https://<tenant>.sharepoint.com/sites/<sitioControl>
+```
+
+Agrega `-UseDeviceCode` si la consola no puede abrir el navegador. Solo necesita el módulo `Microsoft.Graph.Authentication`. La salida esperada termina con `rol de aplicación Sites.Selected asignado`, `permiso write ... en el sitio` y `el sitio de control ... no tiene ningún permiso`.
+
+El resto de esta página explica los mismos pasos uno por uno, por si prefieres ejecutarlos a mano.
+
 ## Valores que necesitas
 
 | Marcador | Qué es | De dónde sale |
