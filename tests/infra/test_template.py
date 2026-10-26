@@ -174,3 +174,10 @@ def test_sin_parametros_con_valores_de_secretos(template: dict[str, Any]) -> Non
         assert not SECRET_NAME_PATTERN.search(name) or name == "iotHubKeySlot", name
         default = json.dumps(param.get("defaultValue", ""))
         assert not re.search(r"SharedAccessKey=|AccountKey=", default), name
+
+
+def test_iothub_tiene_el_grupo_de_consumidores_de_la_function(template: dict[str, Any]) -> None:
+    # function/function_app.py lee el endpoint integrado con consumer_group="func" (ADR-004 §1).
+    groups = _of_type(template, "Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups")
+    assert groups, "Falta el grupo de consumidores de la Function en IoT Hub"
+    assert any("events/func" in str(g.get("name", "")) for g in groups)

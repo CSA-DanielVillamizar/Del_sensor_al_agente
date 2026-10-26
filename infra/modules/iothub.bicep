@@ -53,6 +53,14 @@ resource hub 'Microsoft.Devices/IotHubs@2023-06-30' = {
   }
 }
 
+// Grupo de consumidores dedicado de la Function (ADR-004 §1): function/function_app.py usa consumer_group="func".
+resource funcConsumerGroup 'Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups@2023-06-30' = {
+  name: '${hub.name}/events/func'
+  properties: {
+    name: 'func'
+  }
+}
+
 resource operatorRegistry 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(operatorPrincipalId)) {
   name: guid(hub.id, operatorPrincipalId, iotHubRegistryContributorRoleId)
   scope: hub
