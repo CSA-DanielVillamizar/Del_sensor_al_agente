@@ -67,14 +67,17 @@ En pantalla: un resultado verde, amarillo o rojo por componente. Lo esperado:
 | Entorno de Power Platform | Amarillo en la demo en vivo, con referencia a [ADR-002](../docs/adr/ADR-002-entorno-demo-en-vivo.md). Es esperado |
 | Auditoría de Dataverse | Verde |
 | Créditos: forma de pago y días hasta el vencimiento | Verde. Rojo si la capacidad vence antes de la sesión |
-| Consumo del mes frente al límite del agente | Verde, por debajo del 80 % |
-| Prueba de punta a punta con `EsPrueba = Sí` | Verde: llega a `Pendiente de decisión` a tiempo |
+| Consumo del mes frente al límite del agente | Verde, por debajo del 80 %. Amarillo si `DSA_CREDITS_USED` está vacío: copia el dato del centro de administración de Power Platform a `.env` antes de empezar |
+| Nueva infraestructura de Power Platform | Se informa. Amarillo mientras `DSA_NEW_INFRA` esté vacío |
+| Prueba de punta a punta con `EsPrueba = Sí` | Verde: llega a `Pendiente de decisión` a tiempo (20,5 s en el ensayo del 2026-10-26). Publica una tarjeta de prueba en el canal |
+
+Resultado general esperado: **amarillo**, por el entorno predeterminado. El preflight tardó 103 s en el ensayo.
 
 Cualquier rojo se resuelve ahora o se decide pasar a los videos. No se empieza la sesión con un rojo sin decidir.
 
 **5. Reautenticar las conexiones.** En Copilot Studio y Power Automate, con la cuenta de servicio `agente-dsa`, abre las conexiones de la solución y confirma que ninguna pide iniciar sesión. Si alguna lo pide, reautentícala.
 
-**6. Tres ensayos de punta a punta.** Uno por tipo de evento.
+**6. Tres ensayos de punta a punta.** Uno por tipo de evento. Espera al menos 60 s entre uno y otro: dos eventos del mismo dispositivo y tipo dentro de 60 s se cuentan como uno solo (ADR-006).
 
 ```powershell
 python -m simulator --type puerta_forzada --zone Z-03
@@ -114,6 +117,8 @@ En pantalla: los campos del incidente y ningún elemento creado.
 La página *Activity* muestra por defecto solo las ejecuciones que usaron las credenciales de quien la mira ([Review agent activity](https://learn.microsoft.com/microsoft-copilot-studio/authoring-review-activity#historical-activity)). Por eso la pestaña 3 usa la cuenta `agente-dsa`.
 
 Comparte la **ventana** de Teams, nunca la pantalla completa: así el público ve la tarjeta tal como la ves tú.
+
+En las notificaciones y en la vista previa del canal, Teams muestra "Card - access it on go.skype.com/cards.unsupported". Es normal: la tarjeta completa se ve dentro del canal. No abras la tarjeta desde la notificación.
 
 ---
 
@@ -317,7 +322,7 @@ Frase de salida para cualquier falla: "Esto es lo que debería pasar." Abre el v
 | El elemento llega a `Pendiente de decisión` pero no hay tarjeta | Falla la publicación en Teams. Muestra la lista y pasa al video | Video 1 |
 | Error de autenticación en un flujo | Conexión vencida. No se repara en vivo | Video del acto en curso |
 | La publicación del paso 3.2 pasa de 3 minutos | Sigue con el registro del paso 3.1 mientras espera; si no termina, video | Video 3 |
-| La tarjeta del paso 3.3 muestra la regla anterior | La versión publicada aún no se usa. Muestra el efecto con un evento nocturno, sin depender del reloj | `./demo/inject.ps1 -Type acceso_denegado_repetido -Zone Z-02 -FechaEventoUtc 2026-11-05T03:40:00Z`, o video 3 |
+| La tarjeta del paso 3.3 muestra la regla anterior | La versión publicada aún no se usa. Muestra el efecto con un evento nocturno, sin depender del reloj | `./demo/inject.ps1 -Type acceso_denegado_repetido -Zone Z-02 -FechaEventoUtc 2026-11-04T03:40:00Z` (22:40 COT de la noche anterior; `inject` rechaza una fecha futura), o video 3 |
 | Ves la tarjeta, el público no | Compartes la pantalla equivocada | Comparte la ventana de Teams |
 | Internet inestable | Cortes de audio | Cable, hotspot; el moderador comparte los videos |
 
