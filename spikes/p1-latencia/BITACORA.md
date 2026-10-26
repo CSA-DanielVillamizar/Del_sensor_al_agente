@@ -21,6 +21,7 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 | 11 | 2026-10-09 | Borrado del agente en español `Spike Latencia` (cambio 4) | Daniel | Limpieza del intento descartado | No aplica |
 | 12 | 2026-10-09 | Disparador SharePoint *Cuando se crea un elemento* eliminado del agente `Spike Latencia EN` (cambio 7), en todas sus versiones | `agente-dsa` | Opción A descartada (ADR-003); limpieza aprobada por Daniel | No aplica |
 | 13 | 2026-10-09 | Lista `SpikeEventosA` eliminada (cambio 1, parte de la opción A) | Daniel | Opción A descartada (ADR-003) | No aplica |
+| 14 | 2026-10-26 | Flujo HTTP del spike reutilizado como `DisparoAgente`: ahora ejecuta el Agente de Operaciones, acepta solo a la identidad de la Function y a la cuenta del operador, y recibe `{eventId}` | `agente-dsa` | El buscador de acciones del diseñador no mostraba *Ejecutar agente* del conector de Copilot Studio; reutilizar el flujo evitó el bloqueo. **Desviación del plan §15** (decía rehacerlo): pendiente agregarlo a la solución `DelSensorAlAgente` | No |
 
 ## Hallazgos que cambian la especificación
 
