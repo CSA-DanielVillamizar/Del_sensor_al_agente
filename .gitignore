@@ -26,6 +26,7 @@ obj/
 *.bicep.json
 infra/**/*.json.local
 
+# Configuración local del entorno de desarrollo: solo se versiona la definición de roles
 
 equipo/
 

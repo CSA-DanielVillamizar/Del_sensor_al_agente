@@ -71,7 +71,7 @@ Otros riesgos de identidad registrados en el plan: **R-16**, que `POST /sites/{s
 | Alternativa | Por qué no |
 | --- | --- |
 | Identidad asignada por el sistema | Su object ID cambia si se recrea la app, y la federación de la alternativa B solo admite identidades asignadas por el usuario ([Configure an application to trust a managed identity](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-config-app-trust-managed-identity#configure-a-federated-identity-credential-on-an-application)) |
-| `Sites.ReadWrite.All` para la Function | Acceso a todo el tenant; prohibido por el Art. 4 y docs/reglas-del-proyecto.md |
+| `Sites.ReadWrite.All` para la Function | Acceso a todo el tenant; prohibido por el Art. 4 y por las reglas del proyecto |
 | URL con firma (SAS) en el disparador del flujo, sin Entra ID | La URL sería un secreto que proteger y rotar; ADR-003 la descartó |
 | *Any user in my tenant* en el flujo (como en el spike) | Cualquier cuenta del tenant de la empresa podría disparar al agente; solo se aceptaría como último recurso, con aprobación de Daniel y registro en ADR-002 |
 | Clave `iothubowner` para la Function | Prohibido por CA-04.4 |

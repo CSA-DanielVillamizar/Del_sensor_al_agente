@@ -396,7 +396,7 @@ Origen: decisión de Daniel sobre el versionado.
 | El prompt maestro y el plan de la sesión no se versionan (material personal del speaker) | Decisión de versionado | `.gitignore` |
 
 ### v1.4 — 2026-10-08
-Origen: Daniel no tiene PowerShell 7 en su PC.
+Origen: el equipo de desarrollo de Daniel no tenía PowerShell 7.
 
 | Cambio | Origen | Afecta |
 | --- | --- | --- |
