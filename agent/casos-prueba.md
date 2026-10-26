@@ -32,9 +32,9 @@ Cobertura: los tres tipos (C1 y C4 `puerta_forzada`, C2 y C5 `movimiento_zona_re
 
 | Tipo | Documento en `Protocolos` |
 | --- | --- |
-| `puerta_forzada` | *(completar con el nombre de T-028)* |
-| `movimiento_zona_restringida` | *(completar con el nombre de T-028)* |
-| `acceso_denegado_repetido` | *(completar con el nombre de T-028)* |
+| `puerta_forzada` | `puerta_forzada.docx` (título: "Protocolo PR-02: Puerta forzada") |
+| `movimiento_zona_restringida` | `movimiento_zona_restringida.docx` (título: "Protocolo PR-01: Movimiento en zona restringida") |
+| `acceso_denegado_repetido` | `acceso_denegado_repetido.docx` (título: "Protocolo PR-03: Acceso denegado repetido") |
 
 El protocolo se da por acertado cuando `ProtocoloAplicado` es el documento del tipo del incidente **y** los pasos que el agente envía en `pasosProtocolo` salen de ese documento, no de otro ni inventados.
 
