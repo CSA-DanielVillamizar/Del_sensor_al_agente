@@ -12,4 +12,7 @@ regexes = [
   # eventId de ejemplo del mensaje de la Function al flujo DisparoAgente (plan §4.5).
   # Es un UUID inventado, no un identificador de tenant ni una credencial.
   '''3f2b8a4e-6c1d-4e9a-9f7b-2d5c8e1a0b37''',
+  # Cadena de conexión inventada de las pruebas del simulador: host .example (RFC 2606)
+  # y clave "clavefalsa" en base64. No da acceso a nada.
+  '''HostName=hub-falso\.example;DeviceId=sim-01;SharedAccessKey=Y2xhdmVmYWxzYQ==''',
 ]
