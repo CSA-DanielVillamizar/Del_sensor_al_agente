@@ -44,6 +44,12 @@ docs/equipo/  definición de los roles del equipo (única fuente de verdad)
 ## Configuración del entorno
 - Ningún cambio de configuración del PC de Daniel, de Azure o del tenant sin pedir permiso antes, aunque se vaya a revertir después.
 
+## Autorizaciones vigentes de la Fase 3 (Daniel, 2026-10-26)
+- Commits `T-0xx HU-xx:` y su push, sin pedir permiso en cada uno, mientras el repositorio sea privado y solo con las pruebas en verde y sin secretos ni IDs reales.
+- En Azure: registrar los proveedores de recursos y desplegar la infraestructura de `infra/` en el grupo de recursos de la demo.
+- En el tenant: ejecutar `sharepoint/provision.ps1` con la sesión de Daniel y crear con `agente-dsa` la solución, el agente y los flujos del plan.
+- Sigue requiriendo aprobación: hacer público el repositorio, cambios a la constitución y cualquier cambio fuera de lo anterior.
+
 ## Prohibido
 - Secretos, cadenas de conexión o tokens en archivos versionados.
 - Datos personales, nombres reales, imágenes de personas o instalaciones reales.

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Versión | 2.0 |
+| Versión | 2.1 |
 | Fecha | 2026-10-08 |
 | Dueño del producto | Daniel Villamizar |
 | Evento | Microsoft 365 Live 2026, 4–7 de noviembre, online por Teams, 60 min, español |
@@ -85,7 +85,7 @@ Prioridad MoSCoW: **M** = Must, **S** = Should, **C** = Could. Estimación en pu
 - **SeveridadInicial** (la calcula la función): el mayor entre `rawSeverity` del evento y la severidad base de la zona en `data/zonas.json`.
 - **SeveridadPropuesta** (la propone el agente): puede ser igual a `SeveridadInicial` o diferir en **un solo nivel**, hacia arriba o hacia abajo, y nunca sale de la escala.
 - **JustificacionSeveridad** (la escribe el agente): texto corto, obligatorio siempre que `SeveridadPropuesta` ≠ `SeveridadInicial`.
-- Regla de horario: fuera de 06:00–18:00 en `America/Bogota`, el agente sube un nivel. Esa subida cuenta dentro del límite de un nivel.
+- Regla de horario: fuera de 06:00–18:00 en `America/Bogota`, el agente sube un nivel. Esa subida cuenta dentro del límite de un nivel. Horario diurno = 06:00 ≤ hora < 18:00 (06:00 dentro, 18:00 fuera); la hora es la de `FechaEventoUtc` (v2.1).
 
 ### Épica E1 — Simulación de dispositivos
 
@@ -330,6 +330,9 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 ---
 
 ## Registro de cambios
+
+### v2.1 — 2026-10-26
+Aclaración sin cambio de alcance: bordes de la regla de horario y hora de referencia (punto A1 de `agent/casos-prueba.md`). Afecta §5.0.
 
 ### v2.0 — 2026-10-26
 Origen: cambios del plan aprobados en la Compuerta 2 (`specs/02-plan.md` §14).
