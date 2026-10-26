@@ -1,0 +1,127 @@
+# CI del repositorio (T-002 · HU-13 · RNF-05, RNF-06)
+# Corre en cada push y pull request: lint y pruebas de Python, Pester,
+# Bicep (si existe infra/main.bicep) y escaneo de secretos con gitleaks
+# sobre el historial completo.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+# Permisos mínimos: el workflow solo lee el repositorio.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python (ruff y pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            function/requirements.txt
+            simulator/requirements.txt
+
+      - name: Instalar dependencias de desarrollo
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: ruff check
+        run: ruff check .
+
+      - name: ruff format --check
+        run: ruff format --check .
+
+      - name: pytest (con cobertura de function/core cuando exista)
+        run: |
+          if [ -d function/core ]; then
+            echo "function/core existe: cobertura mínima del 80 % (CA-05.4)"
+            pytest --cov=function/core --cov-report=term-missing --cov-fail-under=80
+          else
+            echo "function/core todavía no existe: pytest sin umbral de cobertura"
+            pytest
+          fi
+
+  pester:
+    name: PowerShell 7 (Pester)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ejecutar Pester sobre las carpetas de pruebas que existan
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSVersionTable.PSVersion
+          $candidates = @('spikes/p1-latencia/tests', 'demo/tests', 'infra/tests')
+          $paths = @($candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Container })
+          if ($paths.Count -eq 0) {
+            Write-Host 'No hay carpetas de pruebas de Pester; se omite.'
+            exit 0
+          }
+          Write-Host "Carpetas: $($paths -join ', ')"
+          Install-Module Pester -MinimumVersion 5.0.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Import-Module Pester -MinimumVersion 5.0.0
+          $config = New-PesterConfiguration
+          $config.Run.Path = $paths
+          $config.Run.Exit = $true
+          $config.Output.Verbosity = 'Detailed'
+          Invoke-Pester -Configuration $config
+
+  bicep:
+    name: Bicep (build y lint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: az bicep build y az bicep lint
+        run: |
+          if [ ! -f infra/main.bicep ]; then
+            echo "infra/main.bicep todavía no existe; se omite."
+            exit 0
+          fi
+          az bicep install
+          az bicep version
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep lint --file infra/main.bicep
+
+  gitleaks:
+    name: Secretos (gitleaks, historial completo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: "8.21.2"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Descargar gitleaks y verificar su suma SHA-256
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          workdir="$(mktemp -d)"
+          curl -sSfL -o "${workdir}/${archive}" "${base}/${archive}"
+          curl -sSfL -o "${workdir}/checksums.txt" "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          (cd "${workdir}" && grep " ${archive}\$" checksums.txt | sha256sum --check --strict)
+          tar -xzf "${workdir}/${archive}" -C "${workdir}" gitleaks
+          sudo install -m 0755 "${workdir}/gitleaks" /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Escanear todo el historial de git
+        run: gitleaks git --config .gitleaks.toml --redact --verbose --exit-code 1 .

@@ -1,0 +1,15 @@
+# Configuración de gitleaks (T-002 · RNF-05, CA-13.5)
+# Extiende las reglas por defecto de gitleaks; no desactiva ninguna.
+title = "del-sensor-al-agente"
+
+[extend]
+useDefault = true
+
+# Excepciones explícitas y mínimas. Cada una lleva su motivo.
+[allowlist]
+description = "Valores ficticios documentados en specs/02-plan.md"
+regexes = [
+  # eventId de ejemplo del mensaje de la Function al flujo DisparoAgente (plan §4.5).
+  # Es un UUID inventado, no un identificador de tenant ni una credencial.
+  '''3f2b8a4e-6c1d-4e9a-9f7b-2d5c8e1a0b37''',
+]
