@@ -1,0 +1,31 @@
+{
+  "$comment": "Contrato de columnas de la lista 'Eventos de seguridad' (plan §4.3). Única fuente: lo usan sharepoint/provision.ps1 (CA-07.1), la Function para armar el cuerpo de Graph y tests/contract/test_columnas.py (CA-06.3). 'type' usa el nombre de la faceta de columnDefinition de Microsoft Graph (https://learn.microsoft.com/graph/api/resources/columndefinition). 'writers': function = Azure Function; PublicarIncidente = flujo del agente (ADR-008).",
+  "version": "1.0",
+  "list": "Eventos de seguridad",
+  "columns": [
+    { "name": "Title", "displayName": "Título", "type": "text", "required": true, "builtIn": true, "writers": ["function"], "format": "{TipoEvento} · {Zona}" },
+    { "name": "EventId", "displayName": "EventId", "type": "text", "required": true, "unique": true, "indexed": true, "writers": ["function"] },
+    { "name": "DeviceId", "displayName": "DeviceId", "type": "text", "required": true, "writers": ["function"] },
+    { "name": "TipoEvento", "displayName": "Tipo de evento", "type": "choice", "required": true, "writers": ["function"], "choices": ["movimiento_zona_restringida", "puerta_forzada", "acceso_denegado_repetido"] },
+    { "name": "Zona", "displayName": "Zona", "type": "text", "required": true, "writers": ["function"], "pattern": "^Z-\\d{2}$" },
+    { "name": "NombreZona", "displayName": "Nombre de la zona", "type": "text", "required": true, "writers": ["function"] },
+    { "name": "CamaraId", "displayName": "Cámara", "type": "text", "required": true, "writers": ["function"] },
+    { "name": "Sitio", "displayName": "Sitio", "type": "text", "required": true, "writers": ["function"] },
+    { "name": "SeveridadRaw", "displayName": "Severidad del dispositivo", "type": "choice", "required": true, "writers": ["function"], "choices": ["Baja", "Media", "Alta", "Crítica"] },
+    { "name": "SeveridadInicial", "displayName": "Severidad inicial", "type": "choice", "required": true, "writers": ["function"], "choices": ["Baja", "Media", "Alta", "Crítica"] },
+    { "name": "Repeticiones", "displayName": "Repeticiones", "type": "number", "required": true, "writers": ["function"], "integer": true, "minimum": 1 },
+    { "name": "FechaEventoUtc", "displayName": "Fecha del evento (UTC)", "type": "dateTime", "required": true, "writers": ["function"] },
+    { "name": "RecibidoUtc", "displayName": "Recibido (UTC)", "type": "dateTime", "required": true, "writers": ["function"] },
+    { "name": "EsPrueba", "displayName": "Es prueba", "type": "boolean", "required": true, "writers": ["function"] },
+    { "name": "Estado", "displayName": "Estado", "type": "choice", "required": true, "writers": ["function", "PublicarIncidente"], "default": "Nuevo", "choices": ["Nuevo", "Pendiente de decisión", "Atendido", "Escalado", "Falsa alarma", "Sin respuesta"] },
+    { "name": "SeveridadPropuesta", "displayName": "Severidad propuesta", "type": "choice", "required": false, "writers": ["PublicarIncidente"], "choices": ["Baja", "Media", "Alta", "Crítica"] },
+    { "name": "JustificacionSeveridad", "displayName": "Justificación de la severidad", "type": "text", "multiline": true, "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "ResumenAgente", "displayName": "Resumen del agente", "type": "text", "multiline": true, "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "ProtocoloAplicado", "displayName": "Protocolo aplicado", "type": "text", "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "PublicacionSolicitadaUtc", "displayName": "Publicación solicitada (UTC)", "type": "dateTime", "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "Decision", "displayName": "Decisión", "type": "choice", "required": false, "writers": ["PublicarIncidente"], "choices": ["Atender", "Escalar a autoridades", "Falsa alarma"] },
+    { "name": "DecididoPor", "displayName": "Decidido por", "type": "personOrGroup", "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "FechaDecision", "displayName": "Fecha de la decisión", "type": "dateTime", "required": false, "writers": ["PublicarIncidente"] },
+    { "name": "Observacion", "displayName": "Observación", "type": "text", "multiline": true, "required": false, "writers": ["PublicarIncidente"] }
+  ]
+}
