@@ -106,7 +106,7 @@ elseif (-not (Get-Module -ListAvailable -Name 'Microsoft.Graph.Authentication'))
 else {
     Import-Module Microsoft.Graph.Authentication
     $context = Get-MgContext
-    $missing = if ($context) { Get-DsaMissingScopes -Granted @($context.Scopes) -Required $RequiredScopes } else { $RequiredScopes }
+    $missing = @(if ($context) { Get-DsaMissingScopes -Granted @($context.Scopes) -Required $RequiredScopes } else { $RequiredScopes })
     if (-not $context -or $context.AuthType -ne 'Delegated' -or $missing.Count -gt 0) {
         Write-Host "Inicio de sesión delegado e interactivo con: $($RequiredScopes -join ', ')" -ForegroundColor Cyan
         Connect-MgGraph -Scopes $RequiredScopes -ContextScope Process -NoWelcome

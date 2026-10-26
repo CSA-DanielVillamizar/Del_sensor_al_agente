@@ -245,7 +245,7 @@ if (-not (Get-Module -ListAvailable -Name 'Microsoft.Graph.Authentication')) {
 Import-Module Microsoft.Graph.Authentication
 
 $context = Get-MgContext
-$missingScopes = if ($context) { Get-DsaMissingScopes -Granted @($context.Scopes) -Required $RequiredScopes } else { $RequiredScopes }
+$missingScopes = @(if ($context) { Get-DsaMissingScopes -Granted @($context.Scopes) -Required $RequiredScopes } else { $RequiredScopes })
 if (-not $context -or $context.AuthType -ne 'Delegated' -or $missingScopes.Count -gt 0) {
     if ($dryRun) {
         Write-Host '-WhatIf necesita una sesión de Graph para leer el tenant (solo lectura; no escribe nada). Para revisar solo la parte local usa -LocalOnly.' -ForegroundColor Yellow
@@ -312,7 +312,7 @@ else {
     $plan = @(Get-DsaProtocolPlan -Local $localDocs -Remote $remote)
     $pending = @($plan | Where-Object { $_.Action -in 'Upload', 'Replace' })
 
-    if ($pending.Count -gt 0 -and -not $dryRun) {
+    if (@($pending).Count -gt 0 -and -not $dryRun) {
         # Se genera solo si hay algo que subir: así una ejecución sin cambios no toca protocols/dist.
         $python = @(
             (Join-Path $repoRoot '.venv' 'Scripts' 'python.exe'),
