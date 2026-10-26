@@ -239,13 +239,13 @@ Describe 'Compare-DsaColumns' {
 Describe 'Get-DsaLibraryColumnContract' {
     It 'define TipoEvento con las elecciones de la lista, Version y HashFuente' {
         $lib = Get-DsaLibraryColumnContract -ListContract $script:Columns
-        $lib.name | Should -Be @('TipoEvento', 'Version', 'HashFuente')
+        $lib.name | Should -Be @('TipoEvento', 'VersionProtocolo', 'HashFuente')
         ($lib | Where-Object name -CEQ 'TipoEvento').choices | Should -Be @('movimiento_zona_restringida', 'puerta_forzada', 'acceso_denegado_repetido')
-        ($lib | Where-Object name -CEQ 'Version').type | Should -Be 'text'
+        ($lib | Where-Object name -CEQ 'VersionProtocolo').type | Should -Be 'text'
         { Assert-DsaColumnContract -Contract ([pscustomobject]@{ columns = $lib }) } | Should -Not -Throw
     }
     It 'evita el nombre visible Version de la columna integrada' {
-        ((Get-DsaLibraryColumnContract -ListContract $script:Columns) | Where-Object name -CEQ 'Version').displayName | Should -Not -Be 'Version'
+        ((Get-DsaLibraryColumnContract -ListContract $script:Columns) | Where-Object name -CEQ 'VersionProtocolo').displayName | Should -Not -Be 'Version'
     }
 }
 

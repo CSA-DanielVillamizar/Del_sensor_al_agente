@@ -350,8 +350,8 @@ function Get-DsaLibraryColumnContract {
     if (-not $tipo) { throw 'El contrato de la lista no tiene la columna TipoEvento.' }
     return @(
         [pscustomobject]@{ name = 'TipoEvento'; displayName = 'Tipo de evento'; type = 'choice'; required = $false; choices = @(Get-DsaValue $tipo 'choices') }
-        # 'Versión del protocolo' evita chocar con el nombre visible 'Version' de la columna integrada _UIVersionString.
-        [pscustomobject]@{ name = 'Version'; displayName = 'Versión del protocolo'; type = 'text'; required = $false }
+        # 'Version' es un nombre reservado en las bibliotecas (Graph responde "Field 'Version' is not recognized"): se usa VersionProtocolo.
+        [pscustomobject]@{ name = 'VersionProtocolo'; displayName = 'Versión del protocolo'; type = 'text'; required = $false }
         [pscustomobject]@{ name = 'HashFuente'; displayName = 'Hash de la fuente (SHA-256)'; type = 'text'; required = $false }
     )
 }

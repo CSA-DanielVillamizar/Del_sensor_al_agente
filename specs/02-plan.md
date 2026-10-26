@@ -165,7 +165,7 @@ Transiciones de `Estado` (CA-10.1): `Nuevo` → `Pendiente de decisión` → `At
 
 Un documento por tipo de evento (CA-07.3). La fuente es Markdown en `protocols/`. Se sube como **`.docx`**, porque es el formato que la opción de conocimiento SharePoint de Copilot Studio indexa con seguridad: la lista de tipos admitidos para SharePoint es doc, docx, ppt, pptx, pdf, xls y xlsx, sin Markdown ([Quotas and limits — Upload SharePoint limits](https://learn.microsoft.com/microsoft-copilot-studio/requirements-quotas#limits), [Knowledge sources summary](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio#knowledge-source-agent-settings)). La conversión la hace `sharepoint/build-protocols.py` con una plantilla fija.
 
-Columnas adicionales: `TipoEvento` (elección, la misma de la lista) y `Version` (texto).
+Columnas adicionales: `TipoEvento` (elección, la misma de la lista) y `VersionProtocolo` (texto; `Version` está reservado en las bibliotecas), más `HashFuente` (texto, hash SHA-256 de la fuente para que la carga sea idempotente).
 
 ### 4.5 Mensaje de la Function al flujo `DisparoAgente`
 

@@ -344,7 +344,7 @@ else {
                 $listItem = Invoke-DsaGraph -Uri "v1.0/drives/$driveId/items/$(Get-DsaValue $driveItem 'id')/listItem?`$select=id"
                 $null = Invoke-DsaGraph -Method PATCH -Uri "v1.0/sites/$siteId/lists/$libraryId/items/$(Get-DsaValue $listItem 'id')/fields" -Body ([ordered]@{
                         TipoEvento = $step.Local.TipoEvento
-                        Version    = $step.Local.Version
+                        VersionProtocolo = $step.Local.Version
                         HashFuente = $step.Local.Hash
                     })
                 if ($step.Action -eq 'Upload') { Write-DsaLine Created "$label (v$($step.Local.Version))" }
