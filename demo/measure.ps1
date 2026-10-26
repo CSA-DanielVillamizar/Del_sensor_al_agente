@@ -60,8 +60,15 @@ $scopes = @('Sites.Read.All', 'ChannelMessage.Read.All')
 if (-not ($teamId -and $channelId)) { $scopes += @('Team.ReadBasic.All', 'Channel.ReadBasic.All') }
 
 Import-Module Microsoft.Graph.Authentication
-# -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
-Connect-MgGraph -Scopes $scopes -ContextScope Process -NoWelcome
+Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) 'sharepoint' 'ProvisionLogic.psm1') -Force
+# Reutiliza una sesión delegada del mismo proceso si ya tiene los permisos (Sites.ReadWrite.All también sirve para leer).
+$context = Get-MgContext
+$granted = if ($context) { @($context.Scopes) } else { @() }
+if ((Get-DsaMissingScopes -Granted $granted -Required @('Sites.ReadWrite.All')).Count -eq 0) { $scopes = @($scopes | Where-Object { $_ -ne 'Sites.Read.All' }) }
+if (-not $context -or $context.AuthType -ne 'Delegated' -or (Get-DsaMissingScopes -Granted $granted -Required $scopes).Count -gt 0) {
+    # -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
+    Connect-MgGraph -Scopes $scopes -ContextScope Process -NoWelcome
+}
 
 # 1. Elementos de la lista.
 $site = Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($siteUrl.Host):$($siteUrl.AbsolutePath.TrimEnd('/'))?`$select=id"

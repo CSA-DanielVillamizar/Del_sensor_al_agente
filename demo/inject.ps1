@@ -82,8 +82,14 @@ if (-not $SkipFlow) {
 }
 
 Import-Module Microsoft.Graph.Authentication
-# -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
-Connect-MgGraph -Scopes 'Sites.ReadWrite.All' -ContextScope Process -NoWelcome
+Import-Module (Join-Path $root 'sharepoint' 'ProvisionLogic.psm1') -Force
+# Reutiliza una sesión delegada del mismo proceso si ya tiene el permiso (varias corridas seguidas).
+$context = Get-MgContext
+$missing = @(if ($context) { Get-DsaMissingScopes -Granted @($context.Scopes) -Required @('Sites.ReadWrite.All') } else { 'Sites.ReadWrite.All' })
+if (-not $context -or $context.AuthType -ne 'Delegated' -or $missing.Count -gt 0) {
+    # -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
+    Connect-MgGraph -Scopes 'Sites.ReadWrite.All' -ContextScope Process -NoWelcome
+}
 $site = Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($siteUrl.Host):$($siteUrl.AbsolutePath.TrimEnd('/'))?`$select=id"
 $filter = [uri]::EscapeDataString("displayName eq '$listName'")
 $list = (Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($site.id)/lists?`$filter=$filter&`$select=id").value |
