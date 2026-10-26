@@ -19,6 +19,7 @@ $script:RequiredProviders = @(
 # Archivos de contrato que la Function lee desde DSA_CONTRACTS_DIR (_contracts/ en el paquete).
 $script:ContractFiles = @(
     'schemas/evento-dispositivo.schema.json'
+    'schemas/zona.schema.json'
     'data/zonas.json'
     'sharepoint/columnas.json'
 )
@@ -179,8 +180,9 @@ function Copy-DsaContracts {
             throw "Falta el contrato $relative"
         }
         if ($PSCmdlet.ShouldProcess($Destination, "Copiar $relative")) {
-            New-Item -ItemType Directory -Path $Destination -Force | Out-Null
-            $target = Join-Path $Destination (Split-Path $relative -Leaf)
+            # Conserva la ruta relativa: la Function busca cada contrato en <_contracts>/<ruta del repositorio>.
+            $target = Join-Path $Destination $relative
+            New-Item -ItemType Directory -Path (Split-Path $target -Parent) -Force | Out-Null
             Copy-Item -LiteralPath $source -Destination $target -Force
             $copied += $target
         }

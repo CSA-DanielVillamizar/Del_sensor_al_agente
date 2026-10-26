@@ -113,12 +113,13 @@ Describe 'Copy-DsaContracts y Get-DsaPackageFiles' {
         Set-Content -Path (Join-Path $repo 'function/__pycache__/x.pyc') -Value 'x'
         Set-Content -Path (Join-Path $repo 'function/local.settings.json') -Value '{}'
     }
-    It 'copia los tres contratos a function/_contracts' {
+    It 'copia los cuatro contratos a function/_contracts conservando su ruta relativa' {
+        # La Function los busca con la misma ruta relativa que en el repositorio (function/core/contracts.py).
         $copied = Copy-DsaContracts -RepoRoot $repo
-        $copied | Should -HaveCount 3
-        Test-Path (Join-Path $repo 'function/_contracts/evento-dispositivo.schema.json') | Should -BeTrue
-        Test-Path (Join-Path $repo 'function/_contracts/zonas.json') | Should -BeTrue
-        Test-Path (Join-Path $repo 'function/_contracts/columnas.json') | Should -BeTrue
+        $copied | Should -HaveCount 4
+        foreach ($rel in 'schemas/evento-dispositivo.schema.json', 'schemas/zona.schema.json', 'data/zonas.json', 'sharepoint/columnas.json') {
+            Test-Path (Join-Path $repo "function/_contracts/$rel") | Should -BeTrue
+        }
     }
     It 'falla si falta un contrato' {
         Remove-Item (Join-Path $repo 'sharepoint/columnas.json')
@@ -135,7 +136,7 @@ Describe 'Copy-DsaContracts y Get-DsaPackageFiles' {
         $zip = Join-Path $TestDrive 'pkg.zip'
         New-DsaFunctionPackage -RepoRoot $repo -OutputZip $zip | Should -Be $zip
         $entries = [IO.Compression.ZipFile]::OpenRead($zip)
-        try { ($entries.Entries.FullName -join ';') | Should -Match '_contracts[\\/]zonas\.json' }
+        try { ($entries.Entries.FullName -join ';') | Should -Match '_contracts[\\/]data[\\/]zonas\.json' }
         finally { $entries.Dispose() }
     }
 }
