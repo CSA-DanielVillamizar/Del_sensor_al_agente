@@ -181,7 +181,7 @@ Resultado esperado: la identidad tiene el rol `write` solo sobre el sitio de la 
 Con la cuenta `agente-dsa`, sigue [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md). En resumen:
 
 1. Solución `DelSensorAlAgente` en el entorno `DSA-Demo`.
-2. Flujos `DisparoAgente`, `LeerIncidente` y `PublicarIncidente`. En `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, con el object ID de `id-dsa-func`.
+2. Flujos `DisparoAgente`, `LeerIncidente` y `PublicarIncidente`. En `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, con dos object IDs: el de `id-dsa-func` y el del operador (para `demo/retrigger.ps1` y `demo/inject.ps1`). La definición de `PublicarIncidente` se genera desde las tarjetas con `python -m agent.flows.build_publicar_incidente` (paso 6 de la guía).
 3. Agente "Agente de Operaciones" en `en-US`, con las instrucciones de [agent/instrucciones.md](agent/instrucciones.md), el conocimiento `Protocolos` y las dos herramientas.
 4. Publicación del agente y límite mensual de créditos del agente.
 
@@ -209,19 +209,19 @@ Pega la primera cadena en `IOTHUB_DEVICE_CONNECTION_STRING` y la segunda en `IOT
 ### 8. Primera tarjeta (2 min)
 
 ```powershell
-./infra/set-always-ready.ps1 -Scenario ensayo
+./infra/set-always-ready.ps1 -Scenario ensayo -ResourceGroup <grupo de recursos>
 python -m simulator --type puerta_forzada --zone Z-03
 ```
 
 Resultado esperado:
 
 - Un elemento nuevo en la lista `Eventos de seguridad`, que pasa de `Nuevo` a `Pendiente de decisión`.
-- Una tarjeta "Propuesta del Agente de Operaciones" en el canal `Centro de operaciones`, en 30 segundos o menos.
+- Una tarjeta "Propuesta del Agente de Operaciones" en el canal `Centro de operaciones`, en 30 segundos o menos. En 10 ensayos del 2026-10-26 el p90 fue de 22,6 s y el máximo, de 36,1 s ([tests/integration/ensayos.md](tests/integration/ensayos.md)).
 - Al pulsar un botón, la decisión, quién la tomó y la hora quedan en la lista.
 
 Para probar la deduplicación: `python -m simulator --type movimiento_zona_restringida --zone Z-01 --burst 20`. Resultado: un solo incidente con `Repeticiones = 20`.
 
-Al terminar, apaga la instancia *always ready*: `./infra/set-always-ready.ps1 -Scenario reposo`.
+Al terminar, apaga la instancia *always ready*: `./infra/set-always-ready.ps1 -Scenario reposo -ResourceGroup <grupo de recursos>`. Si `DSA_RESOURCE_GROUP` está cargada en la sesión, `-ResourceGroup` se puede omitir.
 
 ### Operación de la demo
 

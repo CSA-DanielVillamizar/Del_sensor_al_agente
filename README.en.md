@@ -183,7 +183,7 @@ Expected result: the identity has the `write` role on the demo site only. `DSA-C
 With the `agente-dsa` account, follow [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md). In short:
 
 1. Solution `DelSensorAlAgente` in the `DSA-Demo` environment.
-2. Flows `DisparoAgente`, `LeerIncidente` and `PublicarIncidente`. In `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, with the object ID of `id-dsa-func`.
+2. Flows `DisparoAgente`, `LeerIncidente` and `PublicarIncidente`. In `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, with two object IDs: `id-dsa-func` and the operator (for `demo/retrigger.ps1` and `demo/inject.ps1`). The `PublicarIncidente` definition is generated from the cards with `python -m agent.flows.build_publicar_incidente` (step 6 of the guide).
 3. Agent "Agente de Operaciones" in `en-US`, with the instructions in [agent/instrucciones.md](agent/instrucciones.md), the `Protocolos` knowledge source and both tools.
 4. Agent publishing and the agent's monthly credit limit.
 
@@ -211,19 +211,19 @@ Paste the first string into `IOTHUB_DEVICE_CONNECTION_STRING` and the second int
 ### 8. First card (2 min)
 
 ```powershell
-./infra/set-always-ready.ps1 -Scenario ensayo
+./infra/set-always-ready.ps1 -Scenario ensayo -ResourceGroup <resource group>
 python -m simulator --type puerta_forzada --zone Z-03
 ```
 
 Expected result:
 
 - A new item in the `Eventos de seguridad` list, moving from `Nuevo` to `Pendiente de decisión`.
-- A "Propuesta del Agente de Operaciones" card in the `Centro de operaciones` channel, in 30 seconds or less.
+- A "Propuesta del Agente de Operaciones" card in the `Centro de operaciones` channel, in 30 seconds or less. In 10 rehearsals on 2026-10-26 the p90 was 22.6 s and the maximum 36.1 s ([tests/integration/ensayos.md](tests/integration/ensayos.md)).
 - When a button is pressed, the decision, who made it and the time are stored in the list.
 
 To test deduplication: `python -m simulator --type movimiento_zona_restringida --zone Z-01 --burst 20`. Result: a single incident with `Repeticiones = 20`.
 
-When you're done, turn off the *always ready* instance: `./infra/set-always-ready.ps1 -Scenario reposo`.
+When you're done, turn off the *always ready* instance: `./infra/set-always-ready.ps1 -Scenario reposo -ResourceGroup <resource group>` (you can omit `-ResourceGroup` if `DSA_RESOURCE_GROUP` is loaded in the session).
 
 ### Running the demo
 
