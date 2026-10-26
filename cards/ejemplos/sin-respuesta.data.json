@@ -1,0 +1,9 @@
+{
+  "eventId": "7c1e9d2a-4b6f-4f0e-8a3d-5e2b9c7a1f04",
+  "tipoEvento": "acceso denegado repetido",
+  "zona": "Z-03",
+  "nombreZona": "Bodega norte",
+  "horaLocal": "14:32",
+  "severidadPropuesta": "Media",
+  "minutosEspera": "15"
+}

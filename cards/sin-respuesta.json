@@ -1,0 +1,68 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "fallbackText": "Sin respuesta en {{minutosEspera}} minutos: no se registró ninguna decisión. Ref. {{eventId}}",
+  "body": [
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Propuesta del Agente de Operaciones",
+          "size": "Medium",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+          "isSubtle": true,
+          "spacing": "None",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "warning",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Sin respuesta",
+          "weight": "Bolder",
+          "size": "Medium",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "Nadie respondió la propuesta en {{minutosEspera}} minutos. El incidente quedó en estado Sin respuesta y no se registró ninguna decisión.",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        { "title": "Tipo de evento", "value": "{{tipoEvento}}" },
+        { "title": "Zona", "value": "{{zona}} · {{nombreZona}}" },
+        { "title": "Hora local", "value": "{{horaLocal}} COT" },
+        { "title": "Severidad propuesta", "value": "{{severidadPropuesta}}" }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "La tarjeta anterior venció: pulsarla ya no cambia el incidente. Revisa el caso en la lista Eventos de seguridad y decide según el protocolo.",
+      "isSubtle": true,
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Ref. {{eventId}}",
+      "size": "Small",
+      "isSubtle": true,
+      "wrap": true
+    }
+  ]
+}

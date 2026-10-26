@@ -1,0 +1,15 @@
+{
+  "eventId": "7c1e9d2a-4b6f-4f0e-8a3d-5e2b9c7a1f04",
+  "tipoEvento": "acceso denegado repetido",
+  "zona": "Z-03",
+  "nombreZona": "Bodega norte",
+  "sitio": "Sede Demo Centro",
+  "horaLocal": "14:32",
+  "severidadInicial": "Media",
+  "severidadPropuesta": "Media",
+  "justificacionSeveridad": "Sin cambio respecto a la severidad inicial.",
+  "repeticiones": "4",
+  "resumen": "El lector de la bodega norte rechazó 4 intentos de acceso en menos de un minuto, en horario diurno. No hay señal de apertura forzada.",
+  "pasosProtocolo": "1. Revisa la cámara CAM-03. 2. Consulta el registro de accesos de la zona. 3. Anota lo que viste y elige una decisión.",
+  "protocoloAplicado": "PR-03 Acceso denegado repetido"
+}

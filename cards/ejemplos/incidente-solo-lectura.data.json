@@ -1,0 +1,19 @@
+{
+  "eventId": "3f2b8a4e-6c1d-4e9a-9f7b-2d5c8e1a0b37",
+  "tipoEvento": "puerta forzada",
+  "zona": "Z-01",
+  "nombreZona": "Sala de servidores",
+  "sitio": "Sede Demo Centro",
+  "horaLocal": "22:47",
+  "severidadInicial": "Alta",
+  "severidadPropuesta": "Crítica",
+  "justificacionSeveridad": "Ocurrió fuera del horario 06:00–18:00 (America/Bogota): la regla de horario sube un nivel.",
+  "repeticiones": "1",
+  "resumen": "El contacto magnético de la sala de servidores reporta una apertura sin credencial válida a las 22:47. Propongo severidad Crítica; la decisión es del supervisor.",
+  "pasosProtocolo": "1. Revisa la cámara CAM-01 y confirma si la puerta sigue abierta. 2. Consulta el registro de accesos. 3. Busca señales de daño visibles.",
+  "protocoloAplicado": "PR-02 Puerta forzada",
+  "decision": "Escalar a autoridades",
+  "decididoPor": "Supervisor Demo",
+  "horaDecision": "22:49",
+  "observacion": "Puerta abierta en cámara, sin persona visible."
+}

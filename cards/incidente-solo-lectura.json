@@ -1,0 +1,108 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "fallbackText": "Decisión registrada: {{decision}}, por {{decididoPor}} a las {{horaDecision}} COT. Ref. {{eventId}}",
+  "body": [
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Propuesta del Agente de Operaciones",
+          "size": "Medium",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+          "isSubtle": true,
+          "spacing": "None",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Decisión registrada: {{decision}}",
+          "weight": "Bolder",
+          "size": "Medium",
+          "wrap": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            { "title": "Decidió", "value": "{{decididoPor}}" },
+            { "title": "Hora de la decisión", "value": "{{horaDecision}} COT" },
+            { "title": "Observación", "value": "{{observacion}}" }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "Esta tarjeta es de solo lectura. La decisión quedó en el registro del incidente; ningún componente contacta a nadie.",
+          "isSubtle": true,
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        { "title": "Tipo de evento", "value": "{{tipoEvento}}" },
+        { "title": "Zona", "value": "{{zona}} · {{nombreZona}}" },
+        { "title": "Sitio", "value": "{{sitio}}" },
+        { "title": "Hora local", "value": "{{horaLocal}} COT" },
+        { "title": "Severidad inicial", "value": "{{severidadInicial}}" },
+        { "title": "Severidad propuesta", "value": "{{severidadPropuesta}}" },
+        { "title": "Repeticiones", "value": "{{repeticiones}}" }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Justificación: {{justificacionSeveridad}}",
+      "isSubtle": true,
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Resumen del agente",
+      "weight": "Bolder",
+      "spacing": "Medium",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "{{resumen}}",
+      "spacing": "None",
+      "wrap": true,
+      "maxLines": 3
+    },
+    {
+      "type": "TextBlock",
+      "text": "Protocolo sugerido: {{protocoloAplicado}}",
+      "weight": "Bolder",
+      "spacing": "Medium",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "{{pasosProtocolo}}",
+      "spacing": "None",
+      "wrap": true,
+      "maxLines": 3
+    },
+    {
+      "type": "TextBlock",
+      "text": "Ref. {{eventId}}",
+      "size": "Small",
+      "isSubtle": true,
+      "wrap": true
+    }
+  ]
+}
