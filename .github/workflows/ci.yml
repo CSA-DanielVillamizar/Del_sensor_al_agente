@@ -66,7 +66,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $PSVersionTable.PSVersion
-          $candidates = @('spikes/p1-latencia/tests', 'demo/tests', 'infra/tests')
+          $candidates = @('spikes/p1-latencia/tests', 'demo/tests', 'infra/tests', 'sharepoint/tests')
           $paths = @($candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Container })
           if ($paths.Count -eq 0) {
             Write-Host 'No hay carpetas de pruebas de Pester; se omite.'
