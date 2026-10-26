@@ -17,7 +17,7 @@ Para la demo en vivo, Daniel no dispone de esos recursos. Lo verificado en siste
 - El único tenant con administración global y licencias útiles es el de **la empresa del speaker**.
 - No se pudo crear el Sandbox: el tenant no tiene el **1 GB de capacidad de base de datos de Dataverse** disponible que exige la creación de entornos ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)).
 - El tenant tiene **capacidad de Copilot Studio en prueba** (vence 2026-11-07 05:01 UTC) y Microsoft 365 Business Premium en prueba (vence 2026-11-07 04:50 UTC). Con eso, la cuenta de Daniel **publicó** un agente del standard harness con orquestación generativa en el entorno predeterminado.
-- El tenant no tiene suscripción de Azure.
+- El tenant no tenía suscripción de Azure. **Actualización 2026-10-26:** Daniel creó la suscripción de la demo en el mismo tenant (pago por uso, sin límite de gasto) con un grupo de recursos propio; su cuenta es Owner.
 
 ## Decisión
 
@@ -33,7 +33,7 @@ Para la demo en vivo se usa el **tenant de la empresa del speaker** y su **entor
 | Auditoría de Dataverse | Activada, retención de 180 días | — | — |
 | Cuenta de servicio con licencia de usuario de Copilot Studio | `agente-dsa` con prueba de Copilot Studio | Vence con la capacidad de prueba del tenant (R-12) | Misma mitigación que la capacidad: confirmar la fecha antes del 28 de octubre |
 | Pago por uso de créditos (ADR-001) | Capacidad de prueba del tenant | Vence el 7 de noviembre a las 00:01 hora de Colombia (R-12); no está verificado que el entorno predeterminado admita pago por uso | Límite de créditos por agente; antes del 28 de octubre, confirmar la fecha de la sesión y, si hace falta, pasar a pago la capacidad |
-| Suscripción de Azure en el mismo tenant | Pendiente de crear | Sin ella no hay IoT Hub ni Function | Crearla en el tenant de la empresa del speaker antes de E2 |
+| Suscripción de Azure en el mismo tenant | Creada el 2026-10-26, pago por uso **sin límite de gasto** | Un error podría generar costos sin tope | Alerta de presupuesto al 80 % de USD 20 (CA-12.2), un máximo de 1 instancia de la Function y *always ready* solo en ensayos (ADR-005) |
 
 ## En la charla
 

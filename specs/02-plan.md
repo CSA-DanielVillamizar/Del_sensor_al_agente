@@ -315,7 +315,7 @@ La estimación por incidente y por escenario (spike, ensayos, sesión) está en 
 | R-18 | Con dos herramientas y conocimiento, el tramo 2 pasa de 20 s | T-039 | Una sola herramienta que lea el incidente y el protocolo; instrucciones más cortas |
 | R-M1 a R-M5 | Comportamientos de la tarjeta no documentados (espera, vencimiento, actualización, doble respuesta) | T-038 | Detallado en ADR-008 |
 | R-19 | **Calendario**: la implementación empieza 9 días antes de la sesión | Seguimiento diario de §12 | Recorte por prioridad: primero las historias Must; HU-02 y HU-12 se mantienen porque son pequeñas; HU-03 queda fuera |
-| R-20 | **Suscripción de Azure** aún no existe en el tenant de la demo | Daniel la crea (T-023) | Ver §12, contingencia |
+| R-20 | ~~Suscripción de Azure inexistente~~ **Cerrado el 2026-10-26:** existe en el tenant de la demo, pago por uso sin límite de gasto, Daniel es Owner. Los proveedores de recursos aún no están registrados (se registran en T-023) | — | — |
 
 ## 11. Configuración recomendada frente a la demo en vivo
 
