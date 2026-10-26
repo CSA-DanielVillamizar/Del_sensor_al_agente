@@ -28,11 +28,8 @@ infra/**/*.json.local
 
 # Configuración local del entorno de desarrollo: solo se versiona la definición de roles
 
-equipo/
+/equipo/
 
-# Material personal de preparación del speaker (no va al repositorio público)
-PROMPT-MAESTRO.md
-Del sensor al agente*Plan de sesi*.md
 
 # Sistema operativo
 .DS_Store
