@@ -112,6 +112,7 @@ Describe 'Copy-DsaContracts y Get-DsaPackageFiles' {
         Set-Content -Path (Join-Path $repo 'function/function_app.py') -Value '# app'
         Set-Content -Path (Join-Path $repo 'function/__pycache__/x.pyc') -Value 'x'
         Set-Content -Path (Join-Path $repo 'function/local.settings.json') -Value '{}'
+        Set-Content -Path (Join-Path $repo 'function/.env') -Value 'X='
     }
     It 'copia los cuatro contratos a function/_contracts conservando su ruta relativa' {
         # La Function los busca con la misma ruta relativa que en el repositorio (function/core/contracts.py).
@@ -125,12 +126,12 @@ Describe 'Copy-DsaContracts y Get-DsaPackageFiles' {
         Remove-Item (Join-Path $repo 'sharepoint/columnas.json')
         { Copy-DsaContracts -RepoRoot $repo } | Should -Throw '*columnas.json*'
     }
-    It 'excluye cachés y local.settings.json del paquete' {
+    It 'excluye cachés, local.settings.json y .env del paquete' {
         Copy-DsaContracts -RepoRoot $repo | Out-Null
         $files = Get-DsaPackageFiles -FunctionDir (Join-Path $repo 'function')
         $files | Should -Contain 'function_app.py'
         ($files -join ';') | Should -Match '_contracts'
-        ($files -join ';') | Should -Not -Match '__pycache__|local\.settings'
+        ($files -join ';') | Should -Not -Match '__pycache__|local\.settings|(^|;)\.env'
     }
     It 'genera un zip con los contratos' {
         $zip = Join-Path $TestDrive 'pkg.zip'

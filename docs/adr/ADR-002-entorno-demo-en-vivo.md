@@ -14,22 +14,22 @@ La especificación recomienda montar la solución en un **tenant de pruebas**, c
 
 Para la demo en vivo, Daniel no dispone de esos recursos. Lo verificado en sistema el 2026-10-09:
 
-- El único tenant con administración global y licencias útiles es el de **la empresa del speaker**.
+- El único tenant con administración global y licencias útiles es el de la **empresa del speaker**.
 - No se pudo crear el Sandbox: el tenant no tiene el **1 GB de capacidad de base de datos de Dataverse** disponible que exige la creación de entornos ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)).
 - El tenant tiene **capacidad de Copilot Studio en prueba** (vence 2026-11-07 05:01 UTC) y Microsoft 365 Business Premium en prueba (vence 2026-11-07 04:50 UTC). Con eso, la cuenta de Daniel **publicó** un agente del standard harness con orquestación generativa en el entorno predeterminado.
 - El tenant no tenía suscripción de Azure. **Actualización 2026-10-26:** Daniel creó la suscripción de la demo en el mismo tenant (pago por uso, sin límite de gasto) con un grupo de recursos propio; su cuenta es Owner.
 
 ## Decisión
 
-Para la demo en vivo se usa el **tenant de la empresa del speaker** y su **entorno predeterminado**, renombrado `DSA-Demo`. La marca de la empresa del speaker puede verse en pantalla y en los videos; no hay mensaje comercial.
+Para la demo en vivo se usa el **tenant de la empresa del speaker** y su **entorno predeterminado**, renombrado `DSA-Demo`. La marca de esa empresa puede verse en pantalla y en los videos; no hay mensaje comercial.
 
 ## Diferencias con la configuración recomendada y mitigaciones
 
 | Recomendado (§8.1) | Demo en vivo | Riesgo | Mitigación |
 | --- | --- | --- | --- |
-| Tenant de pruebas dedicado | Tenant de la empresa del speaker (producción de la empresa) | Exposición de datos o configuración de la empresa | Ningún identificador del tenant en el repositorio (CA-13.5); agente compartido solo con las cuentas de la demo; `Sites.Selected` solo sobre el sitio de la demo |
+| Tenant de pruebas dedicado | Tenant de la empresa del speaker (producción) | Exposición de datos o configuración de la empresa | Ningún identificador del tenant en el repositorio (CA-13.5); agente compartido solo con las cuentas de la demo; `Sites.Selected` solo sobre el sitio de la demo |
 | Sandbox dedicado con grupo de seguridad | Entorno predeterminado, sin grupo de seguridad: Learn no lo permite en ese tipo de entorno ([Control user access](https://learn.microsoft.com/power-platform/admin/control-user-access)) | Cualquier usuario del tenant puede crear en el entorno | Cuenta de servicio dedicada para el agente (Art. 4); revisar antes del evento qué otros recursos hay en el entorno |
-| Política DLP para el entorno de la demo | Sin DLP propia | Aplicarla afectaría a todos los creadores de la empresa del speaker | Se documenta en `docs/gobernanza.md` como práctica obligatoria de producción ([Secure the default environment](https://learn.microsoft.com/power-platform/guidance/adoption/secure-default-environment)) |
+| Política DLP para el entorno de la demo | Sin DLP propia | Aplicarla afectaría a todos los creadores de la empresa | Se documenta en `docs/gobernanza.md` como práctica obligatoria de producción ([Secure the default environment](https://learn.microsoft.com/power-platform/guidance/adoption/secure-default-environment)) |
 | Auditoría de Dataverse | Activada, retención de 180 días | — | — |
 | Cuenta de servicio con licencia de usuario de Copilot Studio | `agente-dsa` con prueba de Copilot Studio | Vence con la capacidad de prueba del tenant (R-12) | Misma mitigación que la capacidad: confirmar la fecha antes del 28 de octubre |
 | Pago por uso de créditos (ADR-001) | Capacidad de prueba del tenant | Vence el 7 de noviembre a las 00:01 hora de Colombia (R-12); no está verificado que el entorno predeterminado admita pago por uso | Límite de créditos por agente; antes del 28 de octubre, confirmar la fecha de la sesión y, si hace falta, pasar a pago la capacidad |

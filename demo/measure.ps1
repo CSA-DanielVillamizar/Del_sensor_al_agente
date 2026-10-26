@@ -60,7 +60,8 @@ $scopes = @('Sites.Read.All', 'ChannelMessage.Read.All')
 if (-not ($teamId -and $channelId)) { $scopes += @('Team.ReadBasic.All', 'Channel.ReadBasic.All') }
 
 Import-Module Microsoft.Graph.Authentication
-Connect-MgGraph -Scopes $scopes -NoWelcome
+# -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
+Connect-MgGraph -Scopes $scopes -ContextScope Process -NoWelcome
 
 # 1. Elementos de la lista.
 $site = Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($siteUrl.Host):$($siteUrl.AbsolutePath.TrimEnd('/'))?`$select=id"

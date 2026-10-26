@@ -41,7 +41,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 PROVIDERS=(Microsoft.Devices Microsoft.Web Microsoft.KeyVault Microsoft.Storage Microsoft.Insights
            Microsoft.OperationalInsights Microsoft.ManagedIdentity)
-CONTRACTS=(schemas/evento-dispositivo.schema.json data/zonas.json sharepoint/columnas.json)
+# Los mismos cuatro contratos que Copy-DsaContracts (infra/lib/DsaInfra.psm1), con su ruta relativa.
+CONTRACTS=(schemas/evento-dispositivo.schema.json schemas/zona.schema.json data/zonas.json sharepoint/columnas.json)
 
 echo "Suscripción: $(az account show --query name --output tsv)"
 
@@ -94,11 +95,13 @@ if [[ "$SKIP_PUBLISH" == "true" ]]; then
 elif [[ ! -f "$REPO_ROOT/function/function_app.py" ]]; then
   echo "Publicación omitida: todavía no existe function/function_app.py."
 else
-  mkdir -p "$REPO_ROOT/function/_contracts"
-  for c in "${CONTRACTS[@]}"; do cp "$REPO_ROOT/$c" "$REPO_ROOT/function/_contracts/"; done
+  for c in "${CONTRACTS[@]}"; do
+    mkdir -p "$REPO_ROOT/function/_contracts/$(dirname "$c")"
+    cp "$REPO_ROOT/$c" "$REPO_ROOT/function/_contracts/$c"
+  done
   ZIP="$(mktemp -d)/dsa-function.zip"
   (cd "$REPO_ROOT/function" && zip -qr "$ZIP" . -x '*__pycache__*' '*.pyc' '.venv/*' '.python_packages/*' \
-      'tests/*' 'local.settings.json')
+      'tests/*' 'local.settings.json' '.env' '.env.*')
   echo "Publicando $FUNC_APP..."
   az functionapp deployment source config-zip --resource-group "$RG" --name "$FUNC_APP" \
     --src "$ZIP" --build-remote true --output none
@@ -115,13 +118,16 @@ Identidad id-dsa-func
 
 Comandos del administrador del tenant (docs/admin-sites-selected.md). Sustituye <siteId>:
 # Sesión del administrador (SharePoint Administrator o superior, miembro del sitio de la demo):
-Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All'
+Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All' -ContextScope Process
 
 # Comando 1: asignar el rol de aplicación Sites.Selected de Microsoft Graph a la identidad administrada
 New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId '$OBJECT_ID' -PrincipalId '$OBJECT_ID' -ResourceId (Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'").Id -AppRoleId '883ea226-0bf2-4a8f-9f9d-92c9162a727d'
 
 # Comando 2: conceder write solo sobre el sitio de la demo (POST /sites/{siteId}/permissions)
 New-MgSitePermission -SiteId '<siteId>' -BodyParameter @{ roles = @('write'); grantedToIdentities = @(@{ application = @{ id = '$CLIENT_ID'; displayName = 'id-dsa-func' } }) }
+
+# Cierra la sesión del administrador en cuanto terminan los dos comandos
+Disconnect-MgGraph
 
 Dispositivos: az iot hub device-identity create --hub-name $IOT_HUB --device-id sim-01 --auth-type login
 EOF

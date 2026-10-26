@@ -82,7 +82,8 @@ if (-not $SkipFlow) {
 }
 
 Import-Module Microsoft.Graph.Authentication
-Connect-MgGraph -Scopes 'Sites.ReadWrite.All' -NoWelcome
+# -ContextScope Process: el token vive solo en este proceso, no en la caché del perfil.
+Connect-MgGraph -Scopes 'Sites.ReadWrite.All' -ContextScope Process -NoWelcome
 $site = Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($siteUrl.Host):$($siteUrl.AbsolutePath.TrimEnd('/'))?`$select=id"
 $filter = [uri]::EscapeDataString("displayName eq '$listName'")
 $list = (Invoke-MgGraphRequest -Method GET -Uri "v1.0/sites/$($site.id)/lists?`$filter=$filter&`$select=id").value |

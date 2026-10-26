@@ -152,7 +152,8 @@ function Test-FlowUrl {
     param([AllowEmptyString()][AllowNull()][string]$Url)
     $uri = $null
     if (-not [uri]::TryCreate($Url, [UriKind]::Absolute, [ref]$uri)) { return $false }
-    return ($uri.Scheme -eq 'https')
+    # Sin firma SAS (sig=): DisparoAgente se protege con Entra ID, no con un secreto en la URL (ADR-003, ADR-007).
+    return ($uri.Scheme -eq 'https') -and ($uri.Query -notmatch '(?i)[?&]sig=')
 }
 
 # La URL del flujo no se muestra nunca completa (puede llevar parámetros sensibles).

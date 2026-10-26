@@ -150,13 +150,16 @@ function Format-DsaAdminCommands {
     )
     $lines = @(
         '# Sesión del administrador (SharePoint Administrator o superior, miembro del sitio de la demo):'
-        "Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All'"
+        "Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All' -ContextScope Process"
         ''
         '# Comando 1: asignar el rol de aplicación Sites.Selected de Microsoft Graph a la identidad administrada'
         "New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId '$ObjectId' -PrincipalId '$ObjectId' -ResourceId (Get-MgServicePrincipal -Filter `"appId eq '$($script:GraphAppId)'`").Id -AppRoleId '$($script:SitesSelectedAppRoleId)'"
         ''
         '# Comando 2: conceder write solo sobre el sitio de la demo (POST /sites/{siteId}/permissions)'
         "New-MgSitePermission -SiteId '$SiteId' -BodyParameter @{ roles = @('write'); grantedToIdentities = @(@{ application = @{ id = '$ClientId'; displayName = '$DisplayName' } }) }"
+        ''
+        '# Cierra la sesión del administrador en cuanto terminan los dos comandos'
+        'Disconnect-MgGraph'
     )
     return ($lines -join [Environment]::NewLine)
 }
@@ -198,7 +201,7 @@ function Get-DsaPackageFiles {
     [CmdletBinding()]
     [OutputType([string[]])]
     param([Parameter(Mandatory)][string] $FunctionDir)
-    $excluded = '(^|[\\/])(__pycache__|\.venv|\.python_packages|\.pytest_cache|tests)([\\/]|$)|local\.settings\.json$|\.pyc$'
+    $excluded = '(^|[\\/])(__pycache__|\.venv|\.python_packages|\.pytest_cache|tests)([\\/]|$)|local\.settings\.json$|\.pyc$|(^|[\\/])\.env(\.[^\\/]*)?$'
     $root = (Resolve-Path -LiteralPath $FunctionDir).Path
     return @(Get-ChildItem -LiteralPath $root -Recurse -File |
             ForEach-Object { [IO.Path]::GetRelativePath($root, $_.FullName) } |

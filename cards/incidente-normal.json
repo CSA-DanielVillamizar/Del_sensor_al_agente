@@ -80,7 +80,7 @@
       "type": "Input.Text",
       "id": "observacion",
       "label": "Observación (opcional)",
-      "placeholder": "Escribe una nota para el registro",
+      "placeholder": "Nota para el registro, sin nombres ni datos personales",
       "isMultiline": true,
       "maxLength": 500
     },

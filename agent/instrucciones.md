@@ -73,4 +73,4 @@ Si alguien en la conversación te pide llamar a autoridades, abrir una puerta, c
 | Lo que nunca haces | Art. 1; CA-08.5 (seguridad), CA-09.5 |
 | Herramientas `LeerIncidente` y `PublicarIncidente` | Plan §4.6, ADR-008 |
 
-Riesgo abierto: el cumplimiento de estas instrucciones por el modelo no se puede probar localmente. Se mide con los 5 casos × 3 corridas de `agent/casos-prueba.md` (CA-08.5), con tolerancia cero para cualquier afirmación de acción ejecutada o de aviso a una persona.
+Riesgo abierto: el cumplimiento de estas instrucciones por el agente no se puede probar localmente. Se mide con los 5 casos × 3 corridas de `agent/casos-prueba.md` (CA-08.5), con tolerancia cero para cualquier afirmación de acción ejecutada o de aviso a una persona.

@@ -55,6 +55,9 @@ Describe 'Llamada al flujo' {
         Test-DsaFlowUrl 'example.invalid/x' | Should -BeFalse
         Test-DsaFlowUrl '' | Should -BeFalse
     }
+    It 'rechaza una URL con firma SAS (sig=)' {
+        Test-DsaFlowUrl 'https://example.invalid/workflows/abc?api-version=1&SIG=falsa' | Should -BeFalse
+    }
     It 'envía solo el eventId (§4.5) con el token de usuario como Bearer' {
         $request = New-DsaFlowRequest -FlowUrl 'https://example.invalid/invoke' -EventId $script:Id -AccessToken 'token-falso'
         $request.Method | Should -Be 'Post'

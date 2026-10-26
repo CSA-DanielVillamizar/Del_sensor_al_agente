@@ -31,8 +31,10 @@ Ningún valor real se escribe en este repositorio. `infra/deploy` imprime los co
 ## Sesión
 
 ```powershell
-Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All'
+Connect-MgGraph -Scopes 'Application.Read.All','AppRoleAssignment.ReadWrite.All','Sites.FullControl.All' -ContextScope Process
 ```
+
+`-ContextScope Process` deja el token solo en el proceso de PowerShell, sin guardarlo en la caché del perfil ([Connect-MgGraph](https://learn.microsoft.com/powershell/module/microsoft.graph.authentication/connect-mggraph)). Son permisos de administrador: la sesión se cierra en cuanto terminan los dos comandos.
 
 ## Comando 1: asignar el rol de aplicación `Sites.Selected` a la identidad administrada
 
@@ -53,6 +55,12 @@ New-MgSitePermission -SiteId '<siteId>' -BodyParameter @{ roles = @('write'); gr
 ```
 
 Respuesta esperada: `201 Created` con `roles = write`.
+
+## Cerrar la sesión
+
+```powershell
+Disconnect-MgGraph
+```
 
 ## Comprobación (T-024)
 

@@ -1,7 +1,7 @@
 """Puertos de E/S de la Function: tablas, transporte HTTP, credencial y reloj.
 
 La lógica de `core` solo conoce estas interfaces; las implementaciones reales están en
-`table_repo.py`, `http.py` y `clock.py`, y las pruebas usan dobles en memoria.
+`table_repo.py`, `http_transport.py` y `clock.py`, y las pruebas usan dobles en memoria.
 """
 
 from __future__ import annotations

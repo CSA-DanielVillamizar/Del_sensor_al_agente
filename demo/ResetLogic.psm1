@@ -177,7 +177,9 @@ function Test-DsaFlowUrl {
     param([AllowNull()][AllowEmptyString()][string] $FlowUrl)
     if ([string]::IsNullOrWhiteSpace($FlowUrl)) { return $false }
     $uri = $null
-    return [uri]::TryCreate($FlowUrl, [UriKind]::Absolute, [ref]$uri) -and $uri.Scheme -eq 'https'
+    # Sin firma SAS (sig=): DisparoAgente se protege con Entra ID, no con un secreto en la URL (ADR-003, ADR-007).
+    return [uri]::TryCreate($FlowUrl, [UriKind]::Absolute, [ref]$uri) -and $uri.Scheme -eq 'https' -and
+        $uri.Query -notmatch '(?i)[?&]sig='
 }
 
 # Parámetros de Invoke-WebRequest para llamar a DisparoAgente con el cuerpo de §4.5: solo el eventId.

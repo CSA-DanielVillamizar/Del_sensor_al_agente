@@ -153,6 +153,10 @@ Describe 'Llamada al flujo DisparoAgente' {
         Test-FlowUrl 'http://example.invalid/workflows/x' | Should -BeFalse
         Test-FlowUrl '' | Should -BeFalse
     }
+    It 'rechaza una URL con firma SAS (sig=)' {
+        Test-FlowUrl 'https://example.invalid/workflows/x?api-version=1&sig=falsa' | Should -BeFalse
+        Test-FlowUrl 'https://example.invalid/workflows/x?api-version=1' | Should -BeTrue
+    }
     It 'oculta la ruta y la consulta al mostrar la URL' {
         Get-RedactedUrl 'https://example.invalid/workflows/abc?sig=secreto' | Should -Be 'https://example.invalid/…'
     }

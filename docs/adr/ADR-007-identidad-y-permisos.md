@@ -25,7 +25,7 @@
 | `id-dsa-func` | Identidad administrada **asignada por el usuario**, en el grupo de recursos de la demo | Todo lo que hace la Function: almacenamiento del host, Table, Key Vault, Application Insights, Graph y el flujo HTTP | Ninguna en manos de nadie (la gestiona Azure) |
 | `sim-01`, `preflight-01` y, si HU-03 sigue, `pi-01` | Identidades de dispositivo en IoT Hub | Enviar mensajes dispositivo-nube | Clave simétrica por dispositivo, solo en `.env` local (CA-01.4). La Function marca `EsPrueba = Sí` cuando `iothub_metadata["connection-device-id"]` es `preflight-01`, un valor que pone IoT Hub y no el emisor |
 | `agente-dsa` | Cuenta de servicio de Microsoft 365 (arquitecto-m365) | Dueña del agente y de los flujos | Sin permisos de Azure |
-| Daniel (operador) | Usuario | Desplegar, `demo/reset`, `demo/preflight` | Su sesión de `az` y de Graph; ningún secreto en archivos |
+| Daniel (operador) | Usuario | Desplegar, dar de alta los dispositivos, `sharepoint/provision`, `demo/reset`, `demo/preflight`, `demo/retrigger`, `demo/inject`, `demo/measure` | Su sesión de `az` y de Graph; ningún secreto en archivos |
 
 ### 2. Permisos de `id-dsa-func`
 
@@ -51,8 +51,27 @@ Mejora posible, **fuera del alcance aprobado:** `Lists.SelectedOperations.Select
 | --- | --- | --- |
 | Grupo de recursos de la demo | *Owner* (o *Contributor* + *Role Based Access Control Administrator*) | Bicep crea asignaciones de roles |
 | Storage | *Storage Table Data Contributor* (parámetro `operatorPrincipalId`) | `demo/reset` vacía `dedup` y `ratelimit` (ADR-006) |
-| Microsoft Graph (delegado) | Lo que defina arquitecto-m365 para `demo/reset` | CA-14.2: el reinicio usa la identidad de Daniel, no la de la Function |
-| Tenant | Administrador global o de SharePoint + aplicación con `AppRoleAssignment.ReadWrite.All` y `Sites.FullControl.All` delegados, **solo** durante los dos comandos | CA-06.4 |
+| IoT Hub de la demo | *IoT Hub Registry Contributor* (parámetro `operatorPrincipalId`), con ámbito **solo el hub** | Crear `sim-01` y `preflight-01` y leer su cadena de conexión con `--auth-type login` (ver abajo) |
+| Microsoft Graph (delegado) | Por script, en la tabla siguiente | CA-14.2: el reinicio usa la identidad de Daniel, no la de la Function |
+| Tenant | Administrador global o de SharePoint + `Application.Read.All`, `AppRoleAssignment.ReadWrite.All` y `Sites.FullControl.All` delegados, **solo** durante los dos comandos (`Connect-MgGraph -ContextScope Process` y `Disconnect-MgGraph` al terminar) | CA-06.4. `Application.Read.All` es para `Get-MgServicePrincipal` en el comando 1 ([Grant API permissions to managed identities](https://learn.microsoft.com/powershell/entra-powershell/grant-api-permissions-managed-identity)) |
+
+**Rol *IoT Hub Registry Contributor* del operador (revisado y aprobado por revisor-seguridad, 2026-10-26).** No estaba en la versión aprobada en la Fase 2; lo añadió `infra/modules/iothub.bicep` (T-016) y se acepta por estas razones:
+
+- La plantilla deja **una sola** política de acceso compartido en el hub, `func-reader` con solo `ServiceConnect`, y no crea `iothubowner` (CA-04.4). Sin ese rol de datos, el operador no tendría forma de dar de alta los dispositivos sin volver a una clave con `RegistryWrite`, que sería un secreto más.
+- Es el rol integrado de menor privilegio para escribir en el registro de identidades con Entra ID ([Control access to IoT Hub by using Microsoft Entra ID](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-azure-ad), [IoT Hub Registry Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/internet-of-things#iot-hub-registry-contributor)). No da `ServiceConnect` (no lee la telemetría ni envía mensajes a los dispositivos) ni permisos de control sobre el recurso.
+- Ámbito: el recurso IoT Hub de la demo, no el grupo ni la suscripción. Se asigna solo si `infra/deploy` recibe el object ID de la sesión de `az` (`-SkipOperatorRoles` lo omite) y desaparece con `infra/destroy`.
+- Riesgo aceptado: con el rol, el operador puede leer las claves simétricas de los dispositivos. Es el mismo dato que ya guarda en su `.env` local (CA-01.4). En producción, el alta de dispositivos la haría un proceso de aprovisionamiento (DPS) y el rol se quitaría a las personas.
+
+**Ámbitos delegados de Graph del operador** (sesión interactiva con `-ContextScope Process`, sin caché en disco; ningún permiso de aplicación):
+
+| Script | Ámbitos | Por qué son los mínimos |
+| --- | --- | --- |
+| `sharepoint/provision.ps1` | `Sites.Manage.All`, `Files.ReadWrite.All` | Crear listas y columnas exige `Sites.Manage.All` ([Create list](https://learn.microsoft.com/graph/api/list-create#permissions)); subir el `.docx` a la biblioteca de un sitio exige `Files.ReadWrite.All`, porque `Files.ReadWrite` solo cubre los archivos propios ([Upload content](https://learn.microsoft.com/graph/api/driveitem-put-content#permissions)) |
+| `demo/reset.ps1`, `demo/inject.ps1` | `Sites.ReadWrite.All` | Borrar y crear elementos de lista ([Delete listItem](https://learn.microsoft.com/graph/api/listitem-delete#permissions), [Create listItem](https://learn.microsoft.com/graph/api/listitem-create#permissions)) |
+| `demo/retrigger.ps1` | `Sites.Read.All` | Solo lee el elemento por `EventId` |
+| `demo/measure.ps1` | `Sites.Read.All`, `ChannelMessage.Read.All`; `Team.ReadBasic.All` y `Channel.ReadBasic.All` solo si no se dan `DSA_TEAM_ID` y `DSA_CHANNEL_ID` | Leer la lista y los mensajes del canal ([List channel messages](https://learn.microsoft.com/graph/api/channel-list-messages#permissions)) |
+
+Los tokens del flujo (`retrigger`, `inject`) y de Table Storage (`reset`) salen de la sesión de `az` del operador y no se escriben en disco ni en pantalla.
 
 ### 4. Token para el flujo HTTP y riesgo R-13
 

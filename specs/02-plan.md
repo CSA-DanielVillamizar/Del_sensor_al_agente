@@ -31,7 +31,7 @@ flowchart LR
     FN["Function ingest_event<br/>Flex Consumption 512 MB"]
     TBL[("Table Storage<br/>dedup · ratelimit")]
     KV["Key Vault<br/>iothub-func-reader"]
-    AI["Application Insights"]
+    APPI["Application Insights"]
     MI(["id-dsa-func<br/>identidad administrada"])
   end
   subgraph M365["Microsoft 365"]
@@ -48,7 +48,7 @@ flowchart LR
   IOT -- "endpoint integrado" --> FN
   KV -. "referencia" .-> FN
   FN <--> TBL
-  FN -- "logs con eventId" --> AI
+  FN -- "logs con eventId" --> APPI
   MI -. "token" .-> FN
   FN -- "1. Graph, Sites.Selected" --> LIST
   FN -- "2. POST {eventId}" --> HTTPF
@@ -255,7 +255,7 @@ El detalle de Azure está en [ADR-007](../docs/adr/ADR-007-identidad-y-permisos.
 | `id-dsa-func` (identidad administrada asignada por el usuario) | Storage (blob y tablas), Key Vault Secrets User, Monitoring Metrics Publisher, Graph `Sites.Selected` con `write` solo en el sitio de la demo, entrada autorizada del disparador de `DisparoAgente` | Bicep, más dos comandos del administrador (CA-06.4), más la configuración del flujo |
 | Dispositivos `sim-01`, `preflight-01` | Envío dispositivo-nube con clave simétrica propia | IoT Hub; la clave vive solo en `.env` local |
 | `agente-dsa` (cuenta de servicio) | Licencia de Copilot Studio; dueña del agente, los flujos y sus conexiones (SharePoint, Teams, Office 365 Users, Copilot Studio); miembro del equipo `DSA-Demo` | Portal (guía) |
-| Daniel (operador) | Owner del grupo de recursos; Storage Table Data Contributor para `demo/reset`; Graph delegado `Sites.Manage.All` para `provision.ps1`, `Sites.ReadWrite.All` para `reset.ps1` y `ChannelMessage.Read.All` para `measure.ps1`; segunda entrada autorizada en `DisparoAgente`, solo para `retrigger` e `inject` | Sesión interactiva; ningún secreto en archivos |
+| Daniel (operador) | Owner del grupo de recursos; Storage Table Data Contributor para `demo/reset`; IoT Hub Registry Contributor solo sobre el hub, para dar de alta los dispositivos; Graph delegado `Sites.Manage.All` y `Files.ReadWrite.All` para `provision.ps1`, `Sites.ReadWrite.All` para `reset.ps1` e `inject.ps1`, `Sites.Read.All` para `retrigger.ps1` y `Sites.Read.All` con `ChannelMessage.Read.All` para `measure.ps1` (detalle en ADR-007 §3); segunda entrada autorizada en `DisparoAgente`, solo para `retrigger` e `inject` | Sesión interactiva con `-ContextScope Process`; ningún secreto en archivos |
 
 Reglas: ningún secreto en el repositorio ni en la configuración de la app; la única cadena de conexión (la de IoT Hub para el disparador) vive en Key Vault con una política dedicada que solo tiene `ServiceConnect` (deuda documentada en ADR-005 y en `docs/gobernanza.md`). Toda tarea que toque esta tabla la revisa el revisor-seguridad.
 
