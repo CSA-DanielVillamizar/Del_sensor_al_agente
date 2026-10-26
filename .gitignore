@@ -39,3 +39,7 @@ Thumbs.db
 
 # Resultados locales de spikes (pueden contener IDs del tenant)
 spikes/**/resultados/
+
+# Generados a partir de protocols/*.md (sharepoint/build-protocols.py)
+protocols/dist/
+function/_contracts/
