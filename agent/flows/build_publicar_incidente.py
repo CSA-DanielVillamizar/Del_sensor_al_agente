@@ -66,21 +66,46 @@ def _trunc(expr: str, size: int) -> str:
     return f"substring({_str(expr)}, 0, min(length({_str(expr)}), {size}))"
 
 
-def _card(name: str) -> str:
-    return json.dumps(
-        json.loads((CARDS / name).read_text(encoding="utf-8")), ensure_ascii=False, separators=(",", ":")
-    )
+def _card(name: str) -> dict[str, Any]:
+    return json.loads((CARDS / name).read_text(encoding="utf-8"))
 
 
 def _markers(name: str) -> list[str]:
     return sorted(set(re.findall(r"\{\{(\w+)\}\}", (CARDS / name).read_text(encoding="utf-8"))))
 
 
-def _fill(template_expr: str, values: dict[str, str], markers: list[str]) -> str:
-    expr = template_expr
+def _card_steps(
+    target: str, cards: list[str], values: dict[str, str], after: dict, high_expr: str | None = None
+) -> dict[str, Any]:
+    """Acciones que arman una tarjeta: plantilla, valores escapados y reemplazo de marcadores.
+
+    Cada expresión del lenguaje de flujos admite como máximo 8192 caracteres; por eso la plantilla va como
+    objeto en su propio Compose y cada valor se escapa en una propiedad aparte.
+    """
+    ok = ["Succeeded"]
+    steps: dict[str, Any] = {}
+    previous = after
+    names = []
+    for card in cards:
+        name = "Plantilla_" + Path(card).stem.replace("-", "_")
+        steps[name] = {"type": "Compose", "inputs": _card(card), "runAfter": previous}
+        previous, names = {name: ok}, [*names, name]
+    markers = sorted({m for card in cards for m in _markers(card)})
+    values_name = "Valores_" + target
+    steps[values_name] = {
+        "type": "Compose",
+        "inputs": {m: "@{" + _esc(values[m]) + "}" for m in markers},
+        "runAfter": previous,
+    }
+    if high_expr:
+        # cards = [normal, alta]
+        expr = f"if({high_expr}, string(outputs('{names[1]}')), string(outputs('{names[0]}')))"
+    else:
+        expr = f"string(outputs('{names[0]}'))"
     for marker in markers:
-        expr = f"replace({expr}, {_lit('{{' + marker + '}}')}, {_esc(values[marker])})"
-    return expr
+        expr = f"replace({expr}, {_lit('{{' + marker + '}}')}, string(outputs('{values_name}')?['{marker}']))"
+    steps[target] = _compose("@" + expr, {values_name: ok})
+    return steps
 
 
 def _item_values(item: str) -> dict[str, str]:
@@ -231,14 +256,11 @@ def build_definition(
             ),
         }
     )
-    normal, alta = "incidente-normal.json", "incidente-alta.json"
-    card_markers = sorted(set(_markers(normal)) | set(_markers(alta)))
     is_high = (
         "or(equals(outputs('Severidad_final'), 'Alta'), equals(outputs('Severidad_final'), "
         + _lit("Crítica")
         + "))"
     )
-    template = f"if({is_high}, {_lit(_card(alta))}, {_lit(_card(normal))})"
 
     pending_body = (
         '{"Estado": "Pendiente de decisión", '
@@ -327,8 +349,12 @@ def build_definition(
             after={"Severidad_final": ok},
             site_url=site_url,
         ),
-        "Armar_tarjeta": _compose(
-            "@" + _fill(template, final_values, card_markers), {"Actualizar_pendiente": ok}
+        **_card_steps(
+            "Armar_tarjeta",
+            ["incidente-normal.json", "incidente-alta.json"],
+            final_values,
+            {"Actualizar_pendiente": ok},
+            high_expr=is_high,
         ),
         "Responder_publicado": _response("publicado", {"Armar_tarjeta": ok}),
         WAIT: wait_action,
@@ -360,13 +386,10 @@ def build_definition(
                     after={"Asegurar_usuario": ok},
                     site_url=site_url,
                 ),
-                "Armar_tarjeta_solo_lectura": _compose(
-                    "@"
-                    + _fill(
-                        _lit(_card("incidente-solo-lectura.json")),
-                        readonly_values,
-                        _markers("incidente-solo-lectura.json"),
-                    ),
+                **_card_steps(
+                    "Armar_tarjeta_solo_lectura",
+                    ["incidente-solo-lectura.json"],
+                    readonly_values,
                     {"Registrar_decision": ok},
                 ),
                 "Publicar_solo_lectura": _post_card(
@@ -413,11 +436,10 @@ def build_definition(
                     merge=True,
                     site_url=site_url,
                 ),
-                "Armar_tarjeta_sin_respuesta": _compose(
-                    "@"
-                    + _fill(
-                        _lit(_card("sin-respuesta.json")), readonly_values, _markers("sin-respuesta.json")
-                    ),
+                **_card_steps(
+                    "Armar_tarjeta_sin_respuesta",
+                    ["sin-respuesta.json"],
+                    readonly_values,
                     {"Marcar_sin_respuesta": ok},
                 ),
                 "Publicar_sin_respuesta": _post_card(

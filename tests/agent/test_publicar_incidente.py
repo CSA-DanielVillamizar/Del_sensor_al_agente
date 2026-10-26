@@ -137,3 +137,20 @@ def test_no_tenant_values_in_definition_besides_parameters(flow):
 def test_uses_existing_connection_references(flow):
     refs = flow["connectionReferences"]
     assert set(refs) == {"shared_sharepointonline", "shared_teams"}
+
+
+def _strings(node):
+    if isinstance(node, dict):
+        for value in node.values():
+            yield from _strings(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _strings(value)
+    elif isinstance(node, str):
+        yield node
+
+
+def test_every_expression_fits_the_platform_limit(flow):
+    # La plataforma rechaza al activar cualquier expresión de más de 8192 caracteres.
+    longest = max(len(s) for s in _strings(flow["definition"]) if "@" in s)
+    assert longest <= 8192
