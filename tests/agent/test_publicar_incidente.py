@@ -154,3 +154,12 @@ def test_every_expression_fits_the_platform_limit(flow):
     # La plataforma rechaza al activar cualquier expresión de más de 8192 caracteres.
     longest = max(len(s) for s in _strings(flow["definition"]) if "@" in s)
     assert longest <= 8192
+
+
+def test_handled_timeout_ends_the_run_as_succeeded(flow):
+    # El vencimiento es un resultado esperado (CA-10.5): la ejecución no debe quedar en rojo en el historial.
+    branch = _actions(flow["definition"])["Si_vencio_sigue_pendiente"]["actions"]
+    end = branch["Terminar_sin_respuesta"]
+    assert end["type"] == "Terminate"
+    assert end["inputs"]["runStatus"] == "Succeeded"
+    assert end["runAfter"] == {"Publicar_sin_respuesta": ["Succeeded"]}

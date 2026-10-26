@@ -448,6 +448,12 @@ def build_definition(
                     channel_id,
                     {"Armar_tarjeta_sin_respuesta": ok},
                 ),
+                # El vencimiento manejado es un resultado esperado: sin esto la ejecución queda como fallida.
+                "Terminar_sin_respuesta": {
+                    "type": "Terminate",
+                    "inputs": {"runStatus": "Succeeded"},
+                    "runAfter": {"Publicar_sin_respuesta": ok},
+                },
             },
             "else": {"actions": {}},
             "runAfter": {"Leer_estado_al_vencer": ok},
