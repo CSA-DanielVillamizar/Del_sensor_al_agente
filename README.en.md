@@ -10,6 +10,8 @@ A sensor reports an event: a forced door, motion in a restricted zone or repeate
 
 All data is fictitious: zones, cameras, protocols and accounts.
 
+Want to see it working before you deploy it? Three short demo videos, one per act (in Spanish, with subtitles), are in [docs/videos.md](docs/videos.md).
+
 Resource names stay in Spanish (for example, the list `Eventos de seguridad`, the library `Protocolos` and the channel `Centro de operaciones`), because the scripts and the agent use them as identifiers. The rest of the repository documentation is in Spanish.
 
 ## Contents

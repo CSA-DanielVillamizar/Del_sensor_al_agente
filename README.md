@@ -10,6 +10,8 @@ Un sensor reporta un evento: una puerta forzada, movimiento en una zona restring
 
 Todos los datos son ficticios: zonas, cámaras, protocolos y cuentas.
 
+¿Quieres verlo funcionando antes de desplegarlo? Hay tres videos cortos de la demo, uno por acto, en [docs/videos.md](docs/videos.md).
+
 ## Contenido
 
 - [Arquitectura](#arquitectura)

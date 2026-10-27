@@ -104,6 +104,8 @@ Dieciséis componentes en total. Cada uno tiene una sola tarea, y ninguno puede 
 - La **regla de horario** se cambió en vivo, con texto, en las instrucciones del agente, y se publicó. El siguiente evento recibió otra propuesta: "sin cambio respecto a la severidad inicial".
 - Una tarjeta quedó sin responder a propósito. A los 15 minutos pasa a `Sin respuesta`, **sin ninguna decisión por defecto**.
 
+**Los videos de los tres actos**, con su reseña y subtítulos, están en [videos.md](videos.md).
+
 ### 1.6 Qué se automatiza y qué no
 
 | Se automatiza | Lo decide siempre una persona |
@@ -402,6 +404,8 @@ Un presupuesto de Azure avisa, pero no detiene el consumo. Fija además un lími
 ### Enlaces
 
 **Repositorio de la sesión:** https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente
+
+**Videos de la demo:** [videos.md](videos.md)
 
 **Documentación oficial en Microsoft Learn:**
 - [Llamar a agentes de Copilot Studio desde Power Automate](https://learn.microsoft.com/power-automate/call-copilot-studio-agent#call-a-standard-harness-agent-from-a-cloud-flow)

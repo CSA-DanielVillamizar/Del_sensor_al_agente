@@ -41,3 +41,6 @@ spikes/**/resultados/
 # Generados a partir de protocols/*.md (sharepoint/build-protocols.py)
 protocols/dist/
 function/_contracts/
+
+# Material local del speaker (presentación con foto, guion e instructivo técnico)
+presentacion/

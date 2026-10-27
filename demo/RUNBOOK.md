@@ -337,7 +337,7 @@ Reglas del plan B:
 
 ## 6. Videos de respaldo
 
-Se graban el día del congelamiento de contenido, después de un ensayo completo en verde (T-053). Se guardan fuera del repositorio. Cada video muestra el resultado esperado, sin voz, para narrarlo en vivo.
+Se graban el día del congelamiento de contenido, después de un ensayo completo en verde (T-053). No se versionan en el historial: se publican como archivos de la versión `videos-demo` del repositorio, con su reseña en [docs/videos.md](../docs/videos.md). Cada video muestra el resultado esperado, con voz y subtítulos; en vivo se puede bajar el volumen y narrarlo.
 
 | Video | Duración | Acto | Qué debe mostrar |
 | --- | --- | --- | --- |
