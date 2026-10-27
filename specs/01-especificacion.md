@@ -288,7 +288,7 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
 - **Tenant:** el de la empresa del speaker. Su marca puede verse en la demo y en los videos, sin mensaje comercial. En el repositorio no se escriben IDs de tenant ni de entorno, URL de sitios ni correos (CA-13.5).
 - **Entorno:** el predeterminado del tenant, renombrado `DSA-Demo`, porque no hay capacidad de Dataverse para crear un Sandbox ([Create environment](https://learn.microsoft.com/power-platform/admin/create-environment#create-an-environment-with-a-database)). Sin grupo de seguridad (Learn no lo permite en ese tipo de entorno, [Control user access](https://learn.microsoft.com/power-platform/admin/control-user-access)) y sin DLP propia (afectaría a toda la empresa); auditoría de Dataverse y registro de acceso activados, con retención de 180 días (verificado en el portal el 2026-10-09).
 - **Licencias verificadas en sistema el 2026-10-09:** Microsoft 365 Business Premium en prueba (vence 2026-11-07 04:50 UTC) y capacidad de Copilot Studio del tenant en prueba (vence 2026-11-07 05:01 UTC). La cuenta de Daniel publicó un agente del standard harness con orquestación generativa: **B-01 resuelto para la demo mientras dure la prueba.**
-- **Fecha de la sesión:** 4 de noviembre de 2026 (hora por confirmar). **Riesgo R-12 mitigado:** las pruebas vencen el 7 de noviembre a las 00:01 hora de Colombia, unos tres días después. Si la sesión se mueve al 6 o al 7 de noviembre, el riesgo vuelve a estar abierto y hay que pasar a pago la capacidad antes del 28 de octubre.
+- **Fecha de la sesión:** 4 de noviembre de 2026 a las 21:00 hora de Colombia (confirmada por Daniel el 2026-10-27). La demo cae entre las 21:18 y las 21:40, fuera del horario diurno: en el paso 3.2 del runbook aplica la fila "después de las 18:00". **Riesgo R-12 mitigado:** las pruebas vencen el 7 de noviembre a las 00:01 hora de Colombia, unos tres días después. Si la sesión se mueve al 6 o al 7 de noviembre, el riesgo vuelve a estar abierto y hay que pasar a pago la capacidad antes del 28 de octubre.
 - **Recursos de Microsoft 365 verificados en sistema el 2026-10-09 (Microsoft Graph):**
   - Cuenta de servicio del agente `agente-dsa`, habilitada, con Microsoft 365 Business Premium y **sin roles de directorio** (Art. 4).
   - Cuenta `SupervisorDemo` ("Supervisor Demo"), habilitada, con Microsoft 365 Business Premium y sin roles de directorio.
@@ -296,7 +296,6 @@ Prioridad: M · Estimación: 3 · Rol: instructor-tecnico + qa-verificacion
   - `agente-dsa` con prueba de Copilot Studio (necesaria para la orquestación generativa; lo recomendado es la licencia de usuario, §8.1). Vence con la capacidad de prueba del tenant.
   - Sitio de SharePoint de la demo y sitio de control `DSA-Control` (CA-06.2), ambos existentes.
 - **Suscripción de Azure** verificada el 2026-10-26: en el mismo tenant, pago por uso sin límite de gasto, Daniel es Owner (ADR-002).
-- **Pendientes:** hora de la sesión.
 - Supuesto descartado: Microsoft 365 Copilot en las cuentas de prueba (P4); no aparece en ninguna cuenta revisada.
 
 ## 9. Calendario

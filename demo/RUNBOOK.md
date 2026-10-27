@@ -268,7 +268,8 @@ Qué cambiar, según la hora de la sesión:
 | Hora de la sesión (COT) | Cambio en el bloque | Efecto en el segundo evento |
 | --- | --- | --- |
 | Entre 06:00 y 18:00 | Reemplaza las dos apariciones de `18:00` por la hora en punto anterior a la actual. Ejemplo: si son las 15:20, usa `15:00` | La hora actual queda "fuera de horario": la severidad sube un nivel |
-| Antes de 06:00 o después de 18:00 | Reemplaza las dos apariciones de `18:00` por `24:00` | La hora actual queda "en horario": la severidad no sube |
+| Después de 18:00 (la sesión es a las 21:00) | Reemplaza las dos apariciones de `18:00` por `24:00` | La hora actual queda "en horario": la severidad no sube |
+| Antes de 06:00 (solo ensayos de madrugada) | Reemplaza las dos apariciones de `18:00` por `24:00` y las dos de `06:00` por `00:00` | La hora actual queda "en horario": la severidad no sube. Con solo el cambio a `24:00`, la hora sigue fuera del horario y la severidad sube igual |
 
 Fuera del bloque no hay horas ni zona horaria, así que el resto de las instrucciones no cambia.
 
