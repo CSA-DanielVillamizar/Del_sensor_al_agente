@@ -12,6 +12,8 @@ Todos los datos son ficticios: zonas, cámaras, protocolos y cuentas.
 
 ¿Quieres verlo funcionando antes de desplegarlo? Hay tres videos cortos de la demo, uno por acto, en [docs/videos.md](docs/videos.md).
 
+¿Quieres reproducirlo entendiendo cada paso? El [manual técnico](docs/Manual_Tecnico.md) explica cada configuración y cada pieza de código: qué hace, por qué y cómo comprobarla.
+
 ## Contenido
 
 - [Arquitectura](#arquitectura)

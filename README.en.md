@@ -12,6 +12,8 @@ All data is fictitious: zones, cameras, protocols and accounts.
 
 Want to see it working before you deploy it? Three short demo videos, one per act (in Spanish, with subtitles), are in [docs/videos.md](docs/videos.md).
 
+Want to rebuild it understanding every step? The [technical manual](docs/Manual_Tecnico.md) (in Spanish) explains every configuration and every piece of code: what it does, why, and how to verify it.
+
 Resource names stay in Spanish (for example, the list `Eventos de seguridad`, the library `Protocolos` and the channel `Centro de operaciones`), because the scripts and the agent use them as identifiers. The rest of the repository documentation is in Spanish.
 
 ## Contents
