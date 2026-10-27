@@ -133,9 +133,7 @@ Dieciséis componentes en total. Cada uno tiene una sola tarea, y ninguno puede 
 
 ## Parte 2 · Cómo reproducirlo en tu tenant
 
-Tiempo estimado: **60 minutos**, si ya tienes el tenant, la suscripción, el entorno y las licencias. La guía completa y siempre actualizada es el [README del repositorio](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente). Aquí va el recorrido con más explicación.
-
-> **Si el enlace del repositorio todavía no abre**, es porque se publica después de la sesión. Vuelve a intentarlo en unos días.
+Tiempo estimado: **60 minutos**, si ya tienes el tenant, la suscripción, el entorno y las licencias. La guía completa y siempre actualizada es el [README del repositorio](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente). Aquí va el recorrido con más explicación. Si quieres el detalle de cada configuración y de cada pieza de código, sigue el [manual técnico](Manual_Tecnico.md).
 
 ### 2.1 Antes de empezar: requisitos
 
@@ -406,6 +404,8 @@ Un presupuesto de Azure avisa, pero no detiene el consumo. Fija además un lími
 **Repositorio de la sesión:** https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente
 
 **Videos de la demo:** [videos.md](videos.md)
+
+**Manual técnico paso a paso:** [Manual_Tecnico.md](Manual_Tecnico.md)
 
 **Documentación oficial en Microsoft Learn:**
 - [Llamar a agentes de Copilot Studio desde Power Automate](https://learn.microsoft.com/power-automate/call-copilot-studio-agent#call-a-standard-harness-agent-from-a-cloud-flow)
