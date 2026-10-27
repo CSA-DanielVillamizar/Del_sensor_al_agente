@@ -12,6 +12,16 @@ Gracias por asistir. Este documento tiene tres partes:
 
 > **Todos los datos son ficticios:** zonas, cámaras, protocolos y cuentas. No uses datos reales de personas ni de instalaciones para probar este patrón.
 
+### Comparte la sesión
+
+Si publicas algo de esta sesión, usa **#M365Live** y **#Microsoft365Live2026**, menciona a **Microsoft 365 Live** y etiqueta al speaker, Daniel Villamizar:
+
+| Red | Enlace |
+| --- | --- |
+| LinkedIn | [linkedin.com/in/danielvillamizara](https://www.linkedin.com/in/danielvillamizara/) |
+| Instagram | [instagram.com/danielvillamizara](https://www.instagram.com/danielvillamizara/) |
+| GitHub | [github.com/CSA-DanielVillamizar](https://github.com/CSA-DanielVillamizar) |
+
 ---
 
 ## Parte 1 · Lo que viste en la sesión
@@ -38,7 +48,45 @@ Una alerta de seguridad física llega a Microsoft Teams como una *propuesta*: qu
 | 4 | **Copilot Studio** | Un flujo despierta al agente con el identificador del evento. El agente lee el incidente, consulta el protocolo en la biblioteca `Protocolos` y propone una severidad |
 | 5 | **Teams** | La propuesta llega como tarjeta al canal `Centro de operaciones`. El supervisor elige *Atender*, *Escalar a autoridades* o *Falsa alarma* |
 
-### 1.4 Los tres actos de la demo
+### 1.4 Los componentes, uno por uno
+
+Dieciséis componentes en total. Cada uno tiene una sola tarea, y ninguno puede llamar a nadie ni abrir una puerta.
+
+**En Azure**
+
+| Componente | Qué es | Para qué sirve en la solución |
+| --- | --- | --- |
+| **Simulador** | Programa en Python (`simulator/`) | Hace de sensor. Envía por MQTT un evento JSON de siete campos, sin texto libre, con la clave propia del dispositivo |
+| **IoT Hub** | Servicio de Azure para dispositivos | Puerta de entrada. Una identidad y una clave por dispositivo: uno comprometido se revoca sin tocar los demás |
+| **Azure Function** `ingest_event` | Código sin servidor, en Python | Valida el evento, deduplica, aplica el tope por minuto, lo enriquece con la zona y la severidad inicial, crea el incidente y despierta al agente |
+| **Table Storage** | Almacenamiento de tablas de Azure | Guarda la ventana de 60 s de cada sensor y el cupo de 10 incidentes por minuto. Así 20 eventos iguales son un incidente |
+| **Identidad administrada** `id-dsa-func` | Identidad de Microsoft Entra ID gestionada por Azure | Es la identidad de la Function ante Microsoft Graph y el flujo. No tiene contraseña que guardar |
+| **Key Vault** | Almacén de secretos de Azure | Guarda el único secreto en la nube: la cadena con la que la Function lee IoT Hub. Ningún secreto va en el código |
+| **Application Insights** | Monitoreo de Azure | Registra cada paso con el `eventId`: eventos rechazados, errores y tiempos. Ahí se diagnostica una falla |
+| **Presupuesto** | Azure Cost Management | USD 20 al mes con aviso al 80 %. Avisa, pero no detiene el consumo: por eso también hay topes en el diseño |
+
+**En Microsoft 365**
+
+| Componente | Qué es | Para qué sirve en la solución |
+| --- | --- | --- |
+| **Lista `Eventos de seguridad`** | Lista de SharePoint | El incidente y su registro de auditoría: estado, severidades, decisión, quién y cuándo |
+| **Biblioteca `Protocolos`** | Biblioteca de documentos de SharePoint | Un protocolo por tipo de evento, mantenido por el jefe de seguridad. El agente lo consulta, no lo cambia |
+| **Flujo `DisparoAgente`** | Flujo de Power Automate con disparador HTTP | Recibe solo el `eventId` y ejecuta el agente. Únicamente la identidad de la Function puede llamarlo |
+| **Agente de Operaciones** | Agente de Copilot Studio | Lee el incidente, consulta el protocolo, propone la severidad y redacta el resumen. Nunca decide |
+| **`LeerIncidente`** | Herramienta del agente (flujo) | Trae de la lista los datos del incidente: tipo, zona, sitio, severidad inicial, repeticiones y hora |
+| **`PublicarIncidente`** | Herramienta del agente (flujo) | Comprueba el tope de un nivel, publica la tarjeta, espera 15 minutos y registra la decisión |
+| **Tarjeta en Teams** | Tarjeta adaptativa 1.5 en el canal `Centro de operaciones` | Muestra la propuesta y tres botones: *Atender*, *Escalar a autoridades* y *Falsa alarma* |
+| **Cuenta de servicio** `agente-dsa` | Usuario de Microsoft 365 sin roles de administrador | Dueña del agente y de los flujos, con permisos solo sobre la lista, la biblioteca y el equipo |
+
+**El recorrido de un evento:**
+1. El simulador envía el evento a IoT Hub.
+2. La Function lo valida, lo deduplica y lo enriquece.
+3. La Function crea el incidente en la lista y llama a `DisparoAgente`.
+4. El agente usa `LeerIncidente`, consulta `Protocolos` y llama a `PublicarIncidente`.
+5. La tarjeta llega al canal y el supervisor decide.
+6. La decisión queda en la lista.
+
+### 1.5 Los tres actos de la demo
 
 **Acto 1 — El resultado primero**
 - Se simuló una **puerta forzada** en la bodega norte. En menos de 30 segundos llegó la tarjeta a Teams. Mostraba la severidad inicial (Alta) y la propuesta del agente (Crítica, porque ocurrió fuera del horario diurno), con su justificación, un resumen y los pasos del protocolo.
@@ -56,7 +104,7 @@ Una alerta de seguridad física llega a Microsoft Teams como una *propuesta*: qu
 - La **regla de horario** se cambió en vivo, con texto, en las instrucciones del agente, y se publicó. El siguiente evento recibió otra propuesta: "sin cambio respecto a la severidad inicial".
 - Una tarjeta quedó sin responder a propósito. A los 15 minutos pasa a `Sin respuesta`, **sin ninguna decisión por defecto**.
 
-### 1.5 Qué se automatiza y qué no
+### 1.6 Qué se automatiza y qué no
 
 | Se automatiza | Lo decide siempre una persona |
 | --- | --- |
@@ -68,7 +116,7 @@ Una alerta de seguridad física llega a Microsoft Teams como una *propuesta*: qu
 
 **Criterio para tu organización:** si la acción afecta a otras personas o al mundo físico, la decide una persona. Y no basta con escribirlo en las instrucciones del agente: el diseño debe impedirlo. En esta solución, el agente simplemente no tiene herramientas para llamar, escribir correos ni abrir nada.
 
-### 1.6 Las cifras de la sesión
+### 1.7 Las cifras de la sesión
 
 | Cifra | Qué significa |
 | --- | --- |
