@@ -1,0 +1,79 @@
+1
+00:00:03,600 --> 00:00:06,645
+El agente lee, clasifica, resume y propone.
+
+2
+00:00:06,645 --> 00:00:12,027
+Nunca llama a nadie, nunca abre ni bloquea una puerta, nunca cierra un caso.
+
+3
+00:00:12,027 --> 00:00:17,976
+Eso está escrito aquí, y además el diseño no le da ninguna herramienta para hacerlo.
+
+4
+00:00:19,476 --> 00:00:22,055
+Este bloque es la regla de horario.
+
+5
+00:00:22,055 --> 00:00:26,844
+Fuera de horario, la severidad sube un nivel, y nunca más de uno.
+
+6
+00:00:28,344 --> 00:00:34,222
+Los protocolos viven en SharePoint, donde el jefe de seguridad ya los mantiene.
+
+7
+00:00:34,222 --> 00:00:35,933
+El agente los consulta.
+
+8
+00:00:35,933 --> 00:00:36,974
+No los cambia.
+
+9
+00:00:36,974 --> 00:00:40,992
+Y cada protocolo deja claro lo que decide una persona.
+
+10
+00:00:42,492 --> 00:00:43,914
+Dos herramientas.
+
+11
+00:00:43,914 --> 00:00:46,675
+Una lee el incidente de la lista.
+
+12
+00:00:46,675 --> 00:00:50,942
+La otra publica la propuesta y espera a la persona.
+
+13
+00:00:50,942 --> 00:00:54,372
+Ninguna envía correos, llama o abre algo.
+
+14
+00:00:55,872 --> 00:00:58,823
+Azure crea primero el registro en la lista.
+
+15
+00:00:58,823 --> 00:01:01,843
+Después llama a este flujo con un solo dato:
+
+16
+00:01:01,843 --> 00:01:03,765
+el identificador del evento.
+
+17
+00:01:03,765 --> 00:01:07,608
+Solo la identidad de la función de Azure puede llamarlo.
+
+18
+00:01:09,108 --> 00:01:10,679
+Esta es la bitácora.
+
+19
+00:01:10,679 --> 00:01:14,449
+Cada ejecución, cada herramienta, cada consulta.
+
+20
+00:01:14,449 --> 00:01:20,340
+Si alguien pregunta por qué el agente propuso algo, la respuesta está aquí.

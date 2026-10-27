@@ -1,0 +1,67 @@
+1
+00:00:03,600 --> 00:00:08,640
+El supervisor escribe una observación y decide escalar a las autoridades.
+
+2
+00:00:10,140 --> 00:00:13,836
+La tarjeta se reemplaza por una versión de solo lectura:
+
+3
+00:00:13,836 --> 00:00:16,476
+la decisión, quién la tomó y a qué hora.
+
+4
+00:00:17,976 --> 00:00:19,878
+El agente no llamó a nadie.
+
+5
+00:00:19,878 --> 00:00:24,458
+Registró que una persona decidió escalar, quién fue y a qué hora.
+
+6
+00:00:24,458 --> 00:00:26,643
+La llamada la hace esa persona.
+
+7
+00:00:26,643 --> 00:00:31,152
+El registro de quién decidió es tan importante como la decisión.
+
+8
+00:00:32,652 --> 00:00:35,353
+Ahora cambiamos la regla de horario.
+
+9
+00:00:35,353 --> 00:00:40,380
+El jefe de seguridad la cambia con texto, no con código, y publica.
+
+10
+00:00:41,880 --> 00:00:44,549
+Con la regla nueva, llega otro evento:
+
+11
+00:00:44,549 --> 00:00:47,640
+accesos denegados repetidos en la recepción.
+
+12
+00:00:49,140 --> 00:00:51,320
+La severidad inicial es media.
+
+13
+00:00:51,320 --> 00:00:55,317
+Con la regla nueva, la hora del evento queda dentro del
+
+14
+00:00:55,317 --> 00:01:00,405
+horario, y el agente propone la misma severidad, con su justificación:
+
+15
+00:01:00,405 --> 00:01:01,204
+sin cambio.
+
+16
+00:01:01,204 --> 00:01:04,256
+Mismo sistema, otra regla, otra propuesta.
+
+17
+00:01:04,256 --> 00:01:07,236
+Y la decisión sigue siendo de la persona.
