@@ -22,6 +22,9 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 | 12 | 2026-10-09 | Disparador SharePoint *Cuando se crea un elemento* eliminado del agente `Spike Latencia EN` (cambio 7), en todas sus versiones | `agente-dsa` | Opción A descartada (ADR-003); limpieza aprobada por Daniel | No aplica |
 | 13 | 2026-10-09 | Lista `SpikeEventosA` eliminada (cambio 1, parte de la opción A) | Daniel | Opción A descartada (ADR-003) | No aplica |
 | 14 | 2026-10-26 | Flujo HTTP del spike reutilizado como `DisparoAgente`: ahora ejecuta el Agente de Operaciones, acepta solo a la identidad de la Function y a la cuenta del operador, y recibe `{eventId}` | `agente-dsa` | El buscador de acciones del diseñador no mostraba *Ejecutar agente* del conector de Copilot Studio; reutilizar el flujo evitó el bloqueo. **Desviación del plan §15** (decía rehacerlo): pendiente agregarlo a la solución `DelSensorAlAgente` | No |
+| 15 | 2026-10-27 | Borrado del agente `Spike Latencia EN` (cambios 5 y 8) | Daniel | T-049: el tramo 2 de la demo ya se midió con el Agente de Operaciones y quedó aceptado (R-18); el agente del spike no participa en la demo | No aplica |
+| 16 | 2026-10-27 | Borrado del flujo del agente `RegistrarReaccion` (cambio 5) | Daniel | T-049: herramienta exclusiva del agente del spike; estaba activa y con conexión | No aplica |
+| 17 | 2026-10-27 | Borrado de la lista `SpikeLatencia` (cambio 1), con 25 elementos; queda en la papelera de reciclaje del sitio | Daniel | T-049: la medición ya está registrada en los hallazgos 4 y 5 y en ADR-003 | No aplica |
 
 ## Hallazgos que cambian la especificación
 
@@ -31,6 +34,8 @@ Autorización: Daniel, 2026-10-09 ("estás autorizado para hacer los cambios que
 4. **Latencia de la opción A:** el disparador de SharePoint tardó unos 33 s en entregar el evento al agente (Activity del agente); el agente decidió en unos 2 s y la herramienta tardó 3,6 s.
 5. **Latencia de la opción C:** con el flujo HTTP → *Ejecutar agente*, 20 de 20 eventos completaron el tramo 2: p50 7,1 s, p90 10,5 s, máximo 14,1 s. La reacción del agente no pasó de 5,1 s; la variación viene de la publicación en Teams. Decisión propuesta en [ADR-003](../../docs/adr/ADR-003-disparo-del-agente.md).
 
-## Pendiente de limpieza
+## Estado de la limpieza (T-049)
 
-- Se conservan hasta que el Plan decida: agente `Spike Latencia EN`, flujo HTTP de la opción C, lista `SpikeLatencia` y canal `Pruebas spike` (este último para los ensayos).
+- **Borrados:** agente `Spike Latencia EN`, flujo `RegistrarReaccion` y lista `SpikeLatencia` (cambios 15 a 17).
+- **Se conservan:** el flujo HTTP de la opción C, que ahora es `DisparoAgente` (cambio 14), y el canal `Pruebas spike`, para los ensayos.
+- **Verificación (2026-10-27, 02:53 UTC):** después de los borrados, quedan en el entorno solo el Agente de Operaciones y los flujos `DisparoAgente`, `LeerIncidente` y `PublicarIncidente`, todos activos. Un evento de prueba de `DEV-PREFLIGHT-01` enviado por IoT Hub llegó a `Pendiente de decisión` en menos de 50 s.
