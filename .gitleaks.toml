@@ -15,4 +15,10 @@ regexes = [
   # Cadena de conexión inventada de las pruebas del simulador: host .example (RFC 2606)
   # y clave "clavefalsa" en base64. No da acceso a nada.
   '''HostName=hub-falso\.example;DeviceId=sim-01;SharedAccessKey=Y2xhdmVmYWxzYQ==''',
+  # Token inventado de las pruebas de la Function (tests/function/conftest.py): su carga
+  # decodificada es {"fake":"token"}. Las pruebas comprueban que nunca aparece en los registros.
+  '''eyJ0eXAiOiJKV1QiLCJmYWtlIjoidG9rZW4ifQ\.ZmFrZQ\.ZmFrZQ''',
+  # Identificador público del rol integrado Key Vault Secrets User (infra/modules/keyvault.bicep),
+  # documentado en Microsoft Learn. Es el mismo en todos los tenants; no es una credencial.
+  '''4633458b-17de-408a-b874-0445c86b69e6''',
 ]
