@@ -2,13 +2,13 @@
 
 Tres videos cortos, uno por cada acto de la demo de la sesión "Del sensor al agente" (Microsoft 365 Live 2026). Muestran el sistema funcionando de punta a punta, con voz en español y subtítulos.
 
-Los videos se publican como archivos de la versión [`videos-demo`](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/tag/videos-demo) del repositorio, no en su historial. Todos los datos que aparecen son ficticios: zonas, sitios, protocolos y cuentas.
+Los videos completos están en la carpeta [`docs/videos/`](videos/) del repositorio, para verlos como guía antes de desplegar la solución. También se pueden descargar desde la versión [`videos-demo`](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/tag/videos-demo). Todos los datos que aparecen son ficticios: zonas, sitios, protocolos y cuentas.
 
 | Video | Duración | Descarga | Subtítulos |
 | --- | --- | --- | --- |
-| 1. Del sensor a la tarjeta | 1 min 15 s | [video-1-del-sensor-a-la-tarjeta.mp4](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-1-del-sensor-a-la-tarjeta.mp4) | [.srt](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-1-del-sensor-a-la-tarjeta.srt) |
-| 2. Dentro del agente | 1 min 21 s | [video-2-dentro-del-agente.mp4](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-2-dentro-del-agente.mp4) | [.srt](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-2-dentro-del-agente.srt) |
-| 3. La persona decide | 1 min 8 s | [video-3-la-persona-decide.mp4](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-3-la-persona-decide.mp4) | [.srt](https://github.com/CSA-DanielVillamizar/Del_sensor_al_agente/releases/download/videos-demo/video-3-la-persona-decide.srt) |
+| 1. Del sensor a la tarjeta | 1 min 15 s | [video-1-del-sensor-a-la-tarjeta.mp4](videos/video-1-del-sensor-a-la-tarjeta.mp4) | [.srt](videos/video-1-del-sensor-a-la-tarjeta.srt) |
+| 2. Dentro del agente | 1 min 21 s | [video-2-dentro-del-agente.mp4](videos/video-2-dentro-del-agente.mp4) | [.srt](videos/video-2-dentro-del-agente.srt) |
+| 3. La persona decide | 1 min 8 s | [video-3-la-persona-decide.mp4](videos/video-3-la-persona-decide.mp4) | [.srt](videos/video-3-la-persona-decide.srt) |
 
 ---
 
