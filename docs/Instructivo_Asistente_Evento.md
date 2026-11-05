@@ -241,7 +241,18 @@ Por qué: `Sites.Selected` es un permiso de Microsoft Graph que no da acceso a n
 
 ### 2.7 Paso 6 — Configurar el agente en Copilot Studio (20 min)
 
-Con la **cuenta de servicio**, sigue la guía `agent/GUIA-CONFIGURACION.md` del repositorio. En resumen:
+Tienes dos caminos. Los dos terminan en el mismo agente; elige uno.
+
+**Camino rápido: importar la solución (unos 10 min).** El repositorio trae la solución ya exportada, con el agente, sus instrucciones, el conocimiento, las dos herramientas y los tres flujos. Con la **cuenta de servicio**:
+
+1. Completa en `.env` los valores `DSA_SITE_URL`, `DSA_TEAM_ID`, `DSA_CHANNEL_ID` y `DSA_FLOW_ALLOWED_USERS` (el object ID de `id-dsa-func`).
+2. Ejecuta `./agent/solucion/pack.ps1`. Arma `agent/solucion/out/DelSensorAlAgente.zip` con tus valores.
+3. En Copilot Studio, **Soluciones → Importar solución**, elige el `.zip`, crea las tres conexiones y escribe la URL de tu sitio en `dsa_SitioDemo`.
+4. Activa los tres flujos, publica el agente y fija su **límite mensual de créditos**.
+
+El paso a paso completo, con cómo obtener cada valor, está en `agent/solucion/README.md`. Después sigue con la URL de `DisparoAgente`, más abajo.
+
+**Camino manual: construirlo paso a paso (unos 20 min).** Sirve para entender qué hace cada pieza. Con la **cuenta de servicio**, sigue la guía `agent/GUIA-CONFIGURACION.md` del repositorio. En resumen:
 
 1. Crea la solución `DelSensorAlAgente` en tu entorno.
 2. Crea los flujos `DisparoAgente`, `LeerIncidente` y `PublicarIncidente`.

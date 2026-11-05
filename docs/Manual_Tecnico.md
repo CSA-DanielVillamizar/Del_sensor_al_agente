@@ -52,6 +52,7 @@ Cada paso explica **qué se hace, por qué y cómo se comprueba**. Cuando un pas
 - **Consola.** Todos los comandos se ejecutan en **PowerShell 7**, desde la raíz del repositorio, salvo que el paso diga otra cosa. Los scripts de `infra/` también tienen versión en Bash (`deploy.sh`, `destroy.sh`).
 - **Comprobación.** Cada paso termina con un bloque **✅ Siga cuando**. No avances si no se cumple: los pasos siguientes dependen de ese resultado.
 - **Tiempo total.** Unos 90 minutos la primera vez, con el tenant, la suscripción y las licencias disponibles.
+- **Dos caminos para Power Platform.** Los pasos 7 a 10 construyen el agente y los flujos a mano, explicando cada pieza. Si prefieres ahorrar tiempo, puedes importar la solución ya exportada que trae el repositorio y seguir en el paso 11: el instructivo está en [`agent/solucion/README.md`](../agent/solucion/README.md). Los dos caminos terminan en el mismo agente.
 - **Configuración recomendada.** El manual describe la configuración recomendada. La demo en vivo de la sesión usó otra, por las razones de [ADR-002](adr/ADR-002-entorno-demo-en-vivo.md), y las diferencias se señalan donde aplican.
 
 ---
