@@ -1,0 +1,15 @@
+<environmentvariabledefinition schemaname="dsa_SitioDemo">
+  <apiid>/providers/microsoft.powerapps/apis/shared_sharepointonline</apiid>
+  <description default="Sitio de SharePoint con la lista Eventos de seguridad y la biblioteca Protocolos.">
+    <label description="Sitio de SharePoint con la lista Eventos de seguridad y la biblioteca Protocolos." languagecode="3082" />
+  </description>
+  <displayname default="Sitio de la demo">
+    <label description="Sitio de la demo" languagecode="3082" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <parameterkey>dataset</parameterkey>
+  <secretstore>0</secretstore>
+  <type>100000004</type>
+</environmentvariabledefinition>

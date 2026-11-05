@@ -1,0 +1,11 @@
+<botcomponent schemaname="dsa_AgentedeOperaciones.topic.Protocolos_a6_qi3cRL6DFrvHO3HeB4">
+  <componenttype>16</componenttype>
+  <description>Protocolos ficticios de seguridad física, uno por tipo de evento (movimiento_zona_restringida, puerta_forzada, acceso_denegado_repetido). Usar para los pasos que revisa el supervisor y las señales de severidad.</description>
+  <iscustomizable>0</iscustomizable>
+  <name>Protocolos</name>
+  <parentbotid>
+    <schemaname>dsa_AgentedeOperaciones</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

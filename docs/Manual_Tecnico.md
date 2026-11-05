@@ -451,6 +451,8 @@ Si el tenant no tiene capacidad para un Sandbox, la alternativa es el entorno pr
 
 ### Paso 7. Crear el agente
 
+> **Camino rápido para los pasos 7 a 10.** Si prefieres no crear a mano el agente y los flujos, importa la solución exportada que está en [`agent/solucion/`](../agent/solucion/README.md): `pack.ps1` arma el paquete con los valores de tu tenant y lo importas en Copilot Studio. Después sigues en el paso 11. Los pasos 7 a 10 se quedan aquí porque explican qué hace cada pieza.
+
 **Qué se hace:** crear el Agente de Operaciones con sus instrucciones y su conocimiento.
 
 1. En Copilot Studio, crea un agente del **standard harness** llamado "Agente de Operaciones" ([Access standard harness agents](https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/switch-experiences)).

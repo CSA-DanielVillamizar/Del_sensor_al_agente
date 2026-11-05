@@ -1,0 +1,8 @@
+<botcomponent_workflowset>
+  <botcomponent_workflow botcomponentid.schemaname="dsa_AgentedeOperaciones.action.LeerIncidente" workflowid.workflowid="d077ffeb-f26f-8fe0-3f39-5a0d4b09be37">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_workflow>
+  <botcomponent_workflow botcomponentid.schemaname="dsa_AgentedeOperaciones.action.PublicarIncidente" workflowid.workflowid="43022c34-68d1-f111-a05b-70a8a59bb83f">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_workflow>
+</botcomponent_workflowset>

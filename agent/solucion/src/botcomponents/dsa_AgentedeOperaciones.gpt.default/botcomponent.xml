@@ -1,0 +1,10 @@
+<botcomponent schemaname="dsa_AgentedeOperaciones.gpt.default">
+  <componenttype>15</componenttype>
+  <iscustomizable>0</iscustomizable>
+  <name>Agente de Operaciones</name>
+  <parentbotid>
+    <schemaname>dsa_AgentedeOperaciones</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>
