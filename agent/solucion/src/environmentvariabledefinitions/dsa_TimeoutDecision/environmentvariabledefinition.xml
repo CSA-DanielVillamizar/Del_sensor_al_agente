@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dsa_TimeoutDecision">
+  <defaultvalue>PT15M</defaultvalue>
+  <description default="Tiempo que la tarjeta espera la decision del supervisor, en ISO 8601 (CA-10.5). PT15M en la demo; PT2M en pruebas.">
+    <label description="Tiempo que la tarjeta espera la decision del supervisor, en ISO 8601 (CA-10.5). PT15M en la demo; PT2M en pruebas." languagecode="3082" />
+  </description>
+  <displayname default="Tiempo de espera de la decisión">
+    <label description="Tiempo de espera de la decisión" languagecode="3082" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

@@ -107,6 +107,7 @@ Commits: `T-0xx HU-xx: descripción en imperativo`.
 | T-053 | | Grabar los 3 videos de respaldo | HU-14 | CA-14.4 | Daniel | T-052 | — | Videos guardados fuera del repositorio | Daniel |
 | T-054 | | Prueba de un tercero que sigue el README en un tenant y una suscripción limpios | HU-13 | CA-13.3 | qa-verificacion | T-051 | `tests/integration/tercero.md` | Registro con tiempo ≤ 60 min. **Riesgo de calendario:** puede quedar para después de la sesión | tenant · Azure |
 | T-055 | | Publicación del repositorio: gitleaks de todo el historial, revisión de IDs, URLs y correos, y cambio a público con aprobación de Daniel | HU-13 | CA-13.5 | revisor-seguridad | T-051 | — | gitleaks sin hallazgos; acta del revisor; aprobación explícita de Daniel | Daniel · **RS** |
+| T-056 | | Solución de Power Platform exportada (no administrada) en `agent/solucion/src/` con marcadores en lugar de los valores del tenant, y `pack.ps1` que arma el paquete para importar | HU-13 | CA-13.3 | arquitecto-m365 | T-045 | — | Sin dependencias faltantes; paquete idéntico byte a byte a la exportación con los valores originales; `agent/solucion/tests` en verde | Daniel · **RS** |
 
 Fuera de alcance: **HU-03** (sensor físico), porque su condición del 25 de octubre no se cumplió (plan §12).
 
@@ -172,7 +173,7 @@ Fuera de alcance: **HU-03** (sensor físico), porque su condición del 25 de oct
 | | CA-12.4 | T-044 | Guía; en la demo en vivo aplica ADR-002 |
 | HU-13 | CA-13.1 | T-051 | Revisión |
 | | CA-13.2 | T-051 | Revisión contra el plan §2 |
-| | CA-13.3 | T-054 | `tests/integration/tercero.md` |
+| | CA-13.3 | T-054, T-056 | `tests/integration/tercero.md`; `agent/solucion/tests` |
 | | CA-13.4 | T-051 | `LICENSE`; revisión de marcas |
 | | CA-13.5 | T-002, T-055 | gitleaks del historial; acta |
 | HU-14 | CA-14.1 | T-050 | Revisión |

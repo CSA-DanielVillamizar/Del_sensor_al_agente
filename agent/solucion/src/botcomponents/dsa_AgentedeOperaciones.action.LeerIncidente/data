@@ -1,0 +1,14 @@
+kind: TaskDialog
+modelDescription: Lee el incidente de seguridad con el eventId indicado y devuelve sus datos (tipo, zona, severidad inicial, repeticiones, fecha UTC y estado). Usar siempre primero, con el eventId del mensaje Nuevo incidente.
+outputs:
+  - propertyName: incidente
+
+action:
+  kind: InvokeFlowTaskAction
+  flowId: d077ffeb-f26f-8fe0-3f39-5a0d4b09be37
+  connectionProperties:
+    $kind: ConnectionProperties
+    diagnostics:
+    mode: Invoker
+
+outputMode: All

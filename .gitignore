@@ -44,3 +44,6 @@ function/_contracts/
 
 # Material local del speaker (presentación con foto, guion e instructivo técnico)
 presentacion/
+
+# Paquete de la solución armado con los valores de un tenant (agent/solucion/pack.ps1)
+agent/solucion/out/

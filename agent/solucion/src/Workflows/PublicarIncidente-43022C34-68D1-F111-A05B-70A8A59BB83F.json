@@ -1,0 +1,1148 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_c19b1"
+        },
+        "runtimeSource": "embedded"
+      },
+      "shared_teams": {
+        "api": {
+          "name": "shared_teams"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedteams_cf57d"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "Identificador UUID del incidente.",
+                  "title": "eventId",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_1": {
+                  "description": "Severidad propuesta: Baja, Media, Alta o Crítica (a lo sumo un nivel de diferencia).",
+                  "title": "severidadPropuesta",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_2": {
+                  "description": "Razón del cambio de severidad; vacía si no cambia.",
+                  "title": "justificacionSeveridad",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_3": {
+                  "description": "Resumen de máximo 3 líneas para el supervisor.",
+                  "title": "resumen",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_4": {
+                  "description": "Máximo 3 pasos numerados del protocolo.",
+                  "title": "pasosProtocolo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_5": {
+                  "description": "Nombre del documento del protocolo usado.",
+                  "title": "protocoloAplicado",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text",
+                "text_1",
+                "text_2",
+                "text_3"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "LeerElemento": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "{{DSA_SITE_URL}}",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items?$select=Id,EventId,TipoEvento,Zona,NombreZona,Sitio,SeveridadInicial,Repeticiones,FechaEventoUtc,Estado&$filter=', concat('EventId eq ''', triggerBody()?['text'], ''''), '&$top=1')",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {}
+        },
+        "Si_estado_es_Nuevo": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@coalesce(first(body('LeerElemento')?['value'])?['Estado'], '')",
+                  "Nuevo"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Ord_inicial": {
+              "type": "Compose",
+              "inputs": "@if(equals(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')), 'Baja'), 0, if(equals(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')), 'Media'), 1, if(equals(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')), 'Alta'), 2, if(equals(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')), 'Crítica'), 3, 1))))"
+            },
+            "Ord_propuesta": {
+              "type": "Compose",
+              "inputs": "@if(equals(string(coalesce(triggerBody()?['text_1'], '')), 'Baja'), 0, if(equals(string(coalesce(triggerBody()?['text_1'], '')), 'Media'), 1, if(equals(string(coalesce(triggerBody()?['text_1'], '')), 'Alta'), 2, if(equals(string(coalesce(triggerBody()?['text_1'], '')), 'Crítica'), 3, outputs('Ord_inicial')))))",
+              "runAfter": {
+                "Ord_inicial": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ord_final": {
+              "type": "Compose",
+              "inputs": "@if(greater(sub(outputs('Ord_propuesta'), outputs('Ord_inicial')), 1), add(outputs('Ord_inicial'), 1), if(less(sub(outputs('Ord_propuesta'), outputs('Ord_inicial')), -1), sub(outputs('Ord_inicial'), 1), outputs('Ord_propuesta')))",
+              "runAfter": {
+                "Ord_propuesta": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Severidad_final": {
+              "type": "Compose",
+              "inputs": "@createArray('Baja', 'Media', 'Alta', 'Crítica')[outputs('Ord_final')]",
+              "runAfter": {
+                "Ord_final": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Actualizar_pendiente": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "{{DSA_SITE_URL}}",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items(', string(first(body('LeerElemento')?['value'])?['Id']), ')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "IF-MATCH": "*",
+                    "X-HTTP-Method": "MERGE"
+                  },
+                  "parameters/body": "{\"Estado\": \"Pendiente de decisión\", \"SeveridadPropuesta\": \"@{outputs('Severidad_final')}\", \"JustificacionSeveridad\": \"@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), ''))))), 4))}\", \"ResumenAgente\": \"@{substring(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), ''))))), 4))}\", \"ProtocoloAplicado\": \"@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), ''))))), 4))}\", \"PublicacionSolicitadaUtc\": \"@{utcNow()}\"}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              },
+              "runAfter": {
+                "Severidad_final": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Plantilla_incidente_normal": {
+              "type": "Compose",
+              "inputs": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.5",
+                "fallbackText": "Propuesta del Agente de Operaciones: {{tipoEvento}} en {{zona}} · {{nombreZona}}, {{horaLocal}} COT. Ref. {{eventId}}",
+                "body": [
+                  {
+                    "type": "Container",
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "Propuesta del Agente de Operaciones",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+                        "isSubtle": true,
+                        "spacing": "None",
+                        "wrap": true
+                      }
+                    ]
+                  },
+                  {
+                    "type": "FactSet",
+                    "facts": [
+                      {
+                        "title": "Tipo de evento",
+                        "value": "{{tipoEvento}}"
+                      },
+                      {
+                        "title": "Zona",
+                        "value": "{{zona}} · {{nombreZona}}"
+                      },
+                      {
+                        "title": "Sitio",
+                        "value": "{{sitio}}"
+                      },
+                      {
+                        "title": "Hora local",
+                        "value": "{{horaLocal}} COT"
+                      },
+                      {
+                        "title": "Severidad inicial",
+                        "value": "{{severidadInicial}}"
+                      },
+                      {
+                        "title": "Severidad propuesta",
+                        "value": "{{severidadPropuesta}}"
+                      },
+                      {
+                        "title": "Repeticiones",
+                        "value": "{{repeticiones}}"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Justificación: {{justificacionSeveridad}}",
+                    "isSubtle": true,
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Resumen del agente",
+                    "weight": "Bolder",
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{{resumen}}",
+                    "spacing": "None",
+                    "wrap": true,
+                    "maxLines": 3
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Protocolo sugerido: {{protocoloAplicado}}",
+                    "weight": "Bolder",
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{{pasosProtocolo}}",
+                    "spacing": "None",
+                    "wrap": true,
+                    "maxLines": 3
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "La decisión es tuya. \"Escalar a autoridades\" solo se registra en el incidente: ningún componente contacta a nadie.",
+                    "isSubtle": true,
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "Input.Text",
+                    "id": "observacion",
+                    "label": "Observación (opcional)",
+                    "placeholder": "Nota para el registro, sin nombres ni datos personales",
+                    "isMultiline": true,
+                    "maxLength": 500
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Ref. {{eventId}}",
+                    "size": "Small",
+                    "isSubtle": true,
+                    "wrap": true
+                  }
+                ],
+                "actions": [
+                  {
+                    "type": "Action.Submit",
+                    "title": "Atender",
+                    "data": {
+                      "decision": "Atender",
+                      "eventId": "{{eventId}}"
+                    }
+                  },
+                  {
+                    "type": "Action.Submit",
+                    "title": "Escalar a autoridades",
+                    "data": {
+                      "decision": "Escalar a autoridades",
+                      "eventId": "{{eventId}}"
+                    }
+                  },
+                  {
+                    "type": "Action.Submit",
+                    "title": "Falsa alarma",
+                    "data": {
+                      "decision": "Falsa alarma",
+                      "eventId": "{{eventId}}"
+                    }
+                  }
+                ]
+              },
+              "runAfter": {
+                "Actualizar_pendiente": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Plantilla_incidente_alta": {
+              "type": "Compose",
+              "inputs": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.5",
+                "fallbackText": "Propuesta del Agente de Operaciones: severidad {{severidadPropuesta}}. {{tipoEvento}} en {{zona}} · {{nombreZona}}, {{horaLocal}} COT. Ref. {{eventId}}",
+                "body": [
+                  {
+                    "type": "Container",
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "Propuesta del Agente de Operaciones",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+                        "isSubtle": true,
+                        "spacing": "None",
+                        "wrap": true
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Container",
+                    "style": "attention",
+                    "bleed": true,
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "Severidad propuesta: {{severidadPropuesta}}. Requiere revisión prioritaria.",
+                        "weight": "Bolder",
+                        "size": "Medium",
+                        "wrap": true
+                      }
+                    ]
+                  },
+                  {
+                    "type": "FactSet",
+                    "facts": [
+                      {
+                        "title": "Tipo de evento",
+                        "value": "{{tipoEvento}}"
+                      },
+                      {
+                        "title": "Zona",
+                        "value": "{{zona}} · {{nombreZona}}"
+                      },
+                      {
+                        "title": "Sitio",
+                        "value": "{{sitio}}"
+                      },
+                      {
+                        "title": "Hora local",
+                        "value": "{{horaLocal}} COT"
+                      },
+                      {
+                        "title": "Severidad inicial",
+                        "value": "{{severidadInicial}}"
+                      },
+                      {
+                        "title": "Severidad propuesta",
+                        "value": "{{severidadPropuesta}}"
+                      },
+                      {
+                        "title": "Repeticiones",
+                        "value": "{{repeticiones}}"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Justificación: {{justificacionSeveridad}}",
+                    "isSubtle": true,
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Resumen del agente",
+                    "weight": "Bolder",
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{{resumen}}",
+                    "spacing": "None",
+                    "wrap": true,
+                    "maxLines": 3
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Protocolo sugerido: {{protocoloAplicado}}",
+                    "weight": "Bolder",
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{{pasosProtocolo}}",
+                    "spacing": "None",
+                    "wrap": true,
+                    "maxLines": 3
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "La decisión es tuya. \"Escalar a autoridades\" solo se registra en el incidente: ningún componente contacta a nadie.",
+                    "isSubtle": true,
+                    "spacing": "Medium",
+                    "wrap": true
+                  },
+                  {
+                    "type": "Input.Text",
+                    "id": "observacion",
+                    "label": "Observación (opcional)",
+                    "placeholder": "Nota para el registro, sin nombres ni datos personales",
+                    "isMultiline": true,
+                    "maxLength": 500
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Ref. {{eventId}}",
+                    "size": "Small",
+                    "isSubtle": true,
+                    "wrap": true
+                  }
+                ],
+                "actions": [
+                  {
+                    "type": "Action.Submit",
+                    "title": "Atender",
+                    "data": {
+                      "decision": "Atender",
+                      "eventId": "{{eventId}}"
+                    }
+                  },
+                  {
+                    "type": "Action.Submit",
+                    "title": "Escalar a autoridades",
+                    "data": {
+                      "decision": "Escalar a autoridades",
+                      "eventId": "{{eventId}}"
+                    }
+                  },
+                  {
+                    "type": "Action.Submit",
+                    "title": "Falsa alarma",
+                    "data": {
+                      "decision": "Falsa alarma",
+                      "eventId": "{{eventId}}"
+                    }
+                  }
+                ]
+              },
+              "runAfter": {
+                "Plantilla_incidente_normal": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Valores_Armar_tarjeta": {
+              "type": "Compose",
+              "inputs": {
+                "eventId": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], ''))))), 4))}",
+                "horaLocal": "@{substring(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), '')))), 2, sub(length(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), ''))))), 4))}",
+                "justificacionSeveridad": "@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), ''))))), 4))}",
+                "nombreZona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], ''))))), 4))}",
+                "pasosProtocolo": "@{substring(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_4'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_4'], ''), ''))), 1000)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_4'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_4'], ''), ''))), 1000)), ''))))), 4))}",
+                "protocoloAplicado": "@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), ''))))), 4))}",
+                "repeticiones": "@{substring(string(createArray(string(coalesce(string(first(body('LeerElemento')?['value'])?['Repeticiones']), '')))), 2, sub(length(string(createArray(string(coalesce(string(first(body('LeerElemento')?['value'])?['Repeticiones']), ''))))), 4))}",
+                "resumen": "@{substring(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), ''))))), 4))}",
+                "severidadInicial": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], ''))))), 4))}",
+                "severidadPropuesta": "@{substring(string(createArray(string(coalesce(outputs('Severidad_final'), '')))), 2, sub(length(string(createArray(string(coalesce(outputs('Severidad_final'), ''))))), 4))}",
+                "sitio": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Sitio'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Sitio'], ''))))), 4))}",
+                "tipoEvento": "@{substring(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), '')))), 2, sub(length(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), ''))))), 4))}",
+                "zona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], ''))))), 4))}"
+              },
+              "runAfter": {
+                "Plantilla_incidente_alta": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Armar_tarjeta": {
+              "type": "Compose",
+              "inputs": "@replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(if(or(equals(outputs('Severidad_final'), 'Alta'), equals(outputs('Severidad_final'), 'Crítica')), string(outputs('Plantilla_incidente_alta')), string(outputs('Plantilla_incidente_normal'))), '{{eventId}}', string(outputs('Valores_Armar_tarjeta')?['eventId'])), '{{horaLocal}}', string(outputs('Valores_Armar_tarjeta')?['horaLocal'])), '{{justificacionSeveridad}}', string(outputs('Valores_Armar_tarjeta')?['justificacionSeveridad'])), '{{nombreZona}}', string(outputs('Valores_Armar_tarjeta')?['nombreZona'])), '{{pasosProtocolo}}', string(outputs('Valores_Armar_tarjeta')?['pasosProtocolo'])), '{{protocoloAplicado}}', string(outputs('Valores_Armar_tarjeta')?['protocoloAplicado'])), '{{repeticiones}}', string(outputs('Valores_Armar_tarjeta')?['repeticiones'])), '{{resumen}}', string(outputs('Valores_Armar_tarjeta')?['resumen'])), '{{severidadInicial}}', string(outputs('Valores_Armar_tarjeta')?['severidadInicial'])), '{{severidadPropuesta}}', string(outputs('Valores_Armar_tarjeta')?['severidadPropuesta'])), '{{sitio}}', string(outputs('Valores_Armar_tarjeta')?['sitio'])), '{{tipoEvento}}', string(outputs('Valores_Armar_tarjeta')?['tipoEvento'])), '{{zona}}', string(outputs('Valores_Armar_tarjeta')?['zona']))",
+              "runAfter": {
+                "Valores_Armar_tarjeta": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Responder_publicado": {
+              "type": "Response",
+              "kind": "Skills",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resultado": {
+                      "title": "resultado",
+                      "description": "publicado o ya publicado",
+                      "type": "string",
+                      "x-ms-content-hint": "TEXT",
+                      "x-ms-dynamically-added": true
+                    }
+                  },
+                  "additionalProperties": {}
+                },
+                "statusCode": 200,
+                "body": {
+                  "resultado": "publicado"
+                }
+              },
+              "runAfter": {
+                "Armar_tarjeta": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Publicar_tarjeta_y_esperar": {
+              "type": "OpenApiConnectionWebhook",
+              "inputs": {
+                "parameters": {
+                  "poster": "Flow bot",
+                  "location": "Channel",
+                  "body/body/messageBody": "@{outputs('Armar_tarjeta')}",
+                  "body/body/updateMessage": "Respuesta recibida. La decisión del supervisor queda registrada en la lista Eventos de seguridad.",
+                  "body/body/recipient/groupId": "{{DSA_TEAM_ID}}",
+                  "body/body/recipient/channelId": "{{DSA_CHANNEL_ID}}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "operationId": "PostCardAndWaitForResponse",
+                  "connectionName": "shared_teams"
+                }
+              },
+              "runAfter": {
+                "Responder_publicado": [
+                  "Succeeded"
+                ]
+              },
+              "limit": {
+                "timeout": "PT15M"
+              }
+            },
+            "Leer_estado_actual": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "{{DSA_SITE_URL}}",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items?$select=Id,Estado&$filter=', concat('Id eq ', string(first(body('LeerElemento')?['value'])?['Id'])), '&$top=1')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              },
+              "runAfter": {
+                "Publicar_tarjeta_y_esperar": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Si_sigue_pendiente": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@coalesce(first(body('Leer_estado_actual')?['value'])?['Estado'], '')",
+                      "Pendiente de decisión"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Asegurar_usuario": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "{{DSA_SITE_URL}}",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/ensureuser",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "{\"logonName\": \"i:0#.f|membership|@{body('Publicar_tarjeta_y_esperar')?['responder']?['userPrincipalName']}\"}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Registrar_decision": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "{{DSA_SITE_URL}}",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items(', string(first(body('LeerElemento')?['value'])?['Id']), ')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE"
+                      },
+                      "parameters/body": "{\"Estado\": \"@{if(equals(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], 'Atender'), 'Atendido', if(equals(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], 'Escalar a autoridades'), 'Escalado', 'Falsa alarma'))}\", \"Decision\": \"@{substring(string(createArray(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], '')))), 2, sub(length(string(createArray(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], ''))))), 4))}\", \"DecididoPorId\": @{body('Asegurar_usuario')?['Id']}, \"FechaDecision\": \"@{utcNow()}\", \"Observacion\": \"@{substring(string(createArray(string(coalesce(substring(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], '')), 0, min(length(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 500)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], '')), 0, min(length(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 500)), ''))))), 4))}\"}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  },
+                  "runAfter": {
+                    "Asegurar_usuario": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Plantilla_incidente_solo_lectura": {
+                  "type": "Compose",
+                  "inputs": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.5",
+                    "fallbackText": "Decisión registrada: {{decision}}, por {{decididoPor}} a las {{horaDecision}} COT. Ref. {{eventId}}",
+                    "body": [
+                      {
+                        "type": "Container",
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "Propuesta del Agente de Operaciones",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "wrap": true
+                          },
+                          {
+                            "type": "TextBlock",
+                            "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+                            "isSubtle": true,
+                            "spacing": "None",
+                            "wrap": true
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Container",
+                        "style": "emphasis",
+                        "bleed": true,
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "Decisión registrada: {{decision}}",
+                            "weight": "Bolder",
+                            "size": "Medium",
+                            "wrap": true
+                          },
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Decidió",
+                                "value": "{{decididoPor}}"
+                              },
+                              {
+                                "title": "Hora de la decisión",
+                                "value": "{{horaDecision}} COT"
+                              },
+                              {
+                                "title": "Observación",
+                                "value": "{{observacion}}"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "TextBlock",
+                            "text": "Esta tarjeta es de solo lectura. La decisión quedó en el registro del incidente; ningún componente contacta a nadie.",
+                            "isSubtle": true,
+                            "wrap": true
+                          }
+                        ]
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Tipo de evento",
+                            "value": "{{tipoEvento}}"
+                          },
+                          {
+                            "title": "Zona",
+                            "value": "{{zona}} · {{nombreZona}}"
+                          },
+                          {
+                            "title": "Sitio",
+                            "value": "{{sitio}}"
+                          },
+                          {
+                            "title": "Hora local",
+                            "value": "{{horaLocal}} COT"
+                          },
+                          {
+                            "title": "Severidad inicial",
+                            "value": "{{severidadInicial}}"
+                          },
+                          {
+                            "title": "Severidad propuesta",
+                            "value": "{{severidadPropuesta}}"
+                          },
+                          {
+                            "title": "Repeticiones",
+                            "value": "{{repeticiones}}"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Justificación: {{justificacionSeveridad}}",
+                        "isSubtle": true,
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Resumen del agente",
+                        "weight": "Bolder",
+                        "spacing": "Medium",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "{{resumen}}",
+                        "spacing": "None",
+                        "wrap": true,
+                        "maxLines": 3
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Protocolo sugerido: {{protocoloAplicado}}",
+                        "weight": "Bolder",
+                        "spacing": "Medium",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "{{pasosProtocolo}}",
+                        "spacing": "None",
+                        "wrap": true,
+                        "maxLines": 3
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Ref. {{eventId}}",
+                        "size": "Small",
+                        "isSubtle": true,
+                        "wrap": true
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Registrar_decision": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Valores_Armar_tarjeta_solo_lectura": {
+                  "type": "Compose",
+                  "inputs": {
+                    "decididoPor": "@{substring(string(createArray(string(coalesce(coalesce(body('Publicar_tarjeta_y_esperar')?['responder']?['displayName'], body('Publicar_tarjeta_y_esperar')?['responder']?['userPrincipalName']), '')))), 2, sub(length(string(createArray(string(coalesce(coalesce(body('Publicar_tarjeta_y_esperar')?['responder']?['displayName'], body('Publicar_tarjeta_y_esperar')?['responder']?['userPrincipalName']), ''))))), 4))}",
+                    "decision": "@{substring(string(createArray(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], '')))), 2, sub(length(string(createArray(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['decision'], ''))))), 4))}",
+                    "eventId": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], ''))))), 4))}",
+                    "horaDecision": "@{substring(string(createArray(string(coalesce(convertFromUtc(utcNow(), 'SA Pacific Standard Time', 'HH:mm'), '')))), 2, sub(length(string(createArray(string(coalesce(convertFromUtc(utcNow(), 'SA Pacific Standard Time', 'HH:mm'), ''))))), 4))}",
+                    "horaLocal": "@{substring(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), '')))), 2, sub(length(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), ''))))), 4))}",
+                    "justificacionSeveridad": "@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_2'], '')), 'Sin cambio respecto a la severidad inicial.', substring(string(coalesce(coalesce(triggerBody()?['text_2'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_2'], ''), ''))), 500))), ''))))), 4))}",
+                    "nombreZona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], ''))))), 4))}",
+                    "observacion": "@{substring(string(createArray(string(coalesce(if(empty(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 'Sin observación', substring(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], '')), 0, min(length(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 500))), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 'Sin observación', substring(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], '')), 0, min(length(string(coalesce(body('Publicar_tarjeta_y_esperar')?['data']?['observacion'], ''))), 500))), ''))))), 4))}",
+                    "pasosProtocolo": "@{substring(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_4'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_4'], ''), ''))), 1000)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_4'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_4'], ''), ''))), 1000)), ''))))), 4))}",
+                    "protocoloAplicado": "@{substring(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), '')))), 2, sub(length(string(createArray(string(coalesce(if(empty(coalesce(triggerBody()?['text_5'], '')), 'Sin protocolo encontrado', coalesce(triggerBody()?['text_5'], '')), ''))))), 4))}",
+                    "repeticiones": "@{substring(string(createArray(string(coalesce(string(first(body('LeerElemento')?['value'])?['Repeticiones']), '')))), 2, sub(length(string(createArray(string(coalesce(string(first(body('LeerElemento')?['value'])?['Repeticiones']), ''))))), 4))}",
+                    "resumen": "@{substring(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), '')))), 2, sub(length(string(createArray(string(coalesce(substring(string(coalesce(coalesce(triggerBody()?['text_3'], ''), '')), 0, min(length(string(coalesce(coalesce(triggerBody()?['text_3'], ''), ''))), 1000)), ''))))), 4))}",
+                    "severidadInicial": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['SeveridadInicial'], ''))))), 4))}",
+                    "severidadPropuesta": "@{substring(string(createArray(string(coalesce(outputs('Severidad_final'), '')))), 2, sub(length(string(createArray(string(coalesce(outputs('Severidad_final'), ''))))), 4))}",
+                    "sitio": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Sitio'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Sitio'], ''))))), 4))}",
+                    "tipoEvento": "@{substring(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), '')))), 2, sub(length(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), ''))))), 4))}",
+                    "zona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], ''))))), 4))}"
+                  },
+                  "runAfter": {
+                    "Plantilla_incidente_solo_lectura": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Armar_tarjeta_solo_lectura": {
+                  "type": "Compose",
+                  "inputs": "@replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(string(outputs('Plantilla_incidente_solo_lectura')), '{{decididoPor}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['decididoPor'])), '{{decision}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['decision'])), '{{eventId}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['eventId'])), '{{horaDecision}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['horaDecision'])), '{{horaLocal}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['horaLocal'])), '{{justificacionSeveridad}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['justificacionSeveridad'])), '{{nombreZona}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['nombreZona'])), '{{observacion}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['observacion'])), '{{pasosProtocolo}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['pasosProtocolo'])), '{{protocoloAplicado}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['protocoloAplicado'])), '{{repeticiones}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['repeticiones'])), '{{resumen}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['resumen'])), '{{severidadInicial}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['severidadInicial'])), '{{severidadPropuesta}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['severidadPropuesta'])), '{{sitio}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['sitio'])), '{{tipoEvento}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['tipoEvento'])), '{{zona}}', string(outputs('Valores_Armar_tarjeta_solo_lectura')?['zona']))",
+                  "runAfter": {
+                    "Valores_Armar_tarjeta_solo_lectura": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Publicar_solo_lectura": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "{{DSA_TEAM_ID}}",
+                      "body/recipient/channelId": "{{DSA_CHANNEL_ID}}",
+                      "body/messageBody": "@{outputs('Armar_tarjeta_solo_lectura')}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "operationId": "PostCardToConversation",
+                      "connectionName": "shared_teams"
+                    }
+                  },
+                  "runAfter": {
+                    "Armar_tarjeta_solo_lectura": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Segunda_respuesta_ignorada": {
+                    "type": "Compose",
+                    "inputs": "@concat('Ignorada: estado ', coalesce(first(body('Leer_estado_actual')?['value'])?['Estado'], ''))"
+                  }
+                }
+              },
+              "runAfter": {
+                "Leer_estado_actual": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Leer_estado_al_vencer": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "{{DSA_SITE_URL}}",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items?$select=Id,Estado&$filter=', concat('Id eq ', string(first(body('LeerElemento')?['value'])?['Id'])), '&$top=1')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              },
+              "runAfter": {
+                "Publicar_tarjeta_y_esperar": [
+                  "TimedOut"
+                ]
+              }
+            },
+            "Si_vencio_sigue_pendiente": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@coalesce(first(body('Leer_estado_al_vencer')?['value'])?['Estado'], '')",
+                      "Pendiente de decisión"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Marcar_sin_respuesta": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "{{DSA_SITE_URL}}",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists/getbytitle(''Eventos de seguridad'')/items(', string(first(body('LeerElemento')?['value'])?['Id']), ')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE"
+                      },
+                      "parameters/body": "{\"Estado\": \"Sin respuesta\"}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Plantilla_sin_respuesta": {
+                  "type": "Compose",
+                  "inputs": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.5",
+                    "fallbackText": "Sin respuesta en {{minutosEspera}} minutos: no se registró ninguna decisión. Ref. {{eventId}}",
+                    "body": [
+                      {
+                        "type": "Container",
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "Propuesta del Agente de Operaciones",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "wrap": true
+                          },
+                          {
+                            "type": "TextBlock",
+                            "text": "{{tipoEvento}} · {{zona}} · {{nombreZona}}",
+                            "isSubtle": true,
+                            "spacing": "None",
+                            "wrap": true
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Container",
+                        "style": "warning",
+                        "bleed": true,
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "Sin respuesta",
+                            "weight": "Bolder",
+                            "size": "Medium",
+                            "wrap": true
+                          },
+                          {
+                            "type": "TextBlock",
+                            "text": "Nadie respondió la propuesta en {{minutosEspera}} minutos. El incidente quedó en estado Sin respuesta y no se registró ninguna decisión.",
+                            "wrap": true
+                          }
+                        ]
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Tipo de evento",
+                            "value": "{{tipoEvento}}"
+                          },
+                          {
+                            "title": "Zona",
+                            "value": "{{zona}} · {{nombreZona}}"
+                          },
+                          {
+                            "title": "Hora local",
+                            "value": "{{horaLocal}} COT"
+                          },
+                          {
+                            "title": "Severidad propuesta",
+                            "value": "{{severidadPropuesta}}"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "La tarjeta anterior venció: pulsarla ya no cambia el incidente. Revisa el caso en la lista Eventos de seguridad y decide según el protocolo.",
+                        "isSubtle": true,
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Ref. {{eventId}}",
+                        "size": "Small",
+                        "isSubtle": true,
+                        "wrap": true
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Marcar_sin_respuesta": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Valores_Armar_tarjeta_sin_respuesta": {
+                  "type": "Compose",
+                  "inputs": {
+                    "eventId": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['EventId'], ''))))), 4))}",
+                    "horaLocal": "@{substring(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), '')))), 2, sub(length(string(createArray(string(coalesce(convertFromUtc(first(body('LeerElemento')?['value'])?['FechaEventoUtc'], 'SA Pacific Standard Time', 'HH:mm'), ''))))), 4))}",
+                    "minutosEspera": "@{substring(string(createArray(string(coalesce('15', '')))), 2, sub(length(string(createArray(string(coalesce('15', ''))))), 4))}",
+                    "nombreZona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['NombreZona'], ''))))), 4))}",
+                    "severidadPropuesta": "@{substring(string(createArray(string(coalesce(outputs('Severidad_final'), '')))), 2, sub(length(string(createArray(string(coalesce(outputs('Severidad_final'), ''))))), 4))}",
+                    "tipoEvento": "@{substring(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), '')))), 2, sub(length(string(createArray(string(coalesce(replace(string(coalesce(first(body('LeerElemento')?['value'])?['TipoEvento'], '')), '_', ' '), ''))))), 4))}",
+                    "zona": "@{substring(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], '')))), 2, sub(length(string(createArray(string(coalesce(first(body('LeerElemento')?['value'])?['Zona'], ''))))), 4))}"
+                  },
+                  "runAfter": {
+                    "Plantilla_sin_respuesta": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Armar_tarjeta_sin_respuesta": {
+                  "type": "Compose",
+                  "inputs": "@replace(replace(replace(replace(replace(replace(replace(string(outputs('Plantilla_sin_respuesta')), '{{eventId}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['eventId'])), '{{horaLocal}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['horaLocal'])), '{{minutosEspera}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['minutosEspera'])), '{{nombreZona}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['nombreZona'])), '{{severidadPropuesta}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['severidadPropuesta'])), '{{tipoEvento}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['tipoEvento'])), '{{zona}}', string(outputs('Valores_Armar_tarjeta_sin_respuesta')?['zona']))",
+                  "runAfter": {
+                    "Valores_Armar_tarjeta_sin_respuesta": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Publicar_sin_respuesta": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "{{DSA_TEAM_ID}}",
+                      "body/recipient/channelId": "{{DSA_CHANNEL_ID}}",
+                      "body/messageBody": "@{outputs('Armar_tarjeta_sin_respuesta')}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "operationId": "PostCardToConversation",
+                      "connectionName": "shared_teams"
+                    }
+                  },
+                  "runAfter": {
+                    "Armar_tarjeta_sin_respuesta": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Terminar_sin_respuesta": {
+                  "type": "Terminate",
+                  "inputs": {
+                    "runStatus": "Succeeded"
+                  },
+                  "runAfter": {
+                    "Publicar_sin_respuesta": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Leer_estado_al_vencer": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Responder_ya_publicado": {
+                "type": "Response",
+                "kind": "Skills",
+                "inputs": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "resultado": {
+                        "title": "resultado",
+                        "description": "publicado o ya publicado",
+                        "type": "string",
+                        "x-ms-content-hint": "TEXT",
+                        "x-ms-dynamically-added": true
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "statusCode": 200,
+                  "body": {
+                    "resultado": "ya publicado"
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "LeerElemento": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -184,7 +184,7 @@ Expected result: the identity has the `write` role on the demo site only. `DSA-C
 
 ### 6. Configure the agent in Copilot Studio (20 min)
 
-With the `agente-dsa` account, follow [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md). In short:
+With the `agente-dsa` account, import the ready-made solution in [agent/solucion/](agent/solucion/README.md) (quick path, guide in Spanish) or follow [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md) to build it by hand. In short:
 
 1. Solution `DelSensorAlAgente` in the `DSA-Demo` environment.
 2. Flows `DisparoAgente`, `LeerIncidente` and `PublicarIncidente`. In `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, with two object IDs: `id-dsa-func` and the operator (for `demo/retrigger.ps1` and `demo/inject.ps1`). The `PublicarIncidente` definition is generated from the cards with `python -m agent.flows.build_publicar_incidente` (step 6 of the guide).
@@ -319,7 +319,7 @@ The guide for taking this pattern to production is in [docs/gobernanza.md](docs/
 | `data/` | Fictitious zone catalog |
 | `sharepoint/` | List and library provisioning |
 | `protocols/` | Fictitious protocols per event type |
-| `agent/` | Agent instructions, test cases and configuration guide |
+| `agent/` | Agent instructions, test cases, configuration guide and the exported solution (`agent/solucion/`) |
 | `cards/` | Adaptive Cards 1.5 |
 | `demo/` | Runbook, preflight, reset, fallback and measurement |
 | `docs/` | Governance, costs and architecture decisions (ADR) |

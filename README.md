@@ -182,7 +182,7 @@ Resultado esperado: la identidad tiene el rol `write` solo sobre el sitio de la 
 
 ### 6. Configurar el agente en Copilot Studio (20 min)
 
-Con la cuenta `agente-dsa`, sigue [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md). En resumen:
+Con la cuenta `agente-dsa`, importa la solución lista de [agent/solucion/](agent/solucion/README.md) (camino rápido) o sigue [agent/GUIA-CONFIGURACION.md](agent/GUIA-CONFIGURACION.md) para crearla a mano. En resumen:
 
 1. Solución `DelSensorAlAgente` en el entorno `DSA-Demo`.
 2. Flujos `DisparoAgente`, `LeerIncidente` y `PublicarIncidente`. En `DisparoAgente`, *Who can trigger the flow* = *Specific users in my tenant*, con dos object IDs: el de `id-dsa-func` y el del operador (para `demo/retrigger.ps1` y `demo/inject.ps1`). La definición de `PublicarIncidente` se genera desde las tarjetas con `python -m agent.flows.build_publicar_incidente` (paso 6 de la guía).
@@ -317,7 +317,7 @@ La guía para llevar este patrón a producción está en [docs/gobernanza.md](do
 | `data/` | Catálogo ficticio de zonas |
 | `sharepoint/` | Aprovisionamiento de la lista y la biblioteca |
 | `protocols/` | Protocolos ficticios por tipo de evento |
-| `agent/` | Instrucciones del agente, casos de prueba y guía de configuración |
+| `agent/` | Instrucciones del agente, casos de prueba, guía de configuración y la solución exportada (`agent/solucion/`) |
 | `cards/` | Tarjetas adaptativas 1.5 |
 | `demo/` | Runbook, preflight, reinicio, contingencia y medición |
 | `docs/` | Gobernanza, costos y decisiones de arquitectura (ADR) |

@@ -1,0 +1,21 @@
+kind: TaskDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: text_4
+
+  - kind: AutomaticTaskInput
+    propertyName: text_5
+
+modelDescription: "Registra la propuesta del agente para un incidente en estado Nuevo y publica la tarjeta para que el supervisor decida en el canal de operaciones. Llamar una sola vez por incidente, después de LeerIncidente y de consultar el protocolo. Devuelve resultado \"publicado\" o \"ya publicado\". No ejecuta ninguna acción física ni contacta a nadie: solo la persona decide."
+outputs:
+  - propertyName: resultado
+
+action:
+  kind: InvokeFlowTaskAction
+  flowId: 43022c34-68d1-f111-a05b-70a8a59bb83f
+  connectionProperties:
+    $kind: ConnectionProperties
+    diagnostics:
+    mode: Invoker
+
+outputMode: All
