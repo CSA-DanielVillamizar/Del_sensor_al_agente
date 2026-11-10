@@ -84,6 +84,14 @@ $parameters = [ordered]@{
     graphListId         = $GraphListId
     agentFlowUrl        = $AgentFlowUrl
 }
+# Un presupuesto existente no admite cambiar la fecha de inicio: se reutiliza la que ya tiene
+# para que el despliegue se pueda repetir después de borrar el grupo (el presupuesto sobrevive).
+$budgetStart = & az consumption budget show --budget-name budget-dsa-demo --query timePeriod.startDate --output tsv 2>$null
+if ($LASTEXITCODE -eq 0 -and $budgetStart) {
+    $parameters['budgetStartDate'] = ([datetime]$budgetStart).ToUniversalTime().ToString('yyyy-MM-01')
+    Write-Host "Presupuesto existente: se conserva la fecha de inicio $($parameters['budgetStartDate'])."
+}
+$global:LASTEXITCODE = 0
 $mode = if ($WhatIf) { 'what-if' } else { 'create' }
 $deployArgs = New-DsaDeploymentArguments -Mode $mode -ResourceGroup $ResourceGroup -TemplateFile $template `
     -ParametersFile $paramsFile -Parameters $parameters
