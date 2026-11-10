@@ -66,6 +66,9 @@ param budgetAmount int = 20
 @description('Porcentaje del aviso de presupuesto (CA-12.2).')
 param budgetThresholdPercent int = 80
 
+@description('Primer día del mes de inicio del presupuesto (yyyy-MM-01). Un presupuesto existente no admite cambiar la fecha: infra/deploy.ps1 pasa la que ya tiene.')
+param budgetStartDate string = '${utcNow('yyyy-MM')}-01'
+
 @description('Límite diario de ingesta de Log Analytics en GB.')
 param logDailyQuotaGb string = '0.05'
 
@@ -167,6 +170,7 @@ module budget 'modules/budget.bicep' = {
   params: {
     amount: budgetAmount
     thresholdPercent: budgetThresholdPercent
+    startDate: budgetStartDate
     tags: tags
   }
 }
