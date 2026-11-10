@@ -330,6 +330,9 @@ El proyecto está terminado cuando todas las historias Must están hechas, OBJ-1
 
 ## Registro de cambios
 
+### v3.0 — 2026-11-09
+Ampliación de alcance aprobada por Daniel para la charla de IA DAY by Datly Educación (Medellín, 2026-11-27). Agrega HU-15 (ruta analítica), HU-16 (agente sobre datos estructurados) y HU-17 (material de la charla), con las decisiones DEC-IA-01 a DEC-IA-04. El detalle completo está en [`05-ampliacion-ia-day.md`](05-ampliacion-ia-day.md). No cambia ninguna historia existente.
+
 ### v2.1 — 2026-10-26
 Aclaración sin cambio de alcance: bordes de la regla de horario y hora de referencia (punto A1 de `agent/casos-prueba.md`). Afecta §5.0.
 
