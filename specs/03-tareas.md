@@ -111,6 +111,23 @@ Commits: `T-0xx HU-xx: descripción en imperativo`.
 
 Fuera de alcance: **HU-03** (sensor físico), porque su condición del 25 de octubre no se cumplió (plan §12).
 
+## Épica E6 — IA DAY 2026 (ampliación aprobada el 2026-11-09)
+
+Detalle, decisiones y calendario en [`05-ampliacion-ia-day.md`](05-ampliacion-ia-day.md).
+
+| ID | Tarea | HU | CA | Responsable | Depende de |
+| --- | --- | --- | --- | --- | --- |
+| T-057 | Volver a desplegar Azure en la suscripción de la demo y registrar los dispositivos | HU-15 | CA-15.3 | arquitecto-cloud | — |
+| T-058 | Grupo de consumidores `fabric` y política `ServiceConnect` dedicada en `infra/` (Bicep) | HU-15 | CA-15.3 | arquitecto-cloud | T-057 |
+| T-059 | Prueba de Fabric, área de trabajo, Eventstream y Eventhouse; guía en `analytics/README.md` | HU-15 | CA-15.4 | arquitecto-cloud | T-058 |
+| T-060 | Consultas KQL de la charla en `analytics/kql/` | HU-15 | CA-15.1, CA-15.2 | arquitecto-cloud | T-059 |
+| T-061 | Generador del histórico ficticio y carga en Dataverse (`analytics/dataverse/`), con pruebas | HU-16 | CA-16.1, CA-16.4 | arquitecto-m365 | — |
+| T-062 | Agente "Analista de Incidentes" con la tabla como conocimiento; script para ensuciar y restaurar descripciones | HU-16 | CA-16.2, CA-16.3 | arquitecto-m365 | T-061 |
+| T-063 | Guion, presentación y runbook de la charla en `presentacion/ia-day/` (no versionado) | HU-17 | CA-17.1, CA-17.2 | instructor-tecnico | T-060, T-062 |
+| T-064 | Ruta "solo datos" para el asistente en `docs/ruta-datos.md` | HU-17 | CA-17.4 | instructor-tecnico | — |
+| T-065 | Videos de respaldo de las partes 2 y 3 | HU-17 | CA-17.3 | Daniel | T-060, T-062 |
+| T-066 | Revisión de seguridad de la ampliación y ensayo cronometrado completo | HU-15 a HU-17 | Todos | revisor-seguridad, qa-verificacion | T-063, T-065 |
+
 ## Orden recomendado
 
 1. **27 de octubre:** T-001, T-002, T-003, T-004, T-009, T-010, T-013, T-015, T-028, T-030, T-031, T-043 en paralelo; en el tenant, T-033 y T-035.
@@ -184,3 +201,6 @@ Fuera de alcance: **HU-03** (sensor físico), porque su condición del 25 de oct
 | | OBJ-3 | T-046 | Ídem CA-14.2 |
 | | OBJ-4 | T-054 | Ídem CA-13.3 |
 | | OBJ-5 | T-022 | `docs/costos.md` y presupuesto |
+| HU-15 | CA-15.1 a CA-15.4 | T-057 a T-060 | `analytics/kql/`; guía de `analytics/README.md` |
+| HU-16 | CA-16.1 a CA-16.4 | T-061, T-062 | Pruebas de `analytics/dataverse/`; panel de prueba |
+| HU-17 | CA-17.1 a CA-17.4 | T-063 a T-066 | Ensayo cronometrado; `docs/ruta-datos.md` |
