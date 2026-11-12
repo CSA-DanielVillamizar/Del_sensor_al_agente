@@ -1,0 +1,9 @@
+// T-060 (HU-15, CA-15.1): cuánto reduce el pipeline antes de la IA.
+// Sobre el histórico ficticio: cada incidente con N repeticiones representa N eventos crudos.
+// Sin deduplicación, el agente habría procesado todos; con ella, solo uno por incidente.
+// Es el argumento de atención (fatiga de alertas) y de costo (cada ejecución consume créditos).
+Historico
+| summarize
+    eventosCrudos = sum(repeticiones),
+    incidentesAlAgente = count()
+| extend reduccion = strcat(round(100.0 * (eventosCrudos - incidentesAlAgente) / eventosCrudos, 1), ' %')

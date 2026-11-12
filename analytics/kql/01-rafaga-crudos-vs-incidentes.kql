@@ -1,0 +1,14 @@
+// T-060 (HU-15, CA-15.1): la ráfaga vista como dato.
+// Los eventos crudos que llegan del IoT Hub frente a los incidentes que llegarían al agente
+// con la misma regla de la Function: un incidente por dispositivo y tipo en cada ventana de 60 s
+// (function/core/dedup.py, ADR-006). La Function usa la hora de IoT Hub; aquí se aproxima con
+// la del evento, que en la ráfaga del simulador es equivalente.
+// Uso en la charla: lanzar la ráfaga (python -m simulator --type movimiento_zona_restringida
+// --zone Z-01 --burst 20) y ejecutar esta consulta. Resultado esperado: 20 eventos, 1 incidente,
+// 19 repeticiones.
+Eventos
+| where timestamp > ago(15m)
+| summarize eventosCrudos = count(), primerEvento = min(timestamp) by deviceId, type, zone, ventana = bin(timestamp, 60s)
+| extend incidentes = 1, repeticiones = eventosCrudos - 1
+| project ventana, deviceId, type, zone, eventosCrudos, incidentes, repeticiones
+| order by ventana desc

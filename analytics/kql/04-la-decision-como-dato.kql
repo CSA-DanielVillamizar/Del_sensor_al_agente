@@ -1,0 +1,15 @@
+// T-060 (HU-15, HU-16): la decisión humana también es un dato que se puede medir.
+// Por severidad propuesta: cuántas propuestas se escalaron, se atendieron o se descartaron,
+// cuántas quedaron sin respuesta y cuánto tardó la persona en decidir.
+// Quien decide es un turno ficticio; el histórico no tiene datos personales (artículo 5).
+Historico
+| summarize
+    propuestas = count(),
+    escaladas = countif(decision == 'Escalar a autoridades'),
+    atendidas = countif(decision == 'Atender'),
+    falsasAlarmas = countif(decision == 'Falsa alarma'),
+    sinRespuesta = countif(estado == 'Sin respuesta'),
+    minutosMedianaDecision = percentile(minutosHastaDecision, 50)
+  by severidadPropuesta
+| extend porcentajeSinRespuesta = round(100.0 * sinRespuesta / propuestas, 1)
+| order by case(severidadPropuesta == 'Crítica', 0, severidadPropuesta == 'Alta', 1, severidadPropuesta == 'Media', 2, 3) asc

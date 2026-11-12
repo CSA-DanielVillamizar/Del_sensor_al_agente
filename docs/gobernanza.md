@@ -182,6 +182,14 @@ Configuración ([ADR-003](adr/ADR-003-disparo-del-agente.md), [ADR-007](adr/ADR-
 
 La demo de la sesión no cumple todos los puntos de esta guía: hay diferencias de tenant, de entorno, de DLP, de licencias y de facturación. Las diferencias, sus riesgos y sus mitigaciones están **solo** en [ADR-002](adr/ADR-002-entorno-demo-en-vivo.md). `demo/preflight` muestra en amarillo el entorno que no es dedicado y remite a ese ADR. Lo que cambia en el código de la demo (la cadena de IoT Hub de §8 y la segunda entrada del disparador de §9) está descrito en esta guía como deuda, con su alternativa.
 
+## 12. Ruta analítica de IA DAY: la política `fabric-reader`
+
+Para la charla de IA DAY, Fabric Eventstream lee los eventos del IoT Hub con una segunda política de acceso compartido, `fabric-reader`, en su propio grupo de consumidores (T-058, DEC-IA-02). Está apagada por defecto y solo existe si se despliega con `-EnableAnalyticsRoute`.
+
+- `ServiceConnect` no es de solo lectura: también permitiría enviar mensajes a los dispositivos e invocar métodos ([permisos de IoT Hub](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions)). Los dispositivos de la demo no atienden ninguno de los dos, y una prueba lo vigila.
+- La clave vive solo en la conexión de Fabric y nunca entra al repositorio ni se proyecta.
+- Rotación y cierre después del evento: [`analytics/README.md`](../analytics/README.md#manejo-de-la-clave-fabric-reader).
+
 ## Riesgos registrados en esta guía
 
 | ID | Riesgo | Cómo se cierra |

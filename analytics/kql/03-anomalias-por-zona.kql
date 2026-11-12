@@ -1,0 +1,13 @@
+// T-060 (HU-15, CA-15.2): detección de anomalías por zona sobre el histórico ficticio.
+// series_decompose_anomalies separa tendencia, estacionalidad y residuo, y marca los días que se
+// salen de lo esperado (https://learn.microsoft.com/kusto/query/series-decompose-anomalies-function).
+// Resultado esperado: Z-05 (Archivo documental) en los últimos días, por el aumento de accesos
+// denegados que el generador incluye a propósito (analytics/history.py).
+// Mensaje para la charla: una anomalía estadística es una pregunta, no un veredicto; la decide una persona.
+Historico
+| make-series incidentes = count() default = 0 on fechaUtc from datetime(2026-10-28) to datetime(2026-11-27) step 1d by zona
+| extend (anomalia, puntaje, base) = series_decompose_anomalies(incidentes, 1.5)
+| mv-expand fechaUtc to typeof(datetime), incidentes to typeof(long), anomalia to typeof(int), puntaje to typeof(double)
+| where anomalia == 1
+| project zona, dia = format_datetime(fechaUtc, 'yyyy-MM-dd'), incidentes, puntaje = round(puntaje, 2)
+| order by puntaje desc
