@@ -47,3 +47,6 @@ presentacion/
 
 # Paquete de la solución armado con los valores de un tenant (agent/solucion/pack.ps1)
 agent/solucion/out/
+
+# Salidas generadas por analytics/history.py (se regeneran con un comando)
+analytics/out/
