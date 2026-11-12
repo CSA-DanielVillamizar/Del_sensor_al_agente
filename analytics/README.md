@@ -7,19 +7,19 @@ Especificación: [`specs/05-ampliacion-ia-day.md`](../specs/05-ampliacion-ia-day
 ```mermaid
 flowchart LR
   S[Simulador] --> H[IoT Hub]
-  H -- grupo func --> F[Function: validar, enriquecer, deduplicar] --> A[Agente]
-  H -- grupo fabric --> E[Eventstream] --> K[(Eventhouse: tabla Eventos)]
+  H -- ruta to-func --> F[Function: validar, enriquecer, deduplicar] --> A[Agente]
+  H -- ruta to-fabric, identidad administrada --> E[Eventstream] --> K[(Eventhouse: EventosNube y vista Eventos)]
   G[analytics/history.py] --> K2[(Eventhouse: tabla Historico)]
 ```
 
-La ruta analítica lee de su **propio grupo de consumidores** (`fabric`). No compite con la Function ni cambia su código.
+El IoT Hub reenvía cada mensaje por **dos rutas**: `to-func`, hacia el endpoint integrado que lee la Function, y `to-fabric`, hacia el Eventstream. La ruta hacia Fabric se autentica con la **identidad administrada del hub**: ese endpoint solo admite Microsoft Entra ID, así que **no hay ninguna clave** que copiar, guardar ni rotar ([IoT Hub endpoints](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)). La función de enrutar hacia Fabric está en versión preliminar.
 
 ## Qué hay en esta carpeta
 
 | Archivo | Para qué sirve |
 | --- | --- |
 | `history.py` | Genera el histórico ficticio: 30 días de incidentes con la misma lógica del pipeline y una anomalía a propósito en el Archivo documental (Z-05). Determinista y sin datos personales |
-| `fabric-setup.ps1` | Crea el área de trabajo, el Eventhouse, el Eventstream y las tablas `Eventos` e `Historico`, y carga el histórico. Idempotente |
+| `fabric-setup.ps1` | Crea el área de trabajo, el Eventhouse, el Eventstream con su topología, la tabla `EventosNube`, la vista `Eventos` y la tabla `Historico`; carga el histórico y da a la identidad del IoT Hub el rol Colaborador. Idempotente |
 | `kql/01-rafaga-crudos-vs-incidentes.kql` | La ráfaga vista como dato: 20 eventos, 1 incidente, 19 repeticiones |
 | `kql/02-reduccion-antes-del-agente.kql` | Cuánto trabajo le ahorra la deduplicación al agente |
 | `kql/03-anomalias-por-zona.kql` | Detección de anomalías por zona con `series_decompose_anomalies` |
@@ -27,78 +27,72 @@ La ruta analítica lee de su **propio grupo de consumidores** (`fabric`). No com
 
 ## Requisitos
 
-- La solución de Azure desplegada **con la ruta analítica activada** (paso 1).
+- La solución de Azure desplegada (`infra/deploy.ps1`).
 - Una capacidad de Fabric. La **prueba gratuita de 60 días** alcanza para Eventstream, Eventhouse y KQL ([Try Microsoft Fabric for free](https://learn.microsoft.com/fabric/fundamentals/fabric-trial)). Se activa desde el administrador de cuentas de Fabric (tu foto, arriba a la derecha) → *Iniciar período de prueba*.
 - Python con el entorno del repositorio y la sesión de `az` con tu cuenta.
 
 ## Paso a paso
 
-### 1. Activar la ruta en Azure
+El orden importa: al crear el endpoint, IoT Hub prueba la conexión con Fabric, y su identidad tiene que tener permiso antes. Si no, el despliegue falla con `IH400117 ... StatusCode: 401`.
 
-```powershell
-./infra/deploy.ps1 -EnableAnalyticsRoute
-```
-
-Agrega al IoT Hub el grupo de consumidores `fabric` y la política `fabric-reader`, que solo tiene `ServiceConnect`.
-
-> **Importante:** mientras uses la ruta, despliega **siempre** con `-EnableAnalyticsRoute`. La lista de políticas del hub es completa: un despliegue sin la opción borra `fabric-reader` y el Eventstream deja de recibir eventos sin avisar.
-
-✅ Siga cuando: `az iot hub policy list --hub-name <iotHub> --query "[].keyName" -o tsv` muestre `func-reader` y `fabric-reader`.
-
-### 2. Montar Fabric y cargar el histórico
+### 1. Montar Fabric y cargar el histórico
 
 ```powershell
 python -m analytics.history
 ./analytics/fabric-setup.ps1
 ```
 
-✅ Siga cuando: el script termine con `[cargado] 196 incidentes ficticios en Historico`.
+✅ Siga cuando: el script termine con las líneas `DSA_FABRIC_*`. Cópialas a `.env`: son identificadores, no secretos, pero apuntan a tu tenant, así que nunca van al repositorio.
 
-### 3. Conectar el Eventstream al IoT Hub (a mano, fuera de cámara)
+### 2. Crear la identidad del IoT Hub
 
-La fuente IoT Hub de Eventstream se autentica con la clave de una política de acceso compartido ([Add Azure IoT Hub source to an eventstream](https://learn.microsoft.com/fabric/real-time-intelligence/event-streams/add-source-azure-iot-hub)). Este paso lo haces tú, porque maneja una clave.
+Despliega con la ruta activada pero **sin** los datos de Fabric todavía en la sesión:
 
-1. Copia la clave **directamente al portapapeles**, sin mostrarla en pantalla:
-   ```powershell
-   az iot hub policy show --hub-name <iotHub> -n fabric-reader --query primaryKey -o tsv | Set-Clipboard
-   ```
-2. En Fabric, abre el área de trabajo **DSA IA Day** → `es-dsa-eventos` → **Agregar origen** → **Azure IoT Hub**.
-3. Crea la conexión: nombre del hub, política `fabric-reader`, pega la clave. Grupo de consumidores: **`fabric`**. Formato de datos: **JSON**.
-4. Agrega el destino **Eventhouse** → `eh-dsa` → base `eh-dsa` → tabla existente **`Eventos`**, con la asignación de columnas por nombre.
-5. **Publica** el Eventstream y vacía el portapapeles (copia cualquier otro texto).
+```powershell
+Remove-Item env:DSA_FABRIC_ENDPOINT_URI -ErrorAction SilentlyContinue
+./infra/deploy.ps1 -EnableAnalyticsRoute
+```
 
-✅ Siga cuando: envíes un evento con el simulador y `Eventos | take 10` lo muestre en menos de un minuto.
+✅ Siga cuando: el resumen muestre `Identidad del hub: <objectId>`.
 
-### 4. Probar las consultas de la charla
+### 3. Dar permiso a la identidad del hub en Fabric
+
+```powershell
+./analytics/fabric-setup.ps1 -IotHubPrincipalId <objectId del paso 2>
+```
+
+✅ Siga cuando: aparezca `identidad del IoT Hub como Colaborador del área de trabajo`.
+
+### 4. Crear el endpoint y las rutas
+
+Carga `.env` en la sesión y despliega otra vez:
+
+```powershell
+./infra/deploy.ps1 -EnableAnalyticsRoute
+```
+
+> **Importante:** mientras uses la ruta, despliega **siempre** con `-EnableAnalyticsRoute` y con las variables `DSA_FABRIC_*` cargadas. Sin ellas, el despliegue quita las rutas y la Function vuelve a recibir por la ruta de respaldo.
+
+✅ Siga cuando: `az rest --method get --url "https://management.azure.com/<id del hub>?api-version=2026-05-01-preview" --query "properties.routing.routes[].name"` muestre `to-func` y `to-fabric`. `az iot hub show` no muestra los endpoints de Fabric porque usa una versión anterior de la API.
+
+### 5. Probar las consultas de la charla
 
 ```powershell
 python -m simulator --type movimiento_zona_restringida --zone Z-01 --burst 20
 ```
 
-Abre la base `eh-dsa` en Fabric y ejecuta los archivos de `kql/` en orden.
+Los eventos llegan a `EventosNube` en unos 10 a 60 segundos. Abre la base `eh-dsa` en Fabric y ejecuta los archivos de `kql/` en orden.
 
 ✅ Siga cuando: la consulta 01 muestre `eventosCrudos = 20`, `incidentes = 1`, `repeticiones = 19`, y la 03 muestre la zona Z-05.
 
-## Manejo de la clave `fabric-reader`
+## Por qué no hay ninguna clave
 
-Revisión de seguridad de T-058 (DEC-IA-02):
-
-- **Qué permite.** `ServiceConnect` **no es de solo lectura**: además de leer los eventos, permitiría enviar mensajes a los dispositivos e invocar métodos directos ([permisos de IoT Hub](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions)). No permite tocar el registro de dispositivos ni conectarse como uno. La mitigación es que los dispositivos de esta demo no atienden mensajes, métodos ni gemelos, y una prueba (`infra/tests/DsaInfra.Tests.ps1`) falla si alguien los agrega.
-- **Dónde vive.** Solo en la conexión de Fabric. **Nunca** en archivos, `.env`, notas, chats, capturas ni en el repositorio.
-- **En la charla.** La conexión se crea antes y fuera de cámara. La clave no se proyecta nunca.
-- **Rotación.** Ante cualquier sospecha de exposición:
-  ```powershell
-  az iot hub policy renew-key --hub-name <iotHub> -n fabric-reader --renew-key secondary
-  ```
-  Cambia la conexión de Fabric a la clave secundaria y después renueva la primaria con `--renew-key primary`.
+La primera versión de esta ruta (T-058) leía del IoT Hub con una política de acceso compartido. La revisión de seguridad señaló que `ServiceConnect` no es de solo lectura: también permite enviar mensajes a los dispositivos e invocar métodos ([permisos de IoT Hub](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions)). La versión final (DEC-IA-02 v2) elimina esa política: el hub empuja los mensajes a Fabric con su identidad, que solo tiene el rol Colaborador en el área de trabajo de la demo. No hay nada que se pueda filtrar en la sala ni que haya que rotar.
 
 ## Cierre después del evento
 
-1. Borra la política, o vuelve a desplegar sin `-EnableAnalyticsRoute`:
-   ```powershell
-   az iot hub policy delete --hub-name <iotHub> -n fabric-reader
-   ```
-2. En Fabric, borra la conexión del IoT Hub y el área de trabajo **DSA IA Day**.
+1. Vuelve a desplegar sin `-EnableAnalyticsRoute`: quita las rutas, el endpoint y la identidad del hub.
+2. En Fabric, borra el área de trabajo **DSA IA Day**. Con ella se va el rol de la identidad del hub.
 3. Termina la prueba de Fabric si no la vas a usar: **Catálogo de OneLake → Gobernar → Capacidades → Pruebas** ([End a Fabric trial capacity](https://learn.microsoft.com/fabric/fundamentals/fabric-trial#end-a-fabric-trial-capacity)). Si no, vence sola a los 60 días.
 4. Elimina Azure con `./infra/destroy.ps1`.
 

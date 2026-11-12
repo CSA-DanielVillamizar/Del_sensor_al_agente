@@ -118,7 +118,7 @@ Detalle, decisiones y calendario en [`05-ampliacion-ia-day.md`](05-ampliacion-ia
 | ID | Tarea | HU | CA | Responsable | Depende de |
 | --- | --- | --- | --- | --- | --- |
 | T-057 | Volver a desplegar Azure en la suscripción de la demo y registrar los dispositivos | HU-15 | CA-15.3 | arquitecto-cloud | — |
-| T-058 | Grupo de consumidores `fabric` y política `ServiceConnect` dedicada en `infra/` (Bicep) | HU-15 | CA-15.3 | arquitecto-cloud | T-057 |
+| T-058 | Ruta analítica del IoT Hub en `infra/` (Bicep): v1 con política `fabric-reader`, reemplazada por la v2 sin claves de T-059 | HU-15 | CA-15.3 | arquitecto-cloud | T-057 |
 | T-059 | Prueba de Fabric, área de trabajo, Eventstream y Eventhouse; guía en `analytics/README.md` | HU-15 | CA-15.4 | arquitecto-cloud | T-058 |
 | T-060 | Consultas KQL de la charla en `analytics/kql/` | HU-15 | CA-15.1, CA-15.2 | arquitecto-cloud | T-059 |
 | T-061 | Generador del histórico ficticio y carga en Dataverse (`analytics/dataverse/`), con pruebas | HU-16 | CA-16.1, CA-16.4 | arquitecto-m365 | — |

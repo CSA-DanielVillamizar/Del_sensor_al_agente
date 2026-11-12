@@ -182,13 +182,14 @@ Configuración ([ADR-003](adr/ADR-003-disparo-del-agente.md), [ADR-007](adr/ADR-
 
 La demo de la sesión no cumple todos los puntos de esta guía: hay diferencias de tenant, de entorno, de DLP, de licencias y de facturación. Las diferencias, sus riesgos y sus mitigaciones están **solo** en [ADR-002](adr/ADR-002-entorno-demo-en-vivo.md). `demo/preflight` muestra en amarillo el entorno que no es dedicado y remite a ese ADR. Lo que cambia en el código de la demo (la cadena de IoT Hub de §8 y la segunda entrada del disparador de §9) está descrito en esta guía como deuda, con su alternativa.
 
-## 12. Ruta analítica de IA DAY: la política `fabric-reader`
+## 12. Ruta analítica de IA DAY: sin claves
 
-Para la charla de IA DAY, Fabric Eventstream lee los eventos del IoT Hub con una segunda política de acceso compartido, `fabric-reader`, en su propio grupo de consumidores (T-058, DEC-IA-02). Está apagada por defecto y solo existe si se despliega con `-EnableAnalyticsRoute`.
+Para la charla de IA DAY, el IoT Hub reenvía los mensajes a un Eventstream de Microsoft Fabric con su **identidad administrada asignada por el sistema** (T-059, DEC-IA-02 v2). Ese endpoint solo admite Microsoft Entra ID ([IoT Hub endpoints](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)), así que no existe ninguna clave adicional.
 
-- `ServiceConnect` no es de solo lectura: también permitiría enviar mensajes a los dispositivos e invocar métodos ([permisos de IoT Hub](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions)). Los dispositivos de la demo no atienden ninguno de los dos, y una prueba lo vigila.
-- La clave vive solo en la conexión de Fabric y nunca entra al repositorio ni se proyecta.
-- Rotación y cierre después del evento: [`analytics/README.md`](../analytics/README.md#manejo-de-la-clave-fabric-reader).
+- La identidad del hub solo existe con `-EnableAnalyticsRoute` y solo tiene el rol **Colaborador** en el área de trabajo de la demo.
+- El hub conserva una sola política de acceso compartido, `func-reader`. La primera versión de la ruta agregaba `fabric-reader`; se eliminó porque `ServiceConnect` también permitiría enviar mensajes a los dispositivos e invocar métodos ([permisos de IoT Hub](https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions)).
+- La ruta `to-func` garantiza que la Function siga recibiendo todos los mensajes.
+- Montaje, orden de despliegue y cierre: [`analytics/README.md`](../analytics/README.md).
 
 ## Riesgos registrados en esta guía
 

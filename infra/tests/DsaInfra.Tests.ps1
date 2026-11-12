@@ -200,7 +200,7 @@ Describe 'Rotación de la clave de func-reader' {
     }
 }
 
-Describe 'Ruta analítica del IoT Hub (T-058, HU-15, DEC-IA-02)' {
+Describe 'Ruta analítica del IoT Hub sin claves (T-059, HU-15, DEC-IA-02 v2)' {
     BeforeAll {
         $script:Hub = Get-Content (Join-Path $script:RepoRoot 'infra/modules/iothub.bicep') -Raw
     }
@@ -210,16 +210,21 @@ Describe 'Ruta analítica del IoT Hub (T-058, HU-15, DEC-IA-02)' {
         (Get-Content (Join-Path $script:RepoRoot 'infra/main.bicep') -Raw) | Should -Match 'param enableAnalyticsRoute bool = false'
     }
 
-    It 'solo agrega políticas de ServiceConnect: nada de RegistryWrite, DeviceConnect ni iothubowner' {
+    It 'la única política de acceso compartido es func-reader, solo ServiceConnect' {
+        $keys = [regex]::Matches($script:Hub, "keyName:\s*'([^']+)'") | ForEach-Object { $_.Groups[1].Value }
+        $keys | Should -Be @('func-reader')
         $rights = [regex]::Matches($script:Hub, "rights:\s*'([^']+)'") | ForEach-Object { $_.Groups[1].Value }
-        $rights | Should -HaveCount 2
-        $rights | ForEach-Object { $_ | Should -Be 'ServiceConnect' }
-        $script:Hub | Should -Not -Match "keyName:\s*'iothubowner'"
+        $rights | Should -Be @('ServiceConnect')
     }
 
-    It 'crea el grupo de consumidores fabric solo cuando la ruta está activa' {
-        $script:Hub | Should -Match "resource fabricConsumerGroup .* = if \(enableAnalyticsRoute\)"
-        $script:Hub | Should -Match "name: 'fabric'"
+    It 'el endpoint de Fabric se autentica con la identidad del hub' {
+        $script:Hub | Should -Match "authenticationType: 'identityBased'"
+        $script:Hub | Should -Match "type: enableAnalyticsRoute \? 'SystemAssigned' : 'None'"
+    }
+
+    It 'la ruta to-func mantiene a la Function recibiendo todos los mensajes' {
+        $script:Hub | Should -Match "name: 'to-func'"
+        $script:Hub | Should -Match "(?s)name: 'to-func'.*?endpointNames: \[\s*'events'"
     }
 
     It 'deploy.ps1 pasa el valor en minúsculas, como espera la CLI de Azure' {

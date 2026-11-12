@@ -1,11 +1,13 @@
 // IoT Hub de la demo (CA-04.1, CA-04.4, ADR-005 §3).
-// Política de acceso compartido: func-reader, solo ServiceConnect (nunca iothubowner).
-// Con enableAnalyticsRoute (HU-15, DEC-IA-02) se agrega fabric-reader, también solo ServiceConnect,
-// y el grupo de consumidores fabric, para que Fabric Eventstream lea sin tocar el de la Function.
-// ServiceConnect no es de solo lectura: además de leer eventos permitiría enviar mensajes a los dispositivos
-// e invocar métodos directos (https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions).
-// Mitigación (T-058): simulator/ y device/ no implementan manejadores de mensajes de la nube, métodos ni gemelos;
-// infra/tests/DsaInfra.Tests.ps1 falla si alguien los agrega.
+// Única política de acceso compartido: func-reader, solo ServiceConnect (nunca iothubowner).
+// Ruta analítica de IA DAY (HU-15, DEC-IA-02 v2): con enableAnalyticsRoute y los datos del Eventstream,
+// el hub reenvía los mensajes a Microsoft Fabric con su identidad administrada asignada por el sistema.
+// Ese endpoint solo admite Microsoft Entra ID, así que no hay ninguna clave que manejar
+// (https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing).
+// Al existir rutas propias, la ruta to-func lleva explícitamente todos los mensajes al endpoint integrado
+// que lee la Function; así la Function sigue recibiendo todo.
+// API 2026-05-01-preview: la primera con endpoints eventStreams que el Bicep local valida; la estable
+// 2026-11-01 también los tiene y se puede usar al actualizar Bicep (az bicep upgrade).
 // Este módulo no tiene ninguna salida con claves.
 
 @description('Región de los recursos.')
@@ -24,8 +26,17 @@ param sku string = 'F1'
 @description('Object ID del operador: recibe IoT Hub Registry Contributor para crear los dispositivos con --auth-type login. Vacío = no se asigna.')
 param operatorPrincipalId string = ''
 
-@description('Ruta analítica de IA DAY (HU-15): grupo de consumidores fabric y política fabric-reader, solo ServiceConnect (lee eventos; también permitiría enviar mensajes a los dispositivos e invocar métodos). Apagada por defecto.')
+@description('Ruta analítica de IA DAY (HU-15): identidad administrada del hub y ruta hacia Fabric Eventstream, sin claves. Apagada por defecto.')
 param enableAnalyticsRoute bool = false
+
+@description('Datos del punto de conexión personalizado del Eventstream (analytics/fabric-setup.ps1). Sin secretos.')
+param fabricEventstream object = {
+  endpointUri: ''
+  entityPath: ''
+  workspaceId: ''
+  eventStreamId: ''
+  sourceId: ''
+}
 
 @description('Etiquetas comunes.')
 param tags object = {}
@@ -33,13 +44,20 @@ param tags object = {}
 // IoT Hub Registry Contributor: https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/internet-of-things#iot-hub-registry-contributor
 var iotHubRegistryContributorRoleId = '4ea46cd5-c1b2-4a8e-910b-273211f9ce47'
 
-resource hub 'Microsoft.Devices/IotHubs@2023-06-30' = {
+var fabricRouteOn = enableAnalyticsRoute && !empty(fabricEventstream.endpointUri)
+var fabricEndpointName = 'fabric-eventstream'
+
+resource hub 'Microsoft.Devices/IotHubs@2026-05-01-preview' = {
   name: name
   location: location
   tags: tags
   sku: {
     name: sku
     capacity: 1
+  }
+  // La identidad del hub solo existe con la ruta analítica: es la que se autentica ante Fabric.
+  identity: {
+    type: enableAnalyticsRoute ? 'SystemAssigned' : 'None'
   }
   properties: {
     eventHubEndpoints: {
@@ -49,25 +67,56 @@ resource hub 'Microsoft.Devices/IotHubs@2023-06-30' = {
         retentionTimeInDays: 1
       }
     }
-    // Lista completa de políticas del hub: func-reader y, solo con la ruta analítica, fabric-reader.
-    // Ninguna tiene RegistryWrite ni DeviceConnect. La administración del registro se hace con
-    // Entra ID (rol del operador), no con iothubowner.
-    authorizationPolicies: concat([
+    // Lista completa de políticas del hub: solo func-reader. La administración del registro
+    // se hace con Entra ID (rol del operador), no con iothubowner.
+    authorizationPolicies: [
       {
         keyName: 'func-reader'
         rights: 'ServiceConnect'
       }
-    ], enableAnalyticsRoute ? [
-      {
-        keyName: 'fabric-reader'
-        rights: 'ServiceConnect'
-      }
-    ] : [])
+    ]
     // Los dispositivos se autentican con su clave simétrica propia (CA-01.4), así que la autenticación local sigue activa.
     disableLocalAuth: false
-    // Sin rutas propias, la ruta de respaldo lleva los mensajes del dispositivo al endpoint integrado
-    // que lee la Function. Si se omite, la plantilla la deja desactivada y los mensajes no llegan.
     routing: {
+      endpoints: fabricRouteOn
+        ? {
+            eventStreams: [
+              {
+                name: fabricEndpointName
+                authenticationType: 'identityBased'
+                endpointUri: fabricEventstream.endpointUri
+                entityPath: fabricEventstream.entityPath
+                workspaceId: fabricEventstream.workspaceId
+                eventStreamId: fabricEventstream.eventStreamId
+                sourceId: fabricEventstream.sourceId
+              }
+            ]
+          }
+        : {}
+      routes: fabricRouteOn
+        ? [
+            {
+              name: 'to-func'
+              source: 'DeviceMessages'
+              condition: 'true'
+              endpointNames: [
+                'events'
+              ]
+              isEnabled: true
+            }
+            {
+              name: 'to-fabric'
+              source: 'DeviceMessages'
+              condition: 'true'
+              endpointNames: [
+                fabricEndpointName
+              ]
+              isEnabled: true
+            }
+          ]
+        : []
+      // Sin rutas propias, la ruta de respaldo lleva los mensajes del dispositivo al endpoint integrado
+      // que lee la Function. Si se omite, la plantilla la deja desactivada y los mensajes no llegan.
       fallbackRoute: {
         name: '$fallback'
         source: 'DeviceMessages'
@@ -82,19 +131,10 @@ resource hub 'Microsoft.Devices/IotHubs@2023-06-30' = {
 }
 
 // Grupo de consumidores dedicado de la Function (ADR-004 §1): function/function_app.py usa consumer_group="func".
-resource funcConsumerGroup 'Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups@2023-06-30' = {
+resource funcConsumerGroup 'Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups@2026-05-01-preview' = {
   name: '${hub.name}/events/func'
   properties: {
     name: 'func'
-  }
-}
-
-// Grupo de consumidores de la ruta analítica (HU-15, CA-15.3): Fabric Eventstream lee aquí y no
-// compite con la Function por los mensajes.
-resource fabricConsumerGroup 'Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups@2023-06-30' = if (enableAnalyticsRoute) {
-  name: '${hub.name}/events/fabric'
-  properties: {
-    name: 'fabric'
   }
 }
 
@@ -111,3 +151,5 @@ resource operatorRegistry 'Microsoft.Authorization/roleAssignments@2022-04-01' =
 output name string = hub.name
 output id string = hub.id
 output hostName string = hub.properties.hostName
+@description('Object ID de la identidad del hub (vacío sin ruta analítica): recibe Colaborador en el área de trabajo de Fabric.')
+output principalId string = enableAnalyticsRoute ? hub.identity.principalId : ''

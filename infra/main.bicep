@@ -60,8 +60,24 @@ param graphListId string = ''
 @description('URL del disparador HTTP de DisparoAgente (OAuth de Entra ID, sin SAS). Vacía hasta T-035.')
 param agentFlowUrl string = ''
 
-@description('Ruta analítica de IA DAY (HU-15): grupo de consumidores y política fabric-reader, solo ServiceConnect (lee eventos; también permitiría enviar mensajes a los dispositivos e invocar métodos), para Fabric Eventstream.')
+@description('Ruta analítica de IA DAY (HU-15): identidad administrada del IoT Hub y ruta hacia Fabric Eventstream, sin claves.')
 param enableAnalyticsRoute bool = false
+
+// Punto de conexión personalizado del Eventstream (analytics/fabric-setup.ps1). Identificadores, no secretos.
+@description('URI sb:// del punto de conexión del Eventstream.')
+param fabricEndpointUri string = ''
+
+@description('Nombre del event hub del punto de conexión del Eventstream.')
+param fabricEntityPath string = ''
+
+@description('ID del área de trabajo de Fabric.')
+param fabricWorkspaceId string = ''
+
+@description('ID del Eventstream.')
+param fabricEventstreamId string = ''
+
+@description('ID de la fuente de punto de conexión personalizado del Eventstream.')
+param fabricSourceId string = ''
 
 @description('Monto del presupuesto mensual en USD (Art. 9).')
 param budgetAmount int = 20
@@ -131,6 +147,13 @@ module iotHub 'modules/iothub.bicep' = {
     sku: iotHubSku
     operatorPrincipalId: operatorPrincipalId
     enableAnalyticsRoute: enableAnalyticsRoute
+    fabricEventstream: {
+      endpointUri: fabricEndpointUri
+      entityPath: fabricEntityPath
+      workspaceId: fabricWorkspaceId
+      eventStreamId: fabricEventstreamId
+      sourceId: fabricSourceId
+    }
     tags: tags
   }
 }
@@ -189,3 +212,4 @@ output identityName string = identity.outputs.name
 output identityClientId string = identity.outputs.clientId
 output identityPrincipalId string = identity.outputs.principalId
 output budgetName string = budget.outputs.name
+output iotHubPrincipalId string = iotHub.outputs.principalId

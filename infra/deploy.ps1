@@ -87,6 +87,15 @@ $parameters = [ordered]@{
     graphListId         = $GraphListId
     agentFlowUrl        = $AgentFlowUrl
 }
+# Ruta analítica sin claves (HU-15, DEC-IA-02 v2): datos del punto de conexión del Eventstream que imprime
+# analytics/fabric-setup.ps1. Son identificadores, no secretos, pero apuntan al tenant: viven en .env.
+if ($EnableAnalyticsRoute -and $env:DSA_FABRIC_ENDPOINT_URI) {
+    $parameters['fabricEndpointUri'] = $env:DSA_FABRIC_ENDPOINT_URI
+    $parameters['fabricEntityPath'] = $env:DSA_FABRIC_ENTITY_PATH
+    $parameters['fabricWorkspaceId'] = $env:DSA_FABRIC_WORKSPACE_ID
+    $parameters['fabricEventstreamId'] = $env:DSA_FABRIC_EVENTSTREAM_ID
+    $parameters['fabricSourceId'] = $env:DSA_FABRIC_SOURCE_ID
+}
 # Un presupuesto existente no admite cambiar la fecha de inicio: se reutiliza la que ya tiene
 # para que el despliegue se pueda repetir después de borrar el grupo (el presupuesto sobrevive).
 $budgetStart = & az consumption budget show --budget-name budget-dsa-demo --query timePeriod.startDate --output tsv 2>$null
@@ -130,6 +139,7 @@ Write-Host "Function App:        $($out.functionAppName.value)"
 Write-Host "IoT Hub:             $($out.iotHubName.value)"
 Write-Host "Key Vault:           $($out.keyVaultName.value)"
 Write-Host "Identidad:           $($out.identityName.value)"
+if ($out.iotHubPrincipalId.value) { Write-Host "Identidad del hub:   $($out.iotHubPrincipalId.value)   -> Colaborador en el área de trabajo de Fabric" }
 Write-Host "  client ID (appId): $clientId   -> comando 2 de Sites.Selected"
 Write-Host "  object ID:         $objectId   -> comando 1 y disparador de DisparoAgente"
 Write-Host ''

@@ -45,7 +45,7 @@ Todo lo existente se mantiene. La ampliación **no modifica** la Function, los e
 | ID | Decisión | Opciones | Recomendación |
 | --- | --- | --- | --- |
 | DEC-IA-01 | Dónde corre la ruta analítica | **A.** Fabric Real-Time Intelligence (Eventstream y Eventhouse) con la prueba gratuita de 60 días. **B.** KQL sobre Application Insights, que ya recibe `EventRejected`, `IncidentCreated` y `RepetitionCounted` | **A**, porque le habla directo a un público de datos. **B** queda como plan B: ya existe y no cuesta nada más |
-| DEC-IA-02 | Cómo se autentica Eventstream ante IoT Hub (solo con A) | La fuente IoT Hub de Eventstream usa una política de acceso compartido ([Learn](https://learn.microsoft.com/fabric/real-time-intelligence/event-streams/add-source-azure-iot-hub)) | Política dedicada solo con `ServiceConnect`. La clave vive en la conexión de Fabric, nunca en el repositorio. Revisión obligatoria de `revisor-seguridad` |
+| DEC-IA-02 | Cómo se autentica la ruta hacia Fabric | **v2, aprobada el 2026-11-12:** el IoT Hub enruta hacia un Eventstream con su identidad administrada; el endpoint solo admite Microsoft Entra ID ([Learn](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)). Reemplaza a la v1 (política `fabric-reader` con clave), que la revisión de seguridad aprobó con condiciones porque `ServiceConnect` no es de solo lectura | Sin claves que manejar. La función de enrutar a Fabric está en versión preliminar: la cubre el video de respaldo |
 | DEC-IA-03 | De dónde sale el histórico de Dataverse | **A.** Script que genera 30 días de incidentes ficticios y los carga por la API web. **B.** Flujo que copia desde la lista de SharePoint | **A**: determinista, reproducible y sin consumir ejecuciones de flujo |
 | DEC-IA-04 | Licencia de Copilot Studio para la demo | Prueba individual vigente de la cuenta del speaker y de `agente-dsa`: crea y prueba, pero no publica ([Learn](https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-subscriptions#sign-up-for-a-copilot-studio-trial)) | Usarla. Si el panel de prueba no responde con orquestación generativa, la parte 3 pasa a video |
 
@@ -65,7 +65,7 @@ Después del evento, Azure se elimina con `infra/destroy.ps1`, la prueba de Fabr
 | ID | Tarea | HU / CA | Responsable | Depende de |
 | --- | --- | --- | --- | --- |
 | T-057 | Volver a desplegar Azure en la suscripción de la demo y registrar los dispositivos | HU-15 / CA-15.3 | arquitecto-cloud | Aprobación |
-| T-058 | Grupo de consumidores `fabric` y política `ServiceConnect` dedicada en `infra/` (Bicep) | HU-15 / CA-15.3 | arquitecto-cloud, revisor-seguridad | T-057, DEC-IA-02 |
+| T-058 | Ruta analítica del IoT Hub en `infra/` (Bicep): v1 con política `fabric-reader`, reemplazada por la v2 sin claves de T-059 | HU-15 / CA-15.3 | arquitecto-cloud, revisor-seguridad | T-057, DEC-IA-02 |
 | T-059 | Activar la prueba de Fabric, crear el área de trabajo, Eventstream y Eventhouse; guía en `analytics/README.md` | HU-15 / CA-15.4 | arquitecto-cloud | T-058 |
 | T-060 | Consultas KQL de la charla en `analytics/kql/`: ráfaga, crudos frente a incidentes, anomalías | HU-15 / CA-15.1, CA-15.2 | arquitecto-cloud | T-059 |
 | T-061 | Generador del histórico ficticio y carga en Dataverse (`analytics/dataverse/`), con pruebas | HU-16 / CA-16.1, CA-16.4 | arquitecto-m365 | Aprobación |
@@ -89,7 +89,7 @@ Después del evento, Azure se elimina con `infra/destroy.ps1`, la prueba de Fabr
 ## 7. Comprobación contra la constitución
 
 - **Artículo 1:** el agente nuevo solo consulta y responde. No ejecuta acciones.
-- **Artículo 4:** la clave de la política de IoT Hub no entra al repositorio; la Function no cambia.
+- **Artículo 4:** la ruta hacia Fabric no usa claves (identidad administrada, DEC-IA-02 v2); la Function no cambia.
 - **Artículo 5:** el histórico es ficticio y se genera con un script.
 - **Artículo 7:** cada parte en vivo tiene video de respaldo y comando de reinicio.
 - **Artículo 8:** cada capacidad lleva su enlace a Learn. Lo no verificado (que el panel de prueba responda con la prueba individual) está marcado como riesgo en DEC-IA-04.
