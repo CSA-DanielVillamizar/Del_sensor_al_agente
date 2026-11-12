@@ -199,3 +199,46 @@ Describe 'Rotación de la clave de func-reader' {
         $script:calls[3] | Should -Match 'renew-key primary'
     }
 }
+
+Describe 'Ruta analítica del IoT Hub (T-058, HU-15, DEC-IA-02)' {
+    BeforeAll {
+        $script:Hub = Get-Content (Join-Path $script:RepoRoot 'infra/modules/iothub.bicep') -Raw
+    }
+
+    It 'está apagada por defecto en el módulo y en la plantilla principal' {
+        $script:Hub | Should -Match 'param enableAnalyticsRoute bool = false'
+        (Get-Content (Join-Path $script:RepoRoot 'infra/main.bicep') -Raw) | Should -Match 'param enableAnalyticsRoute bool = false'
+    }
+
+    It 'solo agrega políticas de ServiceConnect: nada de RegistryWrite, DeviceConnect ni iothubowner' {
+        $rights = [regex]::Matches($script:Hub, "rights:\s*'([^']+)'") | ForEach-Object { $_.Groups[1].Value }
+        $rights | Should -HaveCount 2
+        $rights | ForEach-Object { $_ | Should -Be 'ServiceConnect' }
+        $script:Hub | Should -Not -Match "keyName:\s*'iothubowner'"
+    }
+
+    It 'crea el grupo de consumidores fabric solo cuando la ruta está activa' {
+        $script:Hub | Should -Match "resource fabricConsumerGroup .* = if \(enableAnalyticsRoute\)"
+        $script:Hub | Should -Match "name: 'fabric'"
+    }
+
+    It 'deploy.ps1 pasa el valor en minúsculas, como espera la CLI de Azure' {
+        (Get-Content (Join-Path $script:RepoRoot 'infra/deploy.ps1') -Raw) | Should -Match 'enableAnalyticsRoute = \$EnableAnalyticsRoute\.IsPresent\.ToString\(\)\.ToLowerInvariant\(\)'
+    }
+}
+
+Describe 'Dispositivos sin canal de la nube al dispositivo (T-058, mitigación de ServiceConnect)' {
+    It 'simulator/ y device/ no implementan mensajes de la nube, métodos directos ni gemelos' {
+        # ServiceConnect permitiría enviar mensajes e invocar métodos en los dispositivos
+        # (https://learn.microsoft.com/azure/iot-hub/authenticate-authorize-sas#iot-hub-permissions).
+        # Mientras ningún dispositivo los atienda, una clave filtrada no puede provocar una acción (art. 1).
+        $pattern = 'on_message_received|receive_message|on_method_request_received|receive_method_request|' +
+            'MethodResponse|on_twin_desired_properties_patch_received|get_twin|patch_twin_reported_properties'
+        $files = foreach ($dir in 'simulator', 'device') {
+            $path = Join-Path $script:RepoRoot $dir
+            if (Test-Path $path) { Get-ChildItem $path -Recurse -Include *.py -File }
+        }
+        $hits = @($files | Select-String -Pattern $pattern)
+        $hits | ForEach-Object { "$($_.Path):$($_.LineNumber)" } | Should -BeNullOrEmpty
+    }
+}

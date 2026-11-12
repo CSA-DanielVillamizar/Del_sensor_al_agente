@@ -94,10 +94,17 @@ def test_iothub_solo_politica_func_reader_con_service_connect(template: dict[str
     hubs = _of_type(template, "Microsoft.Devices/IotHubs")
     assert len(hubs) == 1
     policies = hubs[0]["properties"]["authorizationPolicies"]
-    assert [p["keyName"] for p in policies] == ["func-reader"]
-    rights = {r.strip() for r in policies[0]["rights"].split(",")}
-    assert rights == {"ServiceConnect"}
-    assert all("primaryKey" not in p and "secondaryKey" not in p for p in policies)
+    # T-058: la lista es una expresión que agrega fabric-reader solo con enableAnalyticsRoute.
+    assert isinstance(policies, str) and policies.startswith("[concat(")
+    assert "'func-reader'" in policies
+    assert "if(parameters('enableAnalyticsRoute')" in policies
+    assert "'fabric-reader'" in policies
+    assert policies.count("'rights', 'ServiceConnect'") == 2
+    forbidden_terms = (
+        "RegistryWrite", "RegistryRead", "DeviceConnect", "iothubowner", "primaryKey", "secondaryKey",
+    )
+    for forbidden in forbidden_terms:
+        assert forbidden not in policies
 
 
 def test_iothub_sku_por_defecto_f1(template: dict[str, Any]) -> None:

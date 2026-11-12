@@ -60,6 +60,9 @@ param graphListId string = ''
 @description('URL del disparador HTTP de DisparoAgente (OAuth de Entra ID, sin SAS). Vacía hasta T-035.')
 param agentFlowUrl string = ''
 
+@description('Ruta analítica de IA DAY (HU-15): grupo de consumidores y política fabric-reader, solo ServiceConnect (lee eventos; también permitiría enviar mensajes a los dispositivos e invocar métodos), para Fabric Eventstream.')
+param enableAnalyticsRoute bool = false
+
 @description('Monto del presupuesto mensual en USD (Art. 9).')
 param budgetAmount int = 20
 
@@ -127,6 +130,7 @@ module iotHub 'modules/iothub.bicep' = {
     name: 'iot-${namePrefix}-${token}'
     sku: iotHubSku
     operatorPrincipalId: operatorPrincipalId
+    enableAnalyticsRoute: enableAnalyticsRoute
     tags: tags
   }
 }

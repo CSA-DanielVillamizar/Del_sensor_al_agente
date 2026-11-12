@@ -17,6 +17,7 @@ No escribe ningún identificador ni secreto en archivos versionados.
 ./infra/deploy.ps1 -WhatIf
 ./infra/deploy.ps1 -ResourceGroup rg-dsa-demo -Location eastus2
 ./infra/deploy.ps1 -IotHubSku B1 -AlwaysReadyCount 1
+./infra/deploy.ps1 -EnableAnalyticsRoute   # ruta analítica de IA DAY (HU-15)
 #>
 [CmdletBinding()]
 param(
@@ -29,6 +30,7 @@ param(
     [string] $GraphListId = '',
     [string] $AgentFlowUrl = '',
     [switch] $SkipOperatorRoles,
+    [switch] $EnableAnalyticsRoute,
     [switch] $SkipPublish,
     [switch] $WhatIf
 )
@@ -78,6 +80,7 @@ if (-not $SkipOperatorRoles) {
 $parameters = [ordered]@{
     location            = $Location
     iotHubSku           = $IotHubSku
+    enableAnalyticsRoute = $EnableAnalyticsRoute.IsPresent.ToString().ToLowerInvariant()
     alwaysReadyCount    = $AlwaysReadyCount
     operatorPrincipalId = $operatorId
     graphSiteId         = $GraphSiteId
