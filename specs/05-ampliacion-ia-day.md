@@ -69,10 +69,10 @@ Después del evento, Azure se elimina con `infra/destroy.ps1`, la prueba de Fabr
 | T-059 | Activar la prueba de Fabric, crear el área de trabajo, Eventstream y Eventhouse; guía en `analytics/README.md` | HU-15 / CA-15.4 | arquitecto-cloud | T-058 |
 | T-060 | Consultas KQL de la charla en `analytics/kql/`: ráfaga, crudos frente a incidentes, anomalías | HU-15 / CA-15.1, CA-15.2 | arquitecto-cloud | T-059 |
 | T-061 | Generador del histórico ficticio y carga en Dataverse (`analytics/dataverse/`), con pruebas | HU-16 / CA-16.1, CA-16.4 | arquitecto-m365 | Aprobación |
-| T-062 | Agente "Analista de Incidentes" en el entorno de desarrollo, con la tabla como conocimiento; script para ensuciar y restaurar las descripciones | HU-16 / CA-16.2, CA-16.3 | arquitecto-m365 | T-061 |
-| T-063 | Guion, presentación y runbook de la charla en `presentacion/ia-day/` (no versionado) | HU-17 / CA-17.1, CA-17.2 | instructor-tecnico | T-060, T-062 |
+| T-062 | ~~Agente "Analista de Incidentes" sobre Dataverse~~ **Fuera de alcance desde el 2026-11-23 (§9)** | HU-16 / CA-16.2, CA-16.3 | arquitecto-m365 | T-061 |
+| T-063 | Guion, presentación y runbook de la charla en `presentacion/ia-day/` (no versionado) | HU-17 / CA-17.1, CA-17.2 | instructor-tecnico | T-060 |
 | T-064 | Ruta "solo datos" para el asistente en `docs/ruta-datos.md` | HU-17 / CA-17.4 | instructor-tecnico | — |
-| T-065 | Grabar los videos de respaldo de las partes 2 y 3 | HU-17 / CA-17.3 | Daniel | T-060, T-062 |
+| T-065 | Grabar los videos de respaldo de las partes en vivo de Fabric | HU-17 / CA-17.3 | Daniel | T-060 |
 | T-066 | Revisión de seguridad de la ampliación y ensayo cronometrado completo | HU-15 a HU-17 | revisor-seguridad, qa-verificacion | T-063, T-065 |
 
 ## 6. Calendario
@@ -103,3 +103,14 @@ Después del evento, Azure se elimina con `infra/destroy.ps1`, la prueba de Fabr
 | El panel de prueba no responde con la prueba individual | La parte 3 pasa a video |
 | Chrome o la CLI quedan en la cuenta de otro tenant | Verificar el tenant antes de cada cambio |
 | La red del evento falla | La demo local no depende de la red; las demás partes tienen video |
+
+## 9. Cambio del 2026-11-23: el agente sobre Dataverse sale de la charla
+
+**Decisión de Daniel (2026-11-23):** T-062 sale del alcance de la charla. A 4 días del evento, depende de algo no verificado (que el panel de prueba de Copilot Studio responda con la prueba individual, DEC-IA-04) y no cabe con el guion, la presentación y los ensayos pendientes.
+
+| Afecta | Cómo queda |
+| --- | --- |
+| HU-16 | CA-16.1 y CA-16.4 se cumplen con el histórico en la tabla `Historico` de Fabric (T-061), no en Dataverse. CA-16.2 y CA-16.3 quedan **fuera de alcance** |
+| T-062 | Fuera de alcance. El entorno de desarrollo "DSA IA Day - Desarrollo" queda sin usar y se suspende solo el 2026-12-15 |
+| T-063 y T-065 | Ya no dependen de T-062. La parte del agente se muestra con los videos 2 y 3 de `docs/videos/` |
+| Mensaje de la charla | "La calidad del metadato también es calidad del dato" se cuenta con la anomalía de Z-05 y el pico de Z-03 en KQL, en lugar de las descripciones de columnas de Dataverse |

@@ -122,10 +122,10 @@ Detalle, decisiones y calendario en [`05-ampliacion-ia-day.md`](05-ampliacion-ia
 | T-059 | Prueba de Fabric, área de trabajo, Eventstream y Eventhouse; guía en `analytics/README.md` | HU-15 | CA-15.4 | arquitecto-cloud | T-058 |
 | T-060 | Consultas KQL de la charla en `analytics/kql/` | HU-15 | CA-15.1, CA-15.2 | arquitecto-cloud | T-059 |
 | T-061 | Generador del histórico ficticio y carga en Dataverse (`analytics/dataverse/`), con pruebas | HU-16 | CA-16.1, CA-16.4 | arquitecto-m365 | — |
-| T-062 | Agente "Analista de Incidentes" con la tabla como conocimiento; script para ensuciar y restaurar descripciones | HU-16 | CA-16.2, CA-16.3 | arquitecto-m365 | T-061 |
-| T-063 | Guion, presentación y runbook de la charla en `presentacion/ia-day/` (no versionado) | HU-17 | CA-17.1, CA-17.2 | instructor-tecnico | T-060, T-062 |
+| T-062 | ~~Agente "Analista de Incidentes" sobre Dataverse~~ Fuera de alcance desde el 2026-11-23 (`05-ampliacion-ia-day.md` §9) | HU-16 | CA-16.2, CA-16.3 | arquitecto-m365 | T-061 |
+| T-063 | Guion, presentación y runbook de la charla en `presentacion/ia-day/` (no versionado) | HU-17 | CA-17.1, CA-17.2 | instructor-tecnico | T-060 |
 | T-064 | Ruta "solo datos" para el asistente en `docs/ruta-datos.md` | HU-17 | CA-17.4 | instructor-tecnico | — |
-| T-065 | Videos de respaldo de las partes 2 y 3 | HU-17 | CA-17.3 | Daniel | T-060, T-062 |
+| T-065 | Videos de respaldo de las partes en vivo de Fabric | HU-17 | CA-17.3 | Daniel | T-060 |
 | T-066 | Revisión de seguridad de la ampliación y ensayo cronometrado completo | HU-15 a HU-17 | Todos | revisor-seguridad, qa-verificacion | T-063, T-065 |
 
 ## Orden recomendado
