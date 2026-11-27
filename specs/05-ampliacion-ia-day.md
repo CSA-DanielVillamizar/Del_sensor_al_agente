@@ -21,7 +21,7 @@ Todo lo existente se mantiene. La ampliación **no modifica** la Function, los e
 
 - **CA-15.1** Una consulta KQL muestra, para la ráfaga de 20 eventos, 20 eventos recibidos y 1 incidente creado con 19 repeticiones.
 - **CA-15.2** Una consulta KQL detecta una zona con comportamiento anómalo en un histórico ficticio, con `series_decompose_anomalies()`.
-- **CA-15.3** La ruta analítica lee de su propio grupo de consumidores de IoT Hub y no cambia el código de la Function.
+- **CA-15.3** La ruta analítica recibe los eventos por su propia ruta de IoT Hub hacia Fabric (DEC-IA-02 v2), y no cambia el código de la Function.
 - **CA-15.4** La ruta se monta con un script o una guía paso a paso y se elimina con un comando o un paso documentado.
 
 ### HU-16. Agente sobre datos estructurados
@@ -45,7 +45,7 @@ Todo lo existente se mantiene. La ampliación **no modifica** la Function, los e
 | ID | Decisión | Opciones | Recomendación |
 | --- | --- | --- | --- |
 | DEC-IA-01 | Dónde corre la ruta analítica | **A.** Fabric Real-Time Intelligence (Eventstream y Eventhouse) con la prueba gratuita de 60 días. **B.** KQL sobre Application Insights, que ya recibe `EventRejected`, `IncidentCreated` y `RepetitionCounted` | **A**, porque le habla directo a un público de datos. **B** queda como plan B: ya existe y no cuesta nada más |
-| DEC-IA-02 | Cómo se autentica la ruta hacia Fabric | **v2, aprobada el 2026-11-12:** el IoT Hub enruta hacia un Eventstream con su identidad administrada; el endpoint solo admite Microsoft Entra ID ([Learn](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)). Reemplaza a la v1 (política `fabric-reader` con clave), que la revisión de seguridad aprobó con condiciones porque `ServiceConnect` no es de solo lectura | Sin claves que manejar. La función de enrutar a Fabric está en versión preliminar: la cubre el video de respaldo |
+| DEC-IA-02 | Cómo se autentica la ruta hacia Fabric | **v2, aprobada el 2026-11-12:** el IoT Hub enruta hacia un Eventstream con su identidad administrada; el endpoint solo admite Microsoft Entra ID ([Learn](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)). Reemplaza a la v1 (política `fabric-reader` con clave), que la revisión de seguridad aprobó con condiciones porque `ServiceConnect` no es de solo lectura | Sin claves que manejar. El punto de conexión de Fabric para el enrutamiento ya está disponible de forma general ([Learn](https://learn.microsoft.com/azure/iot-hub/iot-hub-devguide-endpoints#custom-endpoints-for-message-routing)); el video de respaldo cubre cualquier falla en vivo |
 | DEC-IA-03 | De dónde sale el histórico de Dataverse | **A.** Script que genera 30 días de incidentes ficticios y los carga por la API web. **B.** Flujo que copia desde la lista de SharePoint | **A**: determinista, reproducible y sin consumir ejecuciones de flujo |
 | DEC-IA-04 | Licencia de Copilot Studio para la demo | Prueba individual vigente de la cuenta del speaker y de `agente-dsa`: crea y prueba, pero no publica ([Learn](https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-subscriptions#sign-up-for-a-copilot-studio-trial)) | Usarla. Si el panel de prueba no responde con orquestación generativa, la parte 3 pasa a video |
 
